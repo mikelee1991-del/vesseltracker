@@ -414,9 +414,20 @@ def main():
     (DATA_PROCESSED / "join_debug.json").write_text(json.dumps(debug, indent=2))
     # Keep the human MMSI verification tool in sync with the latest join.
     try:
-        from export_unmatched_boats import main as export_unmatched_main  # noqa: E402
+        from export_unmatched_boats import (  # noqa: E402
+            build_payload,
+            load_search_hints,
+            load_trips as load_trips_unmatched,
+        )
 
-        export_unmatched_main()
+        unmatched_payload = build_payload(
+            load_trips_unmatched(args.trips),
+            registry,
+            load_search_hints(DATA_PROCESSED / "mmsi_name_search.json"),
+        )
+        (args.out_dir / "unmatched_boats.json").write_text(
+            json.dumps(unmatched_payload, indent=2)
+        )
     except Exception as exc:  # pragma: no cover - best-effort side export
         print(f"Warning: unmatched_boats export failed: {exc}")
     print(json.dumps(meta["stats"], indent=2))
