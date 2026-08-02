@@ -59,13 +59,19 @@ These may not broadcast, may use a different AIS name, or may be outside the SoC
 
 ## Stop-detection tuning
 
-Current defaults in `scripts/config.py`:
+Defaults in `scripts/config.py` (updated 2026-08-02 after Aug 2025 AIS review):
 
 - `STOP_MAX_SOG_KN = 0.8`
-- `STOP_MIN_DURATION_MIN = 20`
-- `STOP_GAP_MIN = 30`
+- `STOP_MIN_DURATION_MIN = 10` (was 20)
+- `STOP_GAP_MIN = 8` (was 30)
 
-Suggested changes:
+Evidence from allowlisted fleet AIS (Aug 2025):
+
+- Median atomic offshore low-SOG dwell ~3 min; many real dwells in the 5–20 min band
+- Likely spot-to-spot hops: median ~13 min transit, ~1.3 km
+- Old `gap=30` glued nearby spots; old `min=20` dropped e.g. Native Sun’s ~15 min stops on 2025-08-15
+
+Further suggested changes:
 
 | Parameter | New value | Why |
 |-----------|----------:|-----|

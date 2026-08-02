@@ -429,9 +429,9 @@
   "stats": {
     "n_days_with_reports": 352,
     "n_trips": 3615,
-    "n_offshore_stops": 416,
+    "n_offshore_stops": 1043,
     "n_registry_vessels": 17,
-    "n_trips_with_stops_in_ais_window": 153,
+    "n_trips_with_stops_in_ais_window": 190,
     "n_trips_unmatched_to_mmsi": 1061
   },
   "default_date": "2025-08-31"

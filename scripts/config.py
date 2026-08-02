@@ -40,9 +40,11 @@ HOME_DOCKS = [
 ]
 
 # Stop detection (pilot defaults; tune via FEEDBACK.md).
+# Aug 2025 AIS showed many real offshore dwells ~10 min and spot-to-spot
+# hops ~5–15 min, so min dwell 10 / merge gap 8 (not 20 / 30).
 STOP_MAX_SOG_KN = 0.8
-STOP_MIN_DURATION_MIN = 20
-STOP_GAP_MIN = 30  # merge gap between low-speed segments
+STOP_MIN_DURATION_MIN = 10
+STOP_GAP_MIN = 8  # merge only short AIS gaps; do not glue spot-to-spot runs
 STOP_CLUSTER_RADIUS_M = 250
 
 # Marine Cadastre 2025 daily AIS (1-minute sample of NAIS broadcasts).
