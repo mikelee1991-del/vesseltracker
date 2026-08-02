@@ -9,7 +9,7 @@ Live page (GitHub Pages): `docs/index.html` → enable Pages from `/docs`.
 **Live preview (no Pages setup required):**
 https://cdn.jsdelivr.net/gh/mikelee1991-del/vesseltracker@main/docs/
 
-**GitHub Pages URL (after one-time enable):**
+**GitHub Pages (live):**
 https://mikelee1991-del.github.io/vesseltracker/
 
 Cloud-agent GitHub tokens can **push to `main`** but cannot enable the Pages site
