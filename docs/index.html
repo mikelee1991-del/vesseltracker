@@ -98,8 +98,35 @@
     .legend {
       position: absolute; z-index: 500; right: 12px; bottom: 18px;
       background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
-      padding: 0.55rem 0.7rem; font-size: 0.76rem; max-width: 250px;
+      padding: 0.65rem 0.75rem; font-size: 0.76rem; max-width: 260px;
       box-shadow: 0 8px 24px rgba(11,40,48,0.12);
+      line-height: 1.35;
+    }
+    .legend strong { display: block; margin-bottom: 0.2rem; color: var(--sea); }
+    .legend .sub { color: rgba(19,32,43,0.7); margin-bottom: 0.45rem; }
+    .legend .scale-title {
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--sea); margin: 0.35rem 0 0.3rem;
+    }
+    .legend .swatches { display: grid; gap: 0.22rem; }
+    .legend .swatch-row {
+      display: grid; grid-template-columns: 16px 1fr; gap: 0.4rem; align-items: center;
+    }
+    .legend .swatch {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1px solid rgba(19,32,43,0.2);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+    }
+    .legend .size-hint {
+      display: flex; align-items: baseline; gap: 0.55rem;
+      margin-top: 0.45rem; padding-top: 0.4rem;
+      border-top: 1px solid var(--line); color: rgba(19,32,43,0.72);
+    }
+    .legend .size-dot {
+      display: inline-block; border-radius: 50%;
+      background: rgba(23,104,122,0.55);
+      border: 1px solid rgba(11,61,74,0.45);
+      vertical-align: middle;
     }
     .basemap-toggles {
       display: grid; gap: 0.35rem;
@@ -177,9 +204,24 @@
       <div class="map-wrap">
         <div id="map"></div>
         <div class="legend">
-          <strong>BlueTopo + NCEI DEM</strong><br />
-          Spots ≤50 ft AIS cluster<br />
-          Size ∝ dwell · Color ∝ trip FPP
+          <strong>BlueTopo + NCEI DEM</strong>
+          <div class="sub">Spots ≤50 ft AIS cluster</div>
+          <div class="scale-title">Mean trip fish/person</div>
+          <div class="swatches" aria-label="Fish per person color scale">
+            <div class="swatch-row"><span class="swatch" style="background:#8aa3ad"></span><span>&lt; 3</span></div>
+            <div class="swatch-row"><span class="swatch" style="background:#17687a"></span><span>3 – 6</span></div>
+            <div class="swatch-row"><span class="swatch" style="background:#c47a3a"></span><span>6 – 10</span></div>
+            <div class="swatch-row"><span class="swatch" style="background:#b54a2a"></span><span>≥ 10</span></div>
+            <div class="swatch-row"><span class="swatch" style="background:#7a8790"></span><span>No FPP</span></div>
+          </div>
+          <div class="size-hint">
+            <span>
+              <span class="size-dot" style="width:7px;height:7px"></span>
+              <span class="size-dot" style="width:11px;height:11px;margin-left:2px"></span>
+              <span class="size-dot" style="width:16px;height:16px;margin-left:2px"></span>
+            </span>
+            <span>Size ∝ total dwell</span>
+          </div>
         </div>
       </div>
     </div>
