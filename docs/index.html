@@ -56,6 +56,11 @@
     }
     #map { min-height: 420px; height: 100%; background: #0a2a33; }
     .map-wrap { position: relative; min-height: 0; }
+    /* Keep overzoomed DEM/BAG pixels crisp instead of soft-blurred. */
+    #map.crisp-bathy .leaflet-tile-pane img.leaflet-tile {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
     label {
       display: block; font-size: 0.72rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.06em;
@@ -184,10 +189,10 @@
           <div>
             <label>Bathymetry stack</label>
             <div class="basemap-toggles">
-              <label class="chk"><input type="checkbox" id="toggleNcei" checked /> NCEI DEM tiles (finest first)</label>
-              <label class="chk"><input type="checkbox" id="toggleBlueTopo" checked /> BlueTopo elevation</label>
+              <label class="chk"><input type="checkbox" id="toggleNcei" checked /> NCEI DEM (⅓″→CRM, zoomable)</label>
+              <label class="chk"><input type="checkbox" id="toggleBag" checked /> BAG surveys (≤2 m, high-zoom)</label>
+              <label class="chk"><input type="checkbox" id="toggleBlueTopo" checked /> BlueTopo WMTS</label>
               <label class="chk"><input type="checkbox" id="toggleBlueTopoHill" checked /> BlueTopo hillshade</label>
-              <label class="chk"><input type="checkbox" id="toggleBag" checked /> BAG survey hillshade</label>
               <label class="chk"><input type="checkbox" id="toggleOsm" checked /> Coast reference</label>
             </div>
           </div>
@@ -207,7 +212,7 @@
         <div id="map"></div>
         <div class="legend">
           <strong>High-res bathymetry</strong>
-          <div class="sub">NCEI DEM + BlueTopo · zoom for detail<br />Spots ≤50 ft AIS cluster</div>
+          <div class="sub">NCEI + BAG surveys + BlueTopo<br />Zoom in — tiles sharpen with scale<br />Spots ≤50 ft AIS cluster</div>
           <div class="scale-title">Mean trip fish/person</div>
           <div class="swatches" aria-label="Fish per person color scale">
             <div class="swatch-row"><span class="swatch" style="background:#8aa3ad"></span><span>&lt; 3</span></div>
@@ -243,7 +248,13 @@
       hasFittedBounds: false,
     };
 
-    const map = L.map("map", { zoomControl: true, maxZoom: 18, minZoom: 7 }).setView([33.72, -118.35], 9);
+    const map = L.map("map", {
+      zoomControl: true,
+      maxZoom: 18,
+      minZoom: 7,
+      // Prefer crisp zoom; bathymetry tiles are re-fetched per z.
+      zoomAnimation: true,
+    }).setView([33.72, -118.35], 9);
 
     // Web-mercator tile bbox helper for ArcGIS ImageServer XYZ tiling.
     function webMercatorTileBbox(x, y, z) {
@@ -255,7 +266,7 @@
     }
 
     const NCEI_RENDER = encodeURIComponent(JSON.stringify({ rasterFunction: "ColorHillshade" }));
-    // Prefer finest available DEM (1/3″ coastal → CRM → ETOPO) without excluding deep water.
+    // Prefer finest available DEM (⅓″ CUDEM → 1″/3″ CRM → ETOPO) without blanking deep water.
     const NCEI_MOSAIC = encodeURIComponent(JSON.stringify({
       mosaicMethod: "ByAttribute",
       sortField: "CellsizeArcseconds",
@@ -264,15 +275,19 @@
     }));
     const BAG_RENDER = encodeURIComponent(JSON.stringify({ rasterFunction: "ColorHillshadeBAG" }));
 
+    // 512px export for each Leaflet 256-grid tile (= 2× density, sharp when zooming).
+    const HIRES_PX = 512;
+
     const NceiDemTiles = L.TileLayer.extend({
       getTileUrl(coords) {
         const [minx, miny, maxx, maxy] = webMercatorTileBbox(coords.x, coords.y, coords.z);
-        // 512px tiles stay sharp when zoomed (true tile pyramid, not one soft viewport image).
-        const px = 512;
+        const interp = coords.z >= 15
+          ? "RSP_NearestNeighbor"
+          : "RSP_BilinearInterpolation";
         return (
           "https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_all/ImageServer/exportImage?" +
-          `bbox=${minx},${miny},${maxx},${maxy}&bboxSR=3857&imageSR=3857&size=${px},${px}` +
-          "&format=jpg&f=image&interpolation=RSP_BilinearInterpolation" +
+          `bbox=${minx},${miny},${maxx},${maxy}&bboxSR=3857&imageSR=3857&size=${HIRES_PX},${HIRES_PX}` +
+          `&format=png32&f=image&transparent=true&interpolation=${interp}` +
           `&renderingRule=${NCEI_RENDER}&mosaicRule=${NCEI_MOSAIC}`
         );
       },
@@ -281,11 +296,14 @@
     const BagSurveyTiles = L.TileLayer.extend({
       getTileUrl(coords) {
         const [minx, miny, maxx, maxy] = webMercatorTileBbox(coords.x, coords.y, coords.z);
-        const px = 512;
+        // Default mosaic already blends surveys; attribute-sort on LowPS picks sparse/coarse tiles.
+        const interp = coords.z >= 15
+          ? "RSP_NearestNeighbor"
+          : "RSP_BilinearInterpolation";
         return (
           "https://gis.ngdc.noaa.gov/arcgis/rest/services/bag_bathymetry/ImageServer/exportImage?" +
-          `bbox=${minx},${miny},${maxx},${maxy}&bboxSR=3857&imageSR=3857&size=${px},${px}` +
-          "&format=jpgpng&f=image&interpolation=RSP_BilinearInterpolation" +
+          `bbox=${minx},${miny},${maxx},${maxy}&bboxSR=3857&imageSR=3857&size=${HIRES_PX},${HIRES_PX}` +
+          `&format=png32&f=image&transparent=true&interpolation=${interp}` +
           `&renderingRule=${BAG_RENDER}`
         );
       },
@@ -293,48 +311,57 @@
 
     const nceiDem = new NceiDemTiles("", {
       maxZoom: 18,
-      maxNativeZoom: 17,
+      maxNativeZoom: 18,
       minZoom: 7,
       opacity: 1,
-      attribution: "NCEI DEM ≤3″ ColorHillshade © NOAA NCEI",
+      keepBuffer: 2,
+      updateWhenIdle: false,
+      attribution: "NCEI DEM ColorHillshade (finest-first) © NOAA NCEI",
       crossOrigin: true,
     }).addTo(map);
 
-    // WMS-per-tile BlueTopo (server-rendered for each tile bbox — sharper than WMTS cache).
-    const blueTopoBathy = L.tileLayer.wms("https://nowcoast.noaa.gov/geoserver/bluetopo/wms", {
-      layers: "bluetopo:bathymetry",
-      styles: "nbs_elevation",
-      format: "image/png",
-      transparent: true,
-      version: "1.1.1",
-      maxZoom: 18,
-      opacity: 0.5,
-      attribution: "BlueTopo © NOAA OCS / nowCOAST",
-    }).addTo(map);
+    // nowCOAST BlueTopo WMTS REST — 512px native tiles on the EPSG:3857 2^z grid.
+    const blueTopoBathy = L.tileLayer(
+      "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts/rest/bluetopo:bathymetry/nbs_elevation/EPSG:3857/EPSG:3857:{z}/{y}/{x}?format=image/png8",
+      {
+        maxZoom: 18,
+        maxNativeZoom: 18,
+        minZoom: 7,
+        opacity: 0.42,
+        keepBuffer: 2,
+        attribution: "BlueTopo © NOAA OCS / nowCOAST",
+        crossOrigin: true,
+      }
+    ).addTo(map);
 
-    const blueTopoHill = L.tileLayer.wms("https://nowcoast.noaa.gov/geoserver/bluetopo/wms", {
-      layers: "bluetopo:hillshade",
-      styles: "nbs_hillshade",
-      format: "image/png",
-      transparent: true,
-      version: "1.1.1",
-      maxZoom: 18,
-      opacity: 0.4,
-      attribution: "BlueTopo relief © NOAA OCS / nowCOAST",
-    }).addTo(map);
+    const blueTopoHill = L.tileLayer(
+      "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts/rest/bluetopo:hillshade/nbs_hillshade/EPSG:3857/EPSG:3857:{z}/{y}/{x}?format=image/png8",
+      {
+        maxZoom: 18,
+        maxNativeZoom: 18,
+        minZoom: 7,
+        opacity: 0.35,
+        keepBuffer: 2,
+        attribution: "BlueTopo relief © NOAA OCS / nowCOAST",
+        crossOrigin: true,
+      }
+    ).addTo(map);
 
+    // BAG hydro surveys (0.5–2 m) — the high-zoom detail layer for surveyed grounds.
     const bagSurvey = new BagSurveyTiles("", {
       maxZoom: 18,
-      maxNativeZoom: 17,
-      minZoom: 9,
-      opacity: 0.45,
+      maxNativeZoom: 18,
+      minZoom: 8,
+      opacity: 0.62,
+      keepBuffer: 2,
+      updateWhenIdle: false,
       attribution: "BAG survey hillshade © NOAA NCEI",
       crossOrigin: true,
     }).addTo(map);
 
     const osmRef = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 18,
-      opacity: 0.18,
+      opacity: 0.16,
       attribution: "&copy; OpenStreetMap",
     }).addTo(map);
 
@@ -348,6 +375,9 @@
         } else if (map.hasLayer(layer)) {
           map.removeLayer(layer);
         }
+        // Keep BAG above BlueTopo / NCEI when re-enabled.
+        if (map.hasLayer(bagSurvey)) bagSurvey.bringToFront();
+        if (map.hasLayer(osmRef)) osmRef.bringToFront();
       });
     }
     bindLayerToggle("toggleNcei", nceiDem);
@@ -355,6 +385,28 @@
     bindLayerToggle("toggleBlueTopoHill", blueTopoHill);
     bindLayerToggle("toggleBag", bagSurvey);
     bindLayerToggle("toggleOsm", osmRef);
+
+    // Emphasize survey-grade layers as the user zooms in; keep DEM as regional base.
+    function syncBathyForZoom() {
+      const z = map.getZoom();
+      document.getElementById("map").classList.toggle("crisp-bathy", z >= 14);
+      if (el("toggleNcei").checked) {
+        nceiDem.setOpacity(z >= 14 ? 0.78 : 1);
+      }
+      if (el("toggleBag").checked) {
+        bagSurvey.setOpacity(z >= 13 ? 0.78 : z >= 10 ? 0.62 : 0.45);
+      }
+      if (el("toggleBlueTopo").checked) {
+        blueTopoBathy.setOpacity(z >= 13 ? 0.5 : 0.38);
+      }
+      if (el("toggleBlueTopoHill").checked) {
+        blueTopoHill.setOpacity(z >= 13 ? 0.42 : 0.3);
+      }
+      if (map.hasLayer(bagSurvey)) bagSurvey.bringToFront();
+      if (map.hasLayer(osmRef)) osmRef.bringToFront();
+    }
+    map.on("zoomend", syncBathyForZoom);
+    syncBathyForZoom();
 
     function fppColor(fpp) {
       if (fpp == null) return "#7a8790";
