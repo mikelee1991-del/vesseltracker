@@ -52,8 +52,9 @@ STOP_GAP_MIN = 8  # merge only short AIS gaps; do not glue spot-to-spot runs
 STOP_CLUSTER_RADIUS_M = 250  # legacy coarse grid label only (not the map feature key)
 
 # Group nearby AIS stop centroids into one underwater "feature"/spot.
-# ~50 ft ≈ AIS/GPS scatter for revisits to the same place (tunable).
-FEATURE_CLUSTER_RADIUS_FT = 50
+# ~150 ft absorbs typical revisit scatter (same fishing pin) without treating
+# an entire reef line as one place; centroid-bounded so clusters don't chain.
+FEATURE_CLUSTER_RADIUS_FT = 150
 FEATURE_CLUSTER_RADIUS_M = FEATURE_CLUSTER_RADIUS_FT * 0.3048
 
 # Marine Cadastre 2025 daily AIS (1-minute sample of NAIS broadcasts).

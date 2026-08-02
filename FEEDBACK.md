@@ -102,12 +102,12 @@ Evidence from allowlisted fleet AIS (Aug 2025):
 ## Feature / spot clustering (underwater place grouping)
 
 Stops within `FEATURE_CLUSTER_RADIUS_FT` of a shared centroid are merged into one
-map spot (centroid-bounded clustering). Default **50 ft** (~15.24 m) is a guess for
-AIS/GPS revisit scatter on the same place — not the full width of a reef.
+map spot (centroid-bounded clustering). Default **150 ft** (~45.7 m) absorbs typical
+same-pin revisit scatter for most boats; not the full width of a reef.
 
 | Parameter | Current | Notes |
 |-----------|--------:|-------|
-| `FEATURE_CLUSTER_RADIUS_FT` | 50 | Tune up if same reef splits; down if distinct pins merge |
+| `FEATURE_CLUSTER_RADIUS_FT` | 150 | Tune up if same pin still splits; down if distinct pins merge |
 
 Further suggested changes:
 

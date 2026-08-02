@@ -153,7 +153,7 @@
     <header>
       <h1 class="brand">LA Sportfishing Take</h1>
       <p>
-        Fishing spots grouped from AIS offshore stops within ~50 ft (AIS scatter).
+        Fishing spots grouped from AIS offshore stops within ~150 ft (revisit scatter).
         Circle size is dwell time; color tracks mean trip fish/person of boats
         that stopped there (trip totals — not catch attributed to the spot).
         Many LA charters still lack identifiable AIS — see FEEDBACK.md.
@@ -212,7 +212,7 @@
         <div id="map"></div>
         <div class="legend">
           <strong>High-res bathymetry</strong>
-          <div class="sub">NCEI + BAG surveys + BlueTopo<br />Zoom in — tiles sharpen with scale<br />Spots ≤50 ft AIS cluster</div>
+          <div class="sub">NCEI + BAG surveys + BlueTopo<br />Zoom in — tiles sharpen with scale<br />Spots ≤150 ft AIS cluster</div>
           <div class="scale-title">Mean trip fish/person</div>
           <div class="swatches" aria-label="Fish per person color scale">
             <div class="swatch-row"><span class="swatch" style="background:#8aa3ad"></span><span>&lt; 3</span></div>
@@ -530,14 +530,14 @@
 
     function showLocationDetail(loc) {
       const visits = [...(loc.visits || [])].sort((a, b) => (a.date < b.date ? 1 : -1));
-      const spread = loc.cluster_spread_m != null ? `${fmt(loc.cluster_spread_m, 0)} m spread` : "≤50 ft cluster";
+      const spread = loc.cluster_spread_m != null ? `${fmt(loc.cluster_spread_m, 0)} m spread` : "≤150 ft cluster";
       el("list").innerHTML = `
         <button type="button" class="secondary back" id="backBtn">← All spots</button>
         <div class="detail">
           <h3>${loc.lat.toFixed(4)}°, ${loc.lon.toFixed(4)}°</h3>
           <div class="meta">${loc.n_stops} stops · ${fmt(loc.total_dwell_min, 0)} min total dwell · ${loc.n_boats} boats · ${spread}</div>
           <div><span class="fpp">${fmt(loc.mean_trip_fpp, 2)} mean trip fish/person</span> of visiting boat-days</div>
-          <p class="note">Stops within ~50 ft are treated as the same feature (AIS scatter). Trip catch totals are not attributed to this spot.</p>
+          <p class="note">Stops within ~150 ft are treated as the same feature (revisit scatter). Trip catch totals are not attributed to this spot.</p>
           ${visits.slice(0, 40).map((v) => {
             const species = (v.species || []).slice(0, 5).map((s) => `<li>${s.count} ${s.species}</li>`).join("");
             return `<article class="visit">
