@@ -4,6 +4,20 @@ Cloud-hosted map + pipeline that joins **SoCal fish-report dock totals** with **
 
 Live page (GitHub Pages): `docs/index.html` → enable Pages from `/docs`.
 
+## Viewing the map
+
+**Live preview (no Pages setup required):**
+https://cdn.jsdelivr.net/gh/mikelee1991-del/vesseltracker@main/docs/
+
+**GitHub Pages URL (after one-time enable):**
+https://mikelee1991-del.github.io/vesseltracker/
+
+Cloud-agent GitHub tokens can **push to `main`** but cannot enable the Pages site
+(`pages: write` create-site is blocked as “Resource not accessible by integration”).
+One-time owner action: repo **Settings → Pages → Source: GitHub Actions**, then
+re-run the `Deploy GitHub Pages` workflow (or push any commit to `main`).
+
+
 ## What this does
 
 1. Scrapes daily boat fish counts from [socalfishreports.com](https://www.socalfishreports.com/dock_totals/boats.php) for Redondo Beach, San Pedro, Long Beach, Marina Del Rey, and Newport Beach.
