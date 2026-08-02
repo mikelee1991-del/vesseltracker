@@ -215,12 +215,93 @@ def main():
     for day in days_out:
         (days_dir / f"{day['date']}.json").write_text(json.dumps(day))
 
+    # Location-centric aggregate (grid cells). Trip FPP is attached as visit
+    # context only — not a location catch rate.
+    loc_map: dict[str, dict] = {}
+    for d, trips_d in by_date.items():
+        for t in trips_d:
+            for s in t.get("offshore_stops") or []:
+                gid = s.get("grid_id") or f"pt_{round(s['lat'],3)}_{round(s['lon'],3)}"
+                loc = loc_map.setdefault(
+                    gid,
+                    {
+                        "grid_id": gid,
+                        "lat": 0.0,
+                        "lon": 0.0,
+                        "lat_sum": 0.0,
+                        "lon_sum": 0.0,
+                        "n_stops": 0,
+                        "total_dwell_min": 0.0,
+                        "boats": set(),
+                        "dates": set(),
+                        "visits": [],
+                        "fpp_values": [],
+                        "species_totals": defaultdict(float),
+                    },
+                )
+                loc["lat_sum"] += s["lat"]
+                loc["lon_sum"] += s["lon"]
+                loc["n_stops"] += 1
+                loc["total_dwell_min"] += float(s.get("duration_min") or 0)
+                loc["boats"].add(t["boat_name"])
+                loc["dates"].add(d)
+                visit = {
+                    "date": d,
+                    "boat_name": t["boat_name"],
+                    "city": t["city"],
+                    "anglers": t["anglers"],
+                    "trip_type": t["trip_type"],
+                    "fish_per_person": t["fish_per_person"],
+                    "total_fish_kept": t["total_fish_kept"],
+                    "duration_min": s.get("duration_min"),
+                    "species": t.get("species") or [],
+                }
+                loc["visits"].append(visit)
+                if t["fish_per_person"] is not None:
+                    loc["fpp_values"].append(t["fish_per_person"])
+                for sp in t.get("species") or []:
+                    loc["species_totals"][sp["species"]] += float(sp.get("count") or 0)
+
+    locations = []
+    for gid, loc in loc_map.items():
+        n = loc["n_stops"]
+        fpp_vals = loc["fpp_values"]
+        species_top = sorted(
+            ({"species": k, "count": round(v, 1)} for k, v in loc["species_totals"].items()),
+            key=lambda x: -x["count"],
+        )[:8]
+        locations.append(
+            {
+                "grid_id": gid,
+                "lat": loc["lat_sum"] / n,
+                "lon": loc["lon_sum"] / n,
+                "n_stops": n,
+                "n_boat_days": len(loc["visits"]),
+                "n_boats": len(loc["boats"]),
+                "n_days": len(loc["dates"]),
+                "total_dwell_min": round(loc["total_dwell_min"], 1),
+                "mean_trip_fpp": (sum(fpp_vals) / len(fpp_vals)) if fpp_vals else None,
+                "median_trip_fpp": (
+                    sorted(fpp_vals)[len(fpp_vals) // 2] if fpp_vals else None
+                ),
+                "boats": sorted(loc["boats"]),
+                "species_top": species_top,
+                "visits": sorted(loc["visits"], key=lambda v: (v["date"], v["boat_name"])),
+                "fpp_note": (
+                    "mean_trip_fpp is the average fish/person of dock totals for "
+                    "boat-days that stopped here — not catch attributed to this spot"
+                ),
+            }
+        )
+    locations.sort(key=lambda x: (-x["total_dwell_min"], -x["n_stops"]))
+    (args.out_dir / "locations.json").write_text(json.dumps({"locations": locations}))
+
     meta = {
         "title": "LA-area sportfishing take (pilot)",
         "description": (
-            "Fish-per-person from socalfishreports.com dock totals, joined to "
-            "Marine Cadastre AIS offshore stops. Catch counts are NOT split "
-            "across stop locations."
+            "Location-centric view of AIS offshore stops joined to "
+            "socalfishreports.com dock totals. Catch counts are NOT split "
+            "across stop locations; trip fish/person is shown as visit context."
         ),
         "sources": {
             "fish_reports": FISH_REPORT_SOURCE,
@@ -256,6 +337,7 @@ def main():
             "n_days_with_reports": len(dates),
             "n_trips": len(trips),
             "n_offshore_stops": len(stops),
+            "n_locations": len(locations),
             "n_registry_vessels": len(registry),
             "n_trips_with_stops": matched_with_stops,
             "n_trips_unmatched_to_mmsi": unmatched_trips,
@@ -265,6 +347,8 @@ def main():
             (d for d in reversed(dates) if ais_start <= d <= ais_end),
             dates[-1] if dates else None,
         ),
+        "default_view": "locations",
+        "boats": sorted({t["boat_name"] for t in trips}),
     }
     (args.out_dir / "meta.json").write_text(json.dumps(meta, indent=2))
 

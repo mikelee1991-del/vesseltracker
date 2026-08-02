@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LA Sportfishing Take — AIS + Dock Totals</title>
+  <title>LA Sportfishing Take — Locations</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -16,196 +16,94 @@
       --sea-mid: #17687a;
       --sand: #c4a574;
       --alert: #b54a2a;
-      --panel: rgba(232, 241, 244, 0.92);
+      --panel: rgba(232, 241, 244, 0.94);
       --line: rgba(19, 32, 43, 0.14);
     }
     * { box-sizing: border-box; }
     html, body {
-      margin: 0;
-      height: 100%;
-      color: var(--ink);
+      margin: 0; height: 100%; color: var(--ink);
       font-family: "Source Sans 3", sans-serif;
       background:
         radial-gradient(1200px 600px at 10% -10%, #9fd0d8 0%, transparent 55%),
         radial-gradient(900px 500px at 100% 0%, #d7c3a1 0%, transparent 50%),
         linear-gradient(165deg, #dfe9ec 0%, #c5d5da 45%, #b7c8cf 100%);
     }
-    .app {
-      display: grid;
-      grid-template-rows: auto 1fr;
-      height: 100%;
-      min-height: 100vh;
-    }
+    .app { display: grid; grid-template-rows: auto 1fr; height: 100%; min-height: 100vh; }
     header {
-      padding: 0.9rem 1.1rem 0.75rem;
+      padding: 0.85rem 1.1rem 0.7rem;
       border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.2));
+      background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.18));
       backdrop-filter: blur(8px);
     }
     header .brand {
       font-family: Fraunces, Georgia, serif;
-      font-size: clamp(1.35rem, 2.5vw, 1.9rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--sea);
-      margin: 0;
-      line-height: 1.1;
+      font-size: clamp(1.3rem, 2.4vw, 1.85rem);
+      font-weight: 700; letter-spacing: -0.02em; color: var(--sea);
+      margin: 0; line-height: 1.1;
     }
-    header p {
-      margin: 0.25rem 0 0;
-      max-width: 62ch;
-      font-size: 0.95rem;
-      color: rgba(19, 32, 43, 0.78);
-    }
+    header p { margin: 0.25rem 0 0; max-width: 70ch; font-size: 0.92rem; color: rgba(19,32,43,0.78); }
     .layout {
       display: grid;
-      grid-template-columns: minmax(280px, 360px) 1fr;
+      grid-template-columns: minmax(300px, 380px) 1fr;
       min-height: 0;
     }
-    @media (max-width: 860px) {
-      .layout { grid-template-columns: 1fr; grid-template-rows: auto 55vh; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; grid-template-rows: auto 50vh; }
     }
     .sidebar {
-      overflow: auto;
-      padding: 0.9rem 1rem 1.4rem;
-      border-right: 1px solid var(--line);
-      background: var(--panel);
+      overflow: auto; padding: 0.85rem 1rem 1.3rem;
+      border-right: 1px solid var(--line); background: var(--panel);
     }
-    #map {
-      min-height: 420px;
-      height: 100%;
-      background: #0a2a33;
-    }
-    label {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--sea);
-      margin-bottom: 0.3rem;
-    }
-    .controls {
-      display: grid;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--line);
-    }
-    input[type="date"], select, button {
-      width: 100%;
-      font: inherit;
-      padding: 0.55rem 0.65rem;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      color: var(--ink);
-    }
-    .day-nav {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
-    }
-    button {
-      cursor: pointer;
-      background: var(--sea);
-      color: #f4fafb;
-      border-color: var(--sea);
-      font-weight: 600;
-    }
-    button.secondary {
-      background: #fff;
-      color: var(--sea);
-    }
-    button:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-    .stat-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.55rem;
-      margin-bottom: 0.9rem;
-    }
-    .stat {
-      padding: 0.65rem 0.7rem;
-      border-radius: 10px;
-      background: rgba(11, 61, 74, 0.08);
-      border: 1px solid var(--line);
-    }
-    .stat .k {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: rgba(19,32,43,0.65);
-    }
-    .stat .v {
-      font-family: Fraunces, Georgia, serif;
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--sea);
-      margin-top: 0.15rem;
-    }
-    .note {
-      font-size: 0.82rem;
-      line-height: 1.35;
-      color: rgba(19,32,43,0.72);
-      margin: 0 0 0.9rem;
-      padding: 0.65rem 0.7rem;
-      border-left: 3px solid var(--sand);
-      background: rgba(196, 165, 116, 0.12);
-    }
-    .trip {
-      padding: 0.75rem 0;
-      border-bottom: 1px solid var(--line);
-    }
-    .trip h3 {
-      margin: 0;
-      font-size: 1.02rem;
-      font-family: Fraunces, Georgia, serif;
-    }
-    .trip .meta {
-      font-size: 0.84rem;
-      color: rgba(19,32,43,0.7);
-      margin: 0.2rem 0 0.4rem;
-    }
-    .fpp {
-      display: inline-block;
-      font-weight: 700;
-      color: var(--sea-mid);
-    }
-    .species {
-      margin: 0;
-      padding-left: 1.1rem;
-      font-size: 0.86rem;
-    }
-    .stops-tag {
-      margin-top: 0.35rem;
-      font-size: 0.8rem;
-      color: var(--alert);
-    }
-    .stops-tag.ok { color: var(--sea-mid); }
-    .stops-tag.warn { color: #8a6a2f; }
-    .leaflet-popup-content {
-      font-family: "Source Sans 3", sans-serif;
-      font-size: 0.9rem;
-      line-height: 1.35;
-    }
-    .legend {
-      position: absolute;
-      z-index: 500;
-      right: 12px;
-      bottom: 18px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 0.55rem 0.7rem;
-      font-size: 0.78rem;
-      max-width: 220px;
-      box-shadow: 0 8px 24px rgba(11, 40, 48, 0.12);
-    }
+    #map { min-height: 420px; height: 100%; background: #0a2a33; }
     .map-wrap { position: relative; min-height: 0; }
-    .status { font-size: 0.82rem; color: rgba(19,32,43,0.65); min-height: 1.2em; }
+    label {
+      display: block; font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--sea); margin-bottom: 0.28rem;
+    }
+    .controls { display: grid; gap: 0.65rem; margin-bottom: 0.85rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--line); }
+    input, select, button {
+      width: 100%; font: inherit; padding: 0.5rem 0.65rem;
+      border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink);
+    }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    button {
+      cursor: pointer; background: var(--sea); color: #f4fafb; border-color: var(--sea); font-weight: 600;
+    }
+    button.secondary { background: #fff; color: var(--sea); }
+    button.active { background: var(--sea-mid); color: #fff; }
+    .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.45rem; margin-bottom: 0.75rem; }
+    .stat {
+      padding: 0.55rem 0.6rem; border-radius: 10px;
+      background: rgba(11,61,74,0.08); border: 1px solid var(--line);
+    }
+    .stat .k { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(19,32,43,0.65); }
+    .stat .v { font-family: Fraunces, Georgia, serif; font-size: 1.15rem; font-weight: 700; color: var(--sea); margin-top: 0.1rem; }
+    .note {
+      font-size: 0.8rem; line-height: 1.35; color: rgba(19,32,43,0.72);
+      margin: 0 0 0.8rem; padding: 0.55rem 0.65rem;
+      border-left: 3px solid var(--sand); background: rgba(196,165,116,0.12);
+    }
+    .loc, .visit {
+      padding: 0.7rem 0; border-bottom: 1px solid var(--line); cursor: pointer;
+    }
+    .loc:hover, .loc.selected { background: rgba(23,104,122,0.08); margin: 0 -0.4rem; padding-left: 0.4rem; padding-right: 0.4rem; border-radius: 8px; }
+    .loc h3, .detail h3 {
+      margin: 0; font-size: 1rem; font-family: Fraunces, Georgia, serif;
+    }
+    .meta { font-size: 0.82rem; color: rgba(19,32,43,0.7); margin: 0.15rem 0 0.3rem; }
+    .fpp { font-weight: 700; color: var(--sea-mid); }
+    .detail { margin-top: 0.5rem; }
+    .back { margin-bottom: 0.6rem; }
+    .legend {
+      position: absolute; z-index: 500; right: 12px; bottom: 18px;
+      background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+      padding: 0.55rem 0.7rem; font-size: 0.76rem; max-width: 230px;
+      box-shadow: 0 8px 24px rgba(11,40,48,0.12);
+    }
+    .status { font-size: 0.8rem; color: rgba(19,32,43,0.65); min-height: 1.1em; }
+    .species { margin: 0.2rem 0 0; padding-left: 1.05rem; font-size: 0.84rem; }
+    .leaflet-popup-content { font-family: "Source Sans 3", sans-serif; font-size: 0.88rem; line-height: 1.35; }
   </style>
 </head>
 <body>
@@ -213,43 +111,56 @@
     <header>
       <h1 class="brand">LA Sportfishing Take</h1>
       <p>
-        Dock-total fish per person for LA-basin landings, with AIS offshore stops
-        for context. Catch counts are voyage totals — not split across spots.
+        Fishing locations from AIS offshore stops. Circle size is dwell time;
+        color tracks mean trip fish/person of boats that stopped there
+        (trip totals — not catch attributed to the spot).
       </p>
     </header>
     <div class="layout">
       <aside class="sidebar">
         <div class="controls">
-          <div>
+          <div class="row2">
+            <button type="button" id="modeAll" class="active">All days</button>
+            <button type="button" id="modeDay" class="secondary">One day</button>
+          </div>
+          <div id="dayControls" hidden>
             <label for="day">Day</label>
             <input id="day" type="date" />
-          </div>
-          <div class="day-nav">
-            <button type="button" class="secondary" id="prevDay">Previous</button>
-            <button type="button" class="secondary" id="nextDay">Next</button>
+            <div class="row2" style="margin-top:0.45rem">
+              <button type="button" class="secondary" id="prevDay">Previous</button>
+              <button type="button" class="secondary" id="nextDay">Next</button>
+            </div>
           </div>
           <div>
-            <label for="boatFilter">Boat filter</label>
+            <label for="boatFilter">Boat</label>
             <select id="boatFilter"><option value="">All boats</option></select>
+          </div>
+          <div>
+            <label for="sortBy">Sort locations</label>
+            <select id="sortBy">
+              <option value="dwell">Total dwell</option>
+              <option value="visits">Boat-days</option>
+              <option value="fpp">Mean trip fish/person</option>
+            </select>
           </div>
           <p class="status" id="status">Loading…</p>
         </div>
         <div class="stat-row">
-          <div class="stat"><div class="k">Trips</div><div class="v" id="statTrips">—</div></div>
-          <div class="stat"><div class="k">Mean fish / person</div><div class="v" id="statFpp">—</div></div>
+          <div class="stat"><div class="k">Locations</div><div class="v" id="statLocs">—</div></div>
+          <div class="stat"><div class="k">Stops</div><div class="v" id="statStops">—</div></div>
+          <div class="stat"><div class="k">Mean FPP*</div><div class="v" id="statFpp">—</div></div>
         </div>
         <p class="note" id="methodNote">
-          Location productivity is not estimated yet. Markers show where boats
-          were stationary offshore; species totals remain at the trip level.
+          *Mean FPP = average dock-total fish/person for visiting boat-days. Catch is not split across spots.
         </p>
-        <div id="tripList"></div>
+        <div id="list"></div>
       </aside>
       <div class="map-wrap">
         <div id="map"></div>
         <div class="legend">
           <strong>BlueTopo</strong> bathymetry<br />
-          Circles = offshore AIS stops<br />
-          Size ∝ dwell time
+          Size ∝ dwell · Color ∝ trip FPP<br />
+          Click a spot for visiting boats
         </div>
       </div>
     </div>
@@ -259,51 +170,42 @@
   <script>
     const state = {
       meta: null,
-      day: null,
+      locations: [],
+      dayPayload: null,
+      mode: "all", // all | day
+      selectedId: null,
       markers: [],
       dockMarkers: [],
+      layer: null,
     };
 
     const map = L.map("map", { zoomControl: true }).setView([33.72, -118.35], 9);
-
-    // NOAA BlueTopo bathymetry (nowCOAST WMTS, EPSG:3857)
-    const blueTopo = L.tileLayer(
+    L.tileLayer(
       "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts?layer=bluetopo:bathymetry&style=&tilematrixset=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png8&TileMatrix=EPSG:3857:{z}&TileCol={x}&TileRow={y}",
-      {
-        maxZoom: 14,
-        opacity: 0.92,
-        attribution: "Bathymetry © NOAA BlueTopo / nowCOAST",
-      }
-    );
-    const blueTopoRelief = L.tileLayer(
+      { maxZoom: 14, opacity: 0.92, attribution: "Bathymetry © NOAA BlueTopo / nowCOAST" }
+    ).addTo(map);
+    L.tileLayer(
       "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts?layer=bluetopo:hillshade&style=&tilematrixset=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png8&TileMatrix=EPSG:3857:{z}&TileCol={x}&TileRow={y}",
-      {
-        maxZoom: 14,
-        opacity: 0.35,
-        attribution: "Relief © NOAA BlueTopo / nowCOAST",
-      }
-    );
-    const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 18,
-      opacity: 0.28,
-      attribution: "&copy; OpenStreetMap",
-    });
-    blueTopo.addTo(map);
-    blueTopoRelief.addTo(map);
-    osm.addTo(map);
+      { maxZoom: 14, opacity: 0.35, attribution: "Relief © NOAA BlueTopo / nowCOAST" }
+    ).addTo(map);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18, opacity: 0.28, attribution: "&copy; OpenStreetMap",
+    }).addTo(map);
 
-    const dayInput = document.getElementById("day");
-    const tripList = document.getElementById("tripList");
-    const boatFilter = document.getElementById("boatFilter");
-    const statusEl = document.getElementById("status");
+    const el = (id) => document.getElementById(id);
+    const fmt = (n, d = 1) => (n == null || Number.isNaN(n) ? "—" : Number(n).toFixed(d));
 
-    function fmt(n, d = 1) {
-      if (n === null || n === undefined || Number.isNaN(n)) return "—";
-      return Number(n).toFixed(d);
+    function fppColor(fpp) {
+      if (fpp == null) return "#7a8790";
+      // low -> sand, mid -> sea, high -> alert/warm
+      if (fpp < 3) return "#8aa3ad";
+      if (fpp < 6) return "#17687a";
+      if (fpp < 10) return "#c47a3a";
+      return "#b54a2a";
     }
 
     function clearMarkers() {
-      state.markers.forEach((m) => map.removeLayer(m));
+      if (state.layer) { map.removeLayer(state.layer); state.layer = null; }
       state.markers = [];
     }
 
@@ -312,137 +214,245 @@
       state.dockMarkers = [];
       (docks || []).forEach((d) => {
         const m = L.circle([d.lat, d.lon], {
-          radius: d.radius_m,
-          color: "#17687a",
-          weight: 1,
-          fillOpacity: 0.05,
-          dashArray: "4 4",
+          radius: d.radius_m, color: "#17687a", weight: 1, fillOpacity: 0.04, dashArray: "4 4",
         }).bindPopup(`<strong>Home dock exclusion</strong><br>${d.name}`);
         m.addTo(map);
         state.dockMarkers.push(m);
       });
     }
 
-    function populateBoatFilter(trips) {
-      const current = boatFilter.value;
-      const boats = [...new Set(trips.map((t) => t.boat_name))].sort();
-      boatFilter.innerHTML = '<option value="">All boats</option>' +
-        boats.map((b) => `<option value="${b}">${b}</option>`).join("");
-      if (boats.includes(current)) boatFilter.value = current;
+    function currentLocations() {
+      const boat = el("boatFilter").value;
+      let locs = state.locations;
+      if (state.mode === "day" && state.dayPayload) {
+        // Rebuild lightweight locations from selected day's trip stops
+        const mapLoc = new Map();
+        for (const t of state.dayPayload.trips) {
+          if (boat && t.boat_name !== boat) continue;
+          for (const s of t.offshore_stops || []) {
+            const gid = s.grid_id || `pt_${s.lat.toFixed(3)}_${s.lon.toFixed(3)}`;
+            let loc = mapLoc.get(gid);
+            if (!loc) {
+              loc = {
+                grid_id: gid, lat: s.lat, lon: s.lon, n_stops: 0, total_dwell_min: 0,
+                boats: new Set(), visits: [], fpp_values: [], species_top: [],
+              };
+              mapLoc.set(gid, loc);
+            }
+            loc.n_stops += 1;
+            loc.total_dwell_min += s.duration_min || 0;
+            loc.boats.add(t.boat_name);
+            loc.visits.push({
+              date: t.date, boat_name: t.boat_name, city: t.city, anglers: t.anglers,
+              trip_type: t.trip_type, fish_per_person: t.fish_per_person,
+              total_fish_kept: t.total_fish_kept, duration_min: s.duration_min,
+              species: t.species || [],
+            });
+            if (t.fish_per_person != null) loc.fpp_values.push(t.fish_per_person);
+          }
+        }
+        locs = [...mapLoc.values()].map((loc) => ({
+          ...loc,
+          n_boats: loc.boats.size,
+          n_boat_days: loc.visits.length,
+          n_days: 1,
+          boats: [...loc.boats].sort(),
+          mean_trip_fpp: loc.fpp_values.length
+            ? loc.fpp_values.reduce((a, b) => a + b, 0) / loc.fpp_values.length
+            : null,
+          species_top: [],
+        }));
+      } else if (boat) {
+        locs = state.locations
+          .map((loc) => {
+            const visits = loc.visits.filter((v) => v.boat_name === boat);
+            if (!visits.length) return null;
+            const fpp = visits.map((v) => v.fish_per_person).filter((x) => x != null);
+            return {
+              ...loc,
+              visits,
+              n_stops: visits.length,
+              n_boat_days: visits.length,
+              n_boats: 1,
+              n_days: new Set(visits.map((v) => v.date)).size,
+              boats: [boat],
+              total_dwell_min: visits.reduce((a, v) => a + (v.duration_min || 0), 0),
+              mean_trip_fpp: fpp.length ? fpp.reduce((a, b) => a + b, 0) / fpp.length : null,
+            };
+          })
+          .filter(Boolean);
+      }
+      const sortBy = el("sortBy").value;
+      locs = [...locs].sort((a, b) => {
+        if (sortBy === "visits") return (b.n_boat_days || 0) - (a.n_boat_days || 0);
+        if (sortBy === "fpp") return (b.mean_trip_fpp || -1) - (a.mean_trip_fpp || -1);
+        return (b.total_dwell_min || 0) - (a.total_dwell_min || 0);
+      });
+      return locs;
     }
 
-    function renderDay(payload) {
-      state.day = payload;
-      const filterBoat = boatFilter.value;
-      const trips = payload.trips.filter((t) => !filterBoat || t.boat_name === filterBoat);
-      populateBoatFilter(payload.trips);
+    function showLocationList(locs) {
+      el("list").innerHTML = locs.slice(0, 80).map((loc) => `
+        <article class="loc ${state.selectedId === loc.grid_id ? "selected" : ""}" data-id="${loc.grid_id}">
+          <h3>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</h3>
+          <div class="meta">${loc.n_stops} stops · ${loc.n_boats} boat(s) · ${fmt(loc.total_dwell_min, 0)} min dwell</div>
+          <div><span class="fpp">${fmt(loc.mean_trip_fpp, 2)} mean trip fish/person</span></div>
+          <div class="meta">${(loc.boats || []).slice(0, 4).join(", ")}${(loc.boats || []).length > 4 ? "…" : ""}</div>
+        </article>
+      `).join("") || "<p class='status'>No locations for this filter.</p>";
 
-      document.getElementById("statTrips").textContent = String(trips.length);
-      const fpps = trips.map((t) => t.fish_per_person).filter((x) => x != null);
-      document.getElementById("statFpp").textContent = fpps.length
-        ? fmt(fpps.reduce((a, b) => a + b, 0) / fpps.length, 2)
-        : "—";
-
-      tripList.innerHTML = trips.map((t) => {
-        const species = (t.species || [])
-          .slice()
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 8)
-          .map((s) => `<li>${s.count} ${s.species}${s.per_person != null ? ` <span class="fpp">(${fmt(s.per_person, 2)}/pp)</span>` : ""}</li>`)
-          .join("");
-        const stopN = (t.offshore_stops || []).length;
-        const status = t.ais_status || (stopN ? "matched_stops" : "no_offshore_stop");
-        const detail = t.ais_status_detail || (stopN
-          ? `${stopN} offshore AIS stop(s) plotted (catch not split)`
-          : "No offshore AIS stop matched for this day");
-        const statusClass = status === "matched_stops" ? "ok"
-          : (status === "outside_ais_window" || status === "no_mmsi" ? "warn" : "");
-        return `<article class="trip">
-          <h3>${t.boat_name}</h3>
-          <div class="meta">${t.city} · ${t.landing_name || "—"} · ${t.trip_type || "—"} · ${t.anglers ?? "?"} anglers</div>
-          <div><span class="fpp">${fmt(t.fish_per_person, 2)} fish / person</span> · ${t.total_fish_kept ?? 0} kept</div>
-          <ul class="species">${species || "<li>No species parsed</li>"}</ul>
-          <div class="stops-tag ${statusClass}">${detail}</div>
-        </article>`;
-      }).join("") || "<p class='status'>No trips for this filter/day.</p>";
-
-      clearMarkers();
-      const bounds = [];
-      trips.forEach((t) => {
-        (t.offshore_stops || []).forEach((s) => {
-          const radius = Math.max(80, Math.min(900, (s.duration_min || 20) * 4));
-          const marker = L.circleMarker([s.lat, s.lon], {
-            radius: Math.max(6, Math.min(18, Math.sqrt(s.duration_min || 20))),
-            color: "#b54a2a",
-            weight: 2,
-            fillColor: "#e07a55",
-            fillOpacity: 0.65,
-          }).bindPopup(
-            `<strong>${t.boat_name}</strong><br>
-             Stop ${fmt(s.duration_min, 0)} min<br>
-             Trip: <strong>${fmt(t.fish_per_person, 2)} fish/person</strong><br>
-             <em>Catch not attributed to this spot</em><br>
-             ${ (t.species || []).slice(0,5).map(x => `${x.count} ${x.species}`).join(", ") }`
-          );
-          marker.addTo(map);
-          state.markers.push(marker);
-          // subtle dwell ring
-          const ring = L.circle([s.lat, s.lon], {
-            radius,
-            color: "#b54a2a",
-            weight: 1,
-            fillOpacity: 0.06,
-          }).addTo(map);
-          state.markers.push(ring);
-          bounds.push([s.lat, s.lon]);
-        });
+      el("list").querySelectorAll(".loc").forEach((node) => {
+        node.addEventListener("click", () => selectLocation(node.dataset.id, locs));
       });
-      if (bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
-      statusEl.textContent = `${payload.date} · ${trips.length} trip(s) shown`;
+    }
+
+    function showLocationDetail(loc) {
+      const visits = [...(loc.visits || [])].sort((a, b) => (a.date < b.date ? 1 : -1));
+      el("list").innerHTML = `
+        <button type="button" class="secondary back" id="backBtn">← All locations</button>
+        <div class="detail">
+          <h3>${loc.lat.toFixed(4)}°, ${loc.lon.toFixed(4)}°</h3>
+          <div class="meta">${loc.n_stops} stops · ${fmt(loc.total_dwell_min, 0)} min total dwell · ${loc.n_boats} boats</div>
+          <div><span class="fpp">${fmt(loc.mean_trip_fpp, 2)} mean trip fish/person</span> of visiting boat-days</div>
+          <p class="note">Trip catch totals are not attributed to this spot.</p>
+          ${visits.slice(0, 40).map((v) => {
+            const species = (v.species || []).slice(0, 5).map((s) => `<li>${s.count} ${s.species}</li>`).join("");
+            return `<article class="visit">
+              <h3>${v.boat_name}</h3>
+              <div class="meta">${v.date} · ${v.city} · ${v.trip_type || "—"} · ${v.anglers ?? "?"} anglers · ${fmt(v.duration_min, 0)} min here</div>
+              <div><span class="fpp">${fmt(v.fish_per_person, 2)} fish/person</span> trip total · ${v.total_fish_kept ?? 0} kept</div>
+              <ul class="species">${species || "<li>No species list</li>"}</ul>
+            </article>`;
+          }).join("")}
+        </div>`;
+      el("backBtn").addEventListener("click", () => {
+        state.selectedId = null;
+        render();
+      });
+    }
+
+    function selectLocation(id, locs) {
+      const loc = (locs || currentLocations()).find((l) => l.grid_id === id);
+      if (!loc) return;
+      state.selectedId = id;
+      showLocationDetail(loc);
+      map.panTo([loc.lat, loc.lon]);
+      // pulse selected marker via popup
+      const marker = state.markers.find((m) => m._gridId === id);
+      if (marker) marker.openPopup();
+    }
+
+    function renderMap(locs) {
+      clearMarkers();
+      state.layer = L.layerGroup().addTo(map);
+      const bounds = [];
+      const maxDwell = Math.max(...locs.map((l) => l.total_dwell_min || 0), 1);
+      locs.forEach((loc) => {
+        const radius = 6 + 14 * Math.sqrt((loc.total_dwell_min || 0) / maxDwell);
+        const marker = L.circleMarker([loc.lat, loc.lon], {
+          radius,
+          color: fppColor(loc.mean_trip_fpp),
+          weight: state.selectedId === loc.grid_id ? 3 : 1.5,
+          fillColor: fppColor(loc.mean_trip_fpp),
+          fillOpacity: 0.7,
+        }).bindPopup(
+          `<strong>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</strong><br>
+           ${loc.n_stops} stops · ${fmt(loc.total_dwell_min, 0)} min dwell<br>
+           <strong>${fmt(loc.mean_trip_fpp, 2)} mean trip fish/person</strong><br>
+           ${(loc.boats || []).slice(0, 5).join(", ")}`
+        );
+        marker._gridId = loc.grid_id;
+        marker.on("click", () => selectLocation(loc.grid_id, locs));
+        marker.addTo(state.layer);
+        state.markers.push(marker);
+        bounds.push([loc.lat, loc.lon]);
+      });
+      if (bounds.length) map.fitBounds(bounds, { padding: [36, 36], maxZoom: 11 });
+    }
+
+    function render() {
+      const locs = currentLocations();
+      const fpps = locs.map((l) => l.mean_trip_fpp).filter((x) => x != null);
+      el("statLocs").textContent = String(locs.length);
+      el("statStops").textContent = String(locs.reduce((a, l) => a + (l.n_stops || 0), 0));
+      el("statFpp").textContent = fpps.length ? fmt(fpps.reduce((a, b) => a + b, 0) / fpps.length, 2) : "—";
+      if (state.selectedId && locs.some((l) => l.grid_id === state.selectedId)) {
+        showLocationDetail(locs.find((l) => l.grid_id === state.selectedId));
+      } else {
+        state.selectedId = null;
+        showLocationList(locs);
+      }
+      renderMap(locs);
+      const modeLabel = state.mode === "day" && el("day").value
+        ? el("day").value
+        : `${state.meta.ais_window.start} → ${state.meta.ais_window.end}`;
+      el("status").textContent = `${modeLabel} · ${locs.length} location(s)`;
     }
 
     async function loadDay(dateStr) {
-      statusEl.textContent = `Loading ${dateStr}…`;
+      el("status").textContent = `Loading ${dateStr}…`;
       const res = await fetch(`data/days/${dateStr}.json`);
       if (!res.ok) {
-        statusEl.textContent = `No report file for ${dateStr}`;
-        tripList.innerHTML = "";
-        clearMarkers();
-        document.getElementById("statTrips").textContent = "0";
-        document.getElementById("statFpp").textContent = "—";
-        return;
+        el("status").textContent = `No report file for ${dateStr}`;
+        state.dayPayload = { date: dateStr, trips: [] };
+      } else {
+        state.dayPayload = await res.json();
+        el("day").value = dateStr;
       }
-      const payload = await res.json();
-      dayInput.value = dateStr;
-      renderDay(payload);
+      state.selectedId = null;
+      render();
     }
 
-    function shiftDay(delta) {
-      const dates = state.meta?.dates || [];
-      const idx = dates.indexOf(dayInput.value);
-      if (idx < 0) return;
-      const next = dates[idx + delta];
-      if (next) loadDay(next);
+    function setMode(mode) {
+      state.mode = mode;
+      el("modeAll").classList.toggle("active", mode === "all");
+      el("modeAll").classList.toggle("secondary", mode !== "all");
+      el("modeDay").classList.toggle("active", mode === "day");
+      el("modeDay").classList.toggle("secondary", mode !== "day");
+      el("dayControls").hidden = mode !== "day";
+      state.selectedId = null;
+      if (mode === "day") {
+        loadDay(el("day").value || state.meta.default_date);
+      } else {
+        state.dayPayload = null;
+        render();
+      }
     }
 
-    dayInput.addEventListener("change", () => loadDay(dayInput.value));
-    boatFilter.addEventListener("change", () => {
-      if (state.day) renderDay(state.day);
+    el("modeAll").addEventListener("click", () => setMode("all"));
+    el("modeDay").addEventListener("click", () => setMode("day"));
+    el("boatFilter").addEventListener("change", () => { state.selectedId = null; render(); });
+    el("sortBy").addEventListener("change", () => { state.selectedId = null; render(); });
+    el("day").addEventListener("change", () => loadDay(el("day").value));
+    el("prevDay").addEventListener("click", () => {
+      const dates = state.meta.dates || [];
+      const idx = dates.indexOf(el("day").value);
+      if (idx > 0) loadDay(dates[idx - 1]);
     });
-    document.getElementById("prevDay").addEventListener("click", () => shiftDay(-1));
-    document.getElementById("nextDay").addEventListener("click", () => shiftDay(1));
+    el("nextDay").addEventListener("click", () => {
+      const dates = state.meta.dates || [];
+      const idx = dates.indexOf(el("day").value);
+      if (idx >= 0 && idx < dates.length - 1) loadDay(dates[idx + 1]);
+    });
 
     (async function init() {
       const meta = await (await fetch("data/meta.json")).json();
       state.meta = meta;
-      dayInput.min = meta.dates[0];
-      dayInput.max = meta.dates[meta.dates.length - 1];
+      el("day").min = meta.dates[0];
+      el("day").max = meta.dates[meta.dates.length - 1];
+      el("day").value = meta.default_date;
       renderDocks(meta.home_docks);
-      document.getElementById("methodNote").textContent =
-        `Reports ${meta.report_window.start}→${meta.report_window.end}. AIS extract ${meta.ais_window.start}→${meta.ais_window.end}. ${meta.ais_availability_note} Catch attribution: ${meta.methods.catch_location_attribution}`;
-      await loadDay(meta.default_date || meta.dates[meta.dates.length - 1]);
+      el("boatFilter").innerHTML = '<option value="">All boats</option>' +
+        (meta.boats || []).map((b) => `<option value="${b}">${b}</option>`).join("");
+      el("methodNote").textContent =
+        `Locations from AIS offshore stops (${meta.ais_window.start}→${meta.ais_window.end}). ` +
+        `Mean FPP is trip dock-total fish/person of visiting boat-days — catch is not attributed to spots. ` +
+        `${meta.stats.n_locations || "?"} locations · ${meta.stats.n_offshore_stops} stops.`;
+      const locData = await (await fetch("data/locations.json")).json();
+      state.locations = locData.locations || [];
+      setMode("all");
     })().catch((err) => {
-      statusEl.textContent = `Failed to load data: ${err.message}`;
+      el("status").textContent = `Failed to load: ${err.message}`;
     });
   </script>
 </body>

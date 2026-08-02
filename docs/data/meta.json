@@ -1,6 +1,6 @@
 {
   "title": "LA-area sportfishing take (pilot)",
-  "description": "Fish-per-person from socalfishreports.com dock totals, joined to Marine Cadastre AIS offshore stops. Catch counts are NOT split across stop locations.",
+  "description": "Location-centric view of AIS offshore stops joined to socalfishreports.com dock totals. Catch counts are NOT split across stop locations; trip fish/person is shown as visit context.",
   "sources": {
     "fish_reports": "https://www.socalfishreports.com/",
     "ais": "NOAA Marine Cadastre / U.S. Coast Guard NAIS daily CSV (1-minute sample)",
@@ -431,6 +431,7 @@
     "n_days_with_reports": 352,
     "n_trips": 3615,
     "n_offshore_stops": 9081,
+    "n_locations": 940,
     "n_registry_vessels": 19,
     "n_trips_with_stops": 1657,
     "n_trips_unmatched_to_mmsi": 1047,
@@ -440,5 +441,42 @@
       "no_mmsi": 1047
     }
   },
-  "default_date": "2025-12-31"
+  "default_date": "2025-12-31",
+  "default_view": "locations",
+  "boats": [
+    "Aggressor",
+    "Ahra-Ahn",
+    "Amigo",
+    "Apollo",
+    "Betty-G",
+    "Betty-O",
+    "Blackfish",
+    "City of Long Beach",
+    "Dreamer",
+    "El Patron",
+    "Eldorado",
+    "Enterprise",
+    "Freedom",
+    "Freelance",
+    "Gail Force",
+    "Ghost",
+    "MarDiosa",
+    "Monte Carlo",
+    "Native Sun",
+    "Navegante",
+    "New Del Mar",
+    "Patriot (Newport)",
+    "Pescador",
+    "Pride",
+    "Pursuit",
+    "Redondo Special",
+    "Spitfire",
+    "Sport King",
+    "Thunderbird",
+    "Toronado",
+    "Triton",
+    "Truline",
+    "Victory",
+    "Western Pride"
+  ]
 }

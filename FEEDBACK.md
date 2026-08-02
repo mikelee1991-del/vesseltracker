@@ -45,11 +45,22 @@ Pilot allowlist (from AIS name + length/type/call-sign heuristics; please verify
 | DREAMER / 338146692 | Dreamer | Denied |
 | DANA PRIDE / 366849310 | Pride | Denied (Dana Point boat; Pride is San Pedro) |
 
-## Boats in reports with no AIS name match in Aug 2025 extract
+## Boats in reports with no verified AIS MMSI (full 2025 NAIS search)
 
-Aggressor, Amigo, Apollo, Betty-G, Betty-O, Blackfish, Gail Force, Ghost, MarDiosa, Navegante, Pescador, Pride, Pursuit, Sport King, Truline.
+Still unmatched after name search + trip-day correlation + dock-departure fingerprinting
+(2026-08-02). **Do not invent mappings** — dock heuristics produced wrong vessel names
+(e.g. Pursuit↛SEANA C).
 
-These may not broadcast, may use a different AIS name, or may be outside the SoCal land-based NAIS coverage used by Marine Cadastre.
+| Report boat | Notes |
+|-------------|--------|
+| Pursuit | No AIS name hit on trip days in SoCal NAIS |
+| Betty-O | No trustworthy MDR match; VesselFinder has no BETTY-O |
+| Ghost | `GHOST DANCER` (366892030) **absent** on Ghost trip days |
+| Amigo, Aggressor, Blackfish, Sport King, Pride, Gail Force, Pescador, MarDiosa, Patriot (Newport), Truline, Navegante, Betty-G, Apollo | No verified identity |
+
+Likely causes: no AIS / Class B not in this feed / different broadcast name / land-based NAIS gaps.
+
+If you know an MMSI or AIS name, add it under **Confirmed MMSI mappings** above.
 
 ## Dock exclusion radius adjustments
 
