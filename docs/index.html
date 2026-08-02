@@ -98,9 +98,19 @@
     .legend {
       position: absolute; z-index: 500; right: 12px; bottom: 18px;
       background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
-      padding: 0.55rem 0.7rem; font-size: 0.76rem; max-width: 230px;
+      padding: 0.55rem 0.7rem; font-size: 0.76rem; max-width: 250px;
       box-shadow: 0 8px 24px rgba(11,40,48,0.12);
     }
+    .basemap-toggles {
+      display: grid; gap: 0.35rem;
+      font-size: 0.84rem;
+    }
+    .basemap-toggles label.chk {
+      display: flex; align-items: center; gap: 0.45rem;
+      text-transform: none; letter-spacing: 0; font-weight: 600; color: var(--ink);
+      margin: 0; cursor: pointer;
+    }
+    .basemap-toggles input { width: auto; margin: 0; }
     .status { font-size: 0.8rem; color: rgba(19,32,43,0.65); min-height: 1.1em; }
     .species { margin: 0.2rem 0 0; padding-left: 1.05rem; font-size: 0.84rem; }
     .leaflet-popup-content { font-family: "Source Sans 3", sans-serif; font-size: 0.88rem; line-height: 1.35; }
@@ -143,6 +153,15 @@
               <option value="fpp">Mean trip fish/person</option>
             </select>
           </div>
+          <div>
+            <label>Bathymetry stack</label>
+            <div class="basemap-toggles">
+              <label class="chk"><input type="checkbox" id="toggleNcei" checked /> NCEI DEM color hillshade</label>
+              <label class="chk"><input type="checkbox" id="toggleBlueTopo" checked /> BlueTopo bathymetry</label>
+              <label class="chk"><input type="checkbox" id="toggleBlueTopoHill" checked /> BlueTopo hillshade</label>
+              <label class="chk"><input type="checkbox" id="toggleOsm" checked /> Coast reference</label>
+            </div>
+          </div>
           <p class="status" id="status">Loading…</p>
         </div>
         <div class="stat-row">
@@ -158,7 +177,7 @@
       <div class="map-wrap">
         <div id="map"></div>
         <div class="legend">
-          <strong>BlueTopo</strong> bathymetry<br />
+          <strong>BlueTopo + NCEI DEM</strong><br />
           Size ∝ dwell · Color ∝ trip FPP<br />
           Click a spot for visiting boats
         </div>
@@ -167,6 +186,7 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
   <script>
     const state = {
       meta: null,
@@ -179,21 +199,59 @@
       layer: null,
     };
 
-    const map = L.map("map", { zoomControl: true }).setView([33.72, -118.35], 9);
-    L.tileLayer(
+    const map = L.map("map", { zoomControl: true, maxZoom: 18 }).setView([33.72, -118.35], 9);
+
+    // Detailed regional DEM mosaic (Santa Monica / Orange County / etc.) under BlueTopo.
+    const nceiDem = L.esri.imageMapLayer({
+      url: "https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_all/ImageServer",
+      renderingRule: { rasterFunction: "ColorHillshade" },
+      format: "jpgpng",
+      opacity: 1,
+      attribution: "NCEI DEM © NOAA National Centers for Environmental Information",
+    }).addTo(map);
+
+    const blueTopoBathy = L.tileLayer(
       "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts?layer=bluetopo:bathymetry&style=&tilematrixset=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png8&TileMatrix=EPSG:3857:{z}&TileCol={x}&TileRow={y}",
-      { maxZoom: 14, opacity: 0.92, attribution: "Bathymetry © NOAA BlueTopo / nowCOAST" }
+      {
+        maxZoom: 18,
+        maxNativeZoom: 18,
+        opacity: 0.7,
+        attribution: "BlueTopo © NOAA OCS / nowCOAST",
+      }
     ).addTo(map);
-    L.tileLayer(
+
+    const blueTopoHill = L.tileLayer(
       "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts?layer=bluetopo:hillshade&style=&tilematrixset=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png8&TileMatrix=EPSG:3857:{z}&TileCol={x}&TileRow={y}",
-      { maxZoom: 14, opacity: 0.35, attribution: "Relief © NOAA BlueTopo / nowCOAST" }
+      {
+        maxZoom: 18,
+        maxNativeZoom: 18,
+        opacity: 0.28,
+        attribution: "BlueTopo relief © NOAA OCS / nowCOAST",
+      }
     ).addTo(map);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 18, opacity: 0.28, attribution: "&copy; OpenStreetMap",
+
+    const osmRef = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      opacity: 0.2,
+      attribution: "&copy; OpenStreetMap",
     }).addTo(map);
 
     const el = (id) => document.getElementById(id);
     const fmt = (n, d = 1) => (n == null || Number.isNaN(n) ? "—" : Number(n).toFixed(d));
+
+    function bindLayerToggle(checkboxId, layer) {
+      el(checkboxId).addEventListener("change", (ev) => {
+        if (ev.target.checked) {
+          if (!map.hasLayer(layer)) layer.addTo(map);
+        } else if (map.hasLayer(layer)) {
+          map.removeLayer(layer);
+        }
+      });
+    }
+    bindLayerToggle("toggleNcei", nceiDem);
+    bindLayerToggle("toggleBlueTopo", blueTopoBathy);
+    bindLayerToggle("toggleBlueTopoHill", blueTopoHill);
+    bindLayerToggle("toggleOsm", osmRef);
 
     function fppColor(fpp) {
       if (fpp == null) return "#7a8790";
