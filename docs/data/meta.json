@@ -26,7 +26,7 @@
     "fish_per_person": "total kept fish / anglers from the dock total (direct)",
     "species_per_person": "species kept count / anglers (direct)",
     "offshore_stops": "SOG <= configured max, duration >= configured min, outside home-dock radii; see scripts/config.py",
-    "feature_clustering": "Single-linkage cluster of stop centroids within 50 ft (15.24 m); intended to absorb AIS/GPS scatter for revisits to the same place.",
+    "feature_clustering": "Centroid-bounded cluster of stop positions within 50 ft (15.24 m) of a shared centroid; absorbs AIS/GPS scatter for revisits to the same place without chaining along a reef.",
     "catch_location_attribution": "NOT applied. Trip totals remain at voyage level. Location productivity will be estimated later by cross-vessel statistics.",
     "day_join": "Stops dated in America/Los_Angeles; multi-day/overnight trips also pull prior local days."
   },
