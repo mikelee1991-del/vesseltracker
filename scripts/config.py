@@ -59,9 +59,9 @@ FISH_REPORT_SOURCE = "https://www.socalfishreports.com/"
 # Fish reports: calendar year overlapping available AIS.
 PILOT_REPORT_START = "2025-01-01"
 PILOT_REPORT_END = "2025-12-31"
-# AIS extract for first ship: peak summer month (script accepts wider ranges).
-PILOT_AIS_START = "2025-08-01"
-PILOT_AIS_END = "2025-08-31"
+# AIS extract window (Marine Cadastre bulk daily files through 2025-12-31).
+PILOT_AIS_START = "2025-01-01"
+PILOT_AIS_END = "2025-12-31"
 
 USER_AGENT = "vesseltracker-research/0.1 (+https://github.com/mikelee1991-del/vesseltracker; educational research)"
 REQUEST_SLEEP_SEC = 0.35

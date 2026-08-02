@@ -8,9 +8,12 @@ import json
 import math
 import sys
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import duckdb
 import pandas as pd
+
+PACIFIC = ZoneInfo("America/Los_Angeles")
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -69,6 +72,9 @@ def merge_low_speed_segments(df: pd.DataFrame) -> list[dict]:
         dock = near_home_dock(lat, lon)
         if dock:
             continue
+        # Fish reports use local calendar days; date stops in Pacific time.
+        date_pacific = t0.tz_convert(PACIFIC).date().isoformat()
+        date_utc = t0.date().isoformat()
         stops.append(
             {
                 "mmsi": int(seg.iloc[0]["mmsi"]),
@@ -80,9 +86,8 @@ def merge_low_speed_segments(df: pd.DataFrame) -> list[dict]:
                 "lon": lon,
                 "n_points": int(len(seg)),
                 "mean_sog_kn": round(float(seg["sog"].mean()), 3),
-                "date": str(seg.iloc[0]["date"])
-                if "date" in seg.columns
-                else t0.date().isoformat(),
+                "date": date_pacific,
+                "date_utc": date_utc,
             }
         )
     return stops

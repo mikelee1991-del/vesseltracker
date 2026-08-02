@@ -21,12 +21,13 @@
     "start": "2025-08-01",
     "end": "2025-08-31"
   },
-  "ais_availability_note": "As of 2026-08-02, free Marine Cadastre bulk AIS daily files for this pipeline were available through 2025-12-31. 2026 AIS is not yet in the bulk feed used here.",
+  "ais_availability_note": "Free Marine Cadastre bulk AIS daily files used here currently run through 2025-12-31. Stops are dated in America/Los_Angeles.",
   "methods": {
     "fish_per_person": "total kept fish / anglers from the dock total (direct)",
     "species_per_person": "species kept count / anglers (direct)",
     "offshore_stops": "SOG <= configured max, duration >= configured min, outside home-dock radii; see scripts/config.py",
-    "catch_location_attribution": "NOT applied. Trip totals remain at voyage level. Location productivity will be estimated later by cross-vessel statistics."
+    "catch_location_attribution": "NOT applied. Trip totals remain at voyage level. Location productivity will be estimated later by cross-vessel statistics.",
+    "day_join": "Stops dated in America/Los_Angeles; multi-day/overnight trips also pull prior local days."
   },
   "home_docks": [
     {
@@ -431,8 +432,14 @@
     "n_trips": 3615,
     "n_offshore_stops": 1043,
     "n_registry_vessels": 17,
-    "n_trips_with_stops_in_ais_window": 190,
-    "n_trips_unmatched_to_mmsi": 1061
+    "n_trips_with_stops": 255,
+    "n_trips_unmatched_to_mmsi": 1061,
+    "ais_status_counts": {
+      "outside_ais_window": 2217,
+      "no_mmsi": 1061,
+      "matched_stops": 255,
+      "no_offshore_stop": 82
+    }
   },
   "default_date": "2025-08-31"
 }

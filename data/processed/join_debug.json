@@ -71,8 +71,14 @@
     "ELPATRON": "El Patron"
   },
   "registry_non_high": [],
+  "ais_status_counts": {
+    "outside_ais_window": 2217,
+    "no_mmsi": 1061,
+    "matched_stops": 255,
+    "no_offshore_stop": 82
+  },
   "notes": [
     "Edit FEEDBACK.md / scripts/config.py VESSEL_ALIASES to correct MMSI/boat matches.",
-    "UTC date used for AIS-to-report day join (Pacific local day shift possible)."
+    "Stop dates use America/Los_Angeles."
   ]
 }

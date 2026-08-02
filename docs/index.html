@@ -184,6 +184,8 @@
       font-size: 0.8rem;
       color: var(--alert);
     }
+    .stops-tag.ok { color: var(--sea-mid); }
+    .stops-tag.warn { color: #8a6a2f; }
     .leaflet-popup-content {
       font-family: "Source Sans 3", sans-serif;
       font-size: 0.9rem;
@@ -349,12 +351,18 @@
           .map((s) => `<li>${s.count} ${s.species}${s.per_person != null ? ` <span class="fpp">(${fmt(s.per_person, 2)}/pp)</span>` : ""}</li>`)
           .join("");
         const stopN = (t.offshore_stops || []).length;
+        const status = t.ais_status || (stopN ? "matched_stops" : "no_offshore_stop");
+        const detail = t.ais_status_detail || (stopN
+          ? `${stopN} offshore AIS stop(s) plotted (catch not split)`
+          : "No offshore AIS stop matched for this day");
+        const statusClass = status === "matched_stops" ? "ok"
+          : (status === "outside_ais_window" || status === "no_mmsi" ? "warn" : "");
         return `<article class="trip">
           <h3>${t.boat_name}</h3>
           <div class="meta">${t.city} · ${t.landing_name || "—"} · ${t.trip_type || "—"} · ${t.anglers ?? "?"} anglers</div>
           <div><span class="fpp">${fmt(t.fish_per_person, 2)} fish / person</span> · ${t.total_fish_kept ?? 0} kept</div>
           <ul class="species">${species || "<li>No species parsed</li>"}</ul>
-          <div class="stops-tag">${stopN ? `${stopN} offshore AIS stop(s) plotted (catch not split)` : "No offshore AIS stop matched for this day"}</div>
+          <div class="stops-tag ${statusClass}">${detail}</div>
         </article>`;
       }).join("") || "<p class='status'>No trips for this filter/day.</p>";
 
