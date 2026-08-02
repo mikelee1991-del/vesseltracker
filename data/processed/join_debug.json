@@ -2,11 +2,9 @@
   "unmatched_boat_names": [
     "Aggressor",
     "Amigo",
-    "Apollo",
     "Betty-G",
     "Betty-O",
     "Blackfish",
-    "Dreamer",
     "Gail Force",
     "Ghost",
     "MarDiosa",
@@ -72,10 +70,9 @@
   },
   "registry_non_high": [],
   "ais_status_counts": {
-    "outside_ais_window": 2217,
-    "no_mmsi": 1061,
-    "matched_stops": 255,
-    "no_offshore_stop": 82
+    "matched_stops": 1657,
+    "no_offshore_stop": 911,
+    "no_mmsi": 1047
   },
   "notes": [
     "Edit FEEDBACK.md / scripts/config.py VESSEL_ALIASES to correct MMSI/boat matches.",

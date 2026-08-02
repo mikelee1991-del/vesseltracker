@@ -18,8 +18,8 @@
     "end": "2025-12-31"
   },
   "ais_window": {
-    "start": "2025-08-01",
-    "end": "2025-08-31"
+    "start": "2025-01-01",
+    "end": "2025-12-31"
   },
   "ais_availability_note": "Free Marine Cadastre bulk AIS daily files used here currently run through 2025-12-31. Stops are dated in America/Los_Angeles.",
   "methods": {
@@ -430,16 +430,15 @@
   "stats": {
     "n_days_with_reports": 352,
     "n_trips": 3615,
-    "n_offshore_stops": 1043,
-    "n_registry_vessels": 17,
-    "n_trips_with_stops": 255,
-    "n_trips_unmatched_to_mmsi": 1061,
+    "n_offshore_stops": 9081,
+    "n_registry_vessels": 19,
+    "n_trips_with_stops": 1657,
+    "n_trips_unmatched_to_mmsi": 1047,
     "ais_status_counts": {
-      "outside_ais_window": 2217,
-      "no_mmsi": 1061,
-      "matched_stops": 255,
-      "no_offshore_stop": 82
+      "matched_stops": 1657,
+      "no_offshore_stop": 911,
+      "no_mmsi": 1047
     }
   },
-  "default_date": "2025-08-31"
+  "default_date": "2025-12-31"
 }
