@@ -184,7 +184,7 @@
           <div>
             <label>Bathymetry stack</label>
             <div class="basemap-toggles">
-              <label class="chk"><input type="checkbox" id="toggleNcei" checked /> NCEI DEM (≤3″ tiles)</label>
+              <label class="chk"><input type="checkbox" id="toggleNcei" checked /> NCEI DEM tiles (finest first)</label>
               <label class="chk"><input type="checkbox" id="toggleBlueTopo" checked /> BlueTopo elevation</label>
               <label class="chk"><input type="checkbox" id="toggleBlueTopoHill" checked /> BlueTopo hillshade</label>
               <label class="chk"><input type="checkbox" id="toggleBag" checked /> BAG survey hillshade</label>
@@ -255,13 +255,12 @@
     }
 
     const NCEI_RENDER = encodeURIComponent(JSON.stringify({ rasterFunction: "ColorHillshade" }));
-    // Prefer coastal 1/3″–3″ DEMs (Santa Monica, Orange County, SoCal CRM) over ETOPO.
+    // Prefer finest available DEM (1/3″ coastal → CRM → ETOPO) without excluding deep water.
     const NCEI_MOSAIC = encodeURIComponent(JSON.stringify({
       mosaicMethod: "ByAttribute",
       sortField: "CellsizeArcseconds",
       sortValue: "0",
       ascending: true,
-      where: "CellsizeArcseconds <= 3",
     }));
     const BAG_RENDER = encodeURIComponent(JSON.stringify({ rasterFunction: "ColorHillshadeBAG" }));
 
