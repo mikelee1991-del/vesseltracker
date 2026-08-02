@@ -82,6 +82,16 @@ Evidence from allowlisted fleet AIS (Aug 2025):
 - Likely spot-to-spot hops: median ~13 min transit, ~1.3 km
 - Old `gap=30` glued nearby spots; old `min=20` dropped e.g. Native Sun’s ~15 min stops on 2025-08-15
 
+## Feature / spot clustering (underwater place grouping)
+
+Stops within `FEATURE_CLUSTER_RADIUS_FT` of a shared centroid are merged into one
+map spot (centroid-bounded clustering). Default **50 ft** (~15.24 m) is a guess for
+AIS/GPS revisit scatter on the same place — not the full width of a reef.
+
+| Parameter | Current | Notes |
+|-----------|--------:|-------|
+| `FEATURE_CLUSTER_RADIUS_FT` | 50 | Tune up if same reef splits; down if distinct pins merge |
+
 Further suggested changes:
 
 | Parameter | New value | Why |

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LA Sportfishing Take — Locations</title>
+  <title>LA Sportfishing Take — Spots</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -121,9 +121,9 @@
     <header>
       <h1 class="brand">LA Sportfishing Take</h1>
       <p>
-        Fishing locations from AIS offshore stops. Circle size is dwell time;
-        color tracks mean trip fish/person of boats that stopped there
-        (trip totals — not catch attributed to the spot).
+        Fishing spots grouped from AIS offshore stops within ~50 ft (AIS scatter).
+        Circle size is dwell time; color tracks mean trip fish/person of boats
+        that stopped there (trip totals — not catch attributed to the spot).
       </p>
     </header>
     <div class="layout">
@@ -146,7 +146,7 @@
             <select id="boatFilter"><option value="">All boats</option></select>
           </div>
           <div>
-            <label for="sortBy">Sort locations</label>
+            <label for="sortBy">Sort spots</label>
             <select id="sortBy">
               <option value="dwell">Total dwell</option>
               <option value="visits">Boat-days</option>
@@ -165,7 +165,7 @@
           <p class="status" id="status">Loading…</p>
         </div>
         <div class="stat-row">
-          <div class="stat"><div class="k">Locations</div><div class="v" id="statLocs">—</div></div>
+          <div class="stat"><div class="k">Spots</div><div class="v" id="statLocs">—</div></div>
           <div class="stat"><div class="k">Stops</div><div class="v" id="statStops">—</div></div>
           <div class="stat"><div class="k">Mean FPP*</div><div class="v" id="statFpp">—</div></div>
         </div>
@@ -178,8 +178,8 @@
         <div id="map"></div>
         <div class="legend">
           <strong>BlueTopo + NCEI DEM</strong><br />
-          Size ∝ dwell · Color ∝ trip FPP<br />
-          Click a spot for visiting boats
+          Spots ≤50 ft AIS cluster<br />
+          Size ∝ dwell · Color ∝ trip FPP
         </div>
       </div>
     </div>
@@ -279,25 +279,32 @@
       });
     }
 
+    function locId(loc) {
+      return loc.feature_id || loc.grid_id;
+    }
+
     function currentLocations() {
       const boat = el("boatFilter").value;
       let locs = state.locations;
       if (state.mode === "day" && state.dayPayload) {
-        // Rebuild lightweight locations from selected day's trip stops
+        // Rebuild lightweight spots from selected day's trip stops (pre-assigned feature_id)
         const mapLoc = new Map();
         for (const t of state.dayPayload.trips) {
           if (boat && t.boat_name !== boat) continue;
           for (const s of t.offshore_stops || []) {
-            const gid = s.grid_id || `pt_${s.lat.toFixed(3)}_${s.lon.toFixed(3)}`;
-            let loc = mapLoc.get(gid);
+            const fid = s.feature_id || s.grid_id || `pt_${s.lat.toFixed(3)}_${s.lon.toFixed(3)}`;
+            let loc = mapLoc.get(fid);
             if (!loc) {
               loc = {
-                grid_id: gid, lat: s.lat, lon: s.lon, n_stops: 0, total_dwell_min: 0,
+                feature_id: fid, grid_id: fid, lat: 0, lon: 0, lat_sum: 0, lon_sum: 0,
+                n_stops: 0, total_dwell_min: 0,
                 boats: new Set(), visits: [], fpp_values: [], species_top: [],
               };
-              mapLoc.set(gid, loc);
+              mapLoc.set(fid, loc);
             }
             loc.n_stops += 1;
+            loc.lat_sum += s.lat;
+            loc.lon_sum += s.lon;
             loc.total_dwell_min += s.duration_min || 0;
             loc.boats.add(t.boat_name);
             loc.visits.push({
@@ -311,6 +318,8 @@
         }
         locs = [...mapLoc.values()].map((loc) => ({
           ...loc,
+          lat: loc.lat_sum / loc.n_stops,
+          lon: loc.lon_sum / loc.n_stops,
           n_boats: loc.boats.size,
           n_boat_days: loc.visits.length,
           n_days: 1,
@@ -351,13 +360,13 @@
 
     function showLocationList(locs) {
       el("list").innerHTML = locs.slice(0, 80).map((loc) => `
-        <article class="loc ${state.selectedId === loc.grid_id ? "selected" : ""}" data-id="${loc.grid_id}">
+        <article class="loc ${state.selectedId === locId(loc) ? "selected" : ""}" data-id="${locId(loc)}">
           <h3>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</h3>
           <div class="meta">${loc.n_stops} stops · ${loc.n_boats} boat(s) · ${fmt(loc.total_dwell_min, 0)} min dwell</div>
           <div><span class="fpp">${fmt(loc.mean_trip_fpp, 2)} mean trip fish/person</span></div>
           <div class="meta">${(loc.boats || []).slice(0, 4).join(", ")}${(loc.boats || []).length > 4 ? "…" : ""}</div>
         </article>
-      `).join("") || "<p class='status'>No locations for this filter.</p>";
+      `).join("") || "<p class='status'>No spots for this filter.</p>";
 
       el("list").querySelectorAll(".loc").forEach((node) => {
         node.addEventListener("click", () => selectLocation(node.dataset.id, locs));
@@ -366,13 +375,14 @@
 
     function showLocationDetail(loc) {
       const visits = [...(loc.visits || [])].sort((a, b) => (a.date < b.date ? 1 : -1));
+      const spread = loc.cluster_spread_m != null ? `${fmt(loc.cluster_spread_m, 0)} m spread` : "≤50 ft cluster";
       el("list").innerHTML = `
-        <button type="button" class="secondary back" id="backBtn">← All locations</button>
+        <button type="button" class="secondary back" id="backBtn">← All spots</button>
         <div class="detail">
           <h3>${loc.lat.toFixed(4)}°, ${loc.lon.toFixed(4)}°</h3>
-          <div class="meta">${loc.n_stops} stops · ${fmt(loc.total_dwell_min, 0)} min total dwell · ${loc.n_boats} boats</div>
+          <div class="meta">${loc.n_stops} stops · ${fmt(loc.total_dwell_min, 0)} min total dwell · ${loc.n_boats} boats · ${spread}</div>
           <div><span class="fpp">${fmt(loc.mean_trip_fpp, 2)} mean trip fish/person</span> of visiting boat-days</div>
-          <p class="note">Trip catch totals are not attributed to this spot.</p>
+          <p class="note">Stops within ~50 ft are treated as the same feature (AIS scatter). Trip catch totals are not attributed to this spot.</p>
           ${visits.slice(0, 40).map((v) => {
             const species = (v.species || []).slice(0, 5).map((s) => `<li>${s.count} ${s.species}</li>`).join("");
             return `<article class="visit">
@@ -390,13 +400,12 @@
     }
 
     function selectLocation(id, locs) {
-      const loc = (locs || currentLocations()).find((l) => l.grid_id === id);
+      const loc = (locs || currentLocations()).find((l) => locId(l) === id);
       if (!loc) return;
       state.selectedId = id;
       showLocationDetail(loc);
       map.panTo([loc.lat, loc.lon]);
-      // pulse selected marker via popup
-      const marker = state.markers.find((m) => m._gridId === id);
+      const marker = state.markers.find((m) => m._featureId === id);
       if (marker) marker.openPopup();
     }
 
@@ -406,11 +415,12 @@
       const bounds = [];
       const maxDwell = Math.max(...locs.map((l) => l.total_dwell_min || 0), 1);
       locs.forEach((loc) => {
+        const id = locId(loc);
         const radius = 6 + 14 * Math.sqrt((loc.total_dwell_min || 0) / maxDwell);
         const marker = L.circleMarker([loc.lat, loc.lon], {
           radius,
           color: fppColor(loc.mean_trip_fpp),
-          weight: state.selectedId === loc.grid_id ? 3 : 1.5,
+          weight: state.selectedId === id ? 3 : 1.5,
           fillColor: fppColor(loc.mean_trip_fpp),
           fillOpacity: 0.7,
         }).bindPopup(
@@ -419,8 +429,8 @@
            <strong>${fmt(loc.mean_trip_fpp, 2)} mean trip fish/person</strong><br>
            ${(loc.boats || []).slice(0, 5).join(", ")}`
         );
-        marker._gridId = loc.grid_id;
-        marker.on("click", () => selectLocation(loc.grid_id, locs));
+        marker._featureId = id;
+        marker.on("click", () => selectLocation(id, locs));
         marker.addTo(state.layer);
         state.markers.push(marker);
         bounds.push([loc.lat, loc.lon]);
@@ -434,8 +444,8 @@
       el("statLocs").textContent = String(locs.length);
       el("statStops").textContent = String(locs.reduce((a, l) => a + (l.n_stops || 0), 0));
       el("statFpp").textContent = fpps.length ? fmt(fpps.reduce((a, b) => a + b, 0) / fpps.length, 2) : "—";
-      if (state.selectedId && locs.some((l) => l.grid_id === state.selectedId)) {
-        showLocationDetail(locs.find((l) => l.grid_id === state.selectedId));
+      if (state.selectedId && locs.some((l) => locId(l) === state.selectedId)) {
+        showLocationDetail(locs.find((l) => locId(l) === state.selectedId));
       } else {
         state.selectedId = null;
         showLocationList(locs);
@@ -444,7 +454,8 @@
       const modeLabel = state.mode === "day" && el("day").value
         ? el("day").value
         : `${state.meta.ais_window.start} → ${state.meta.ais_window.end}`;
-      el("status").textContent = `${modeLabel} · ${locs.length} location(s)`;
+      const ft = state.meta.feature_cluster_radius_ft || 50;
+      el("status").textContent = `${modeLabel} · ${locs.length} spot(s) · ≤${ft} ft clusters`;
     }
 
     async function loadDay(dateStr) {
@@ -502,10 +513,11 @@
       renderDocks(meta.home_docks);
       el("boatFilter").innerHTML = '<option value="">All boats</option>' +
         (meta.boats || []).map((b) => `<option value="${b}">${b}</option>`).join("");
+      const ft = meta.feature_cluster_radius_ft || 50;
       el("methodNote").textContent =
-        `Locations from AIS offshore stops (${meta.ais_window.start}→${meta.ais_window.end}). ` +
+        `Spots = AIS offshore stops clustered within ${ft} ft (AIS/GPS scatter; ${meta.ais_window.start}→${meta.ais_window.end}). ` +
         `Mean FPP is trip dock-total fish/person of visiting boat-days — catch is not attributed to spots. ` +
-        `${meta.stats.n_locations || "?"} locations · ${meta.stats.n_offshore_stops} stops.`;
+        `${meta.stats.n_features || meta.stats.n_locations || "?"} spots · ${meta.stats.n_offshore_stops} stops.`;
       const locData = await (await fetch("data/locations.json")).json();
       state.locations = locData.locations || [];
       setMode("all");

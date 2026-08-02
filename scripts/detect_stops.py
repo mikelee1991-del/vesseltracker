@@ -19,12 +19,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from config import (  # noqa: E402
     DATA_PROCESSED,
+    FEATURE_CLUSTER_RADIUS_M,
     HOME_DOCKS,
     STOP_CLUSTER_RADIUS_M,
     STOP_GAP_MIN,
     STOP_MAX_SOG_KN,
     STOP_MIN_DURATION_MIN,
 )
+from feature_cluster import assign_feature_ids  # noqa: E402
 
 
 def haversine_m(lat1, lon1, lat2, lon2) -> float:
@@ -145,10 +147,15 @@ def main():
 
     for s in all_stops:
         s["grid_id"] = cluster_label(s["lat"], s["lon"])
+    assign_feature_ids(all_stops, FEATURE_CLUSTER_RADIUS_M)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(all_stops, indent=2))
-    print(f"Wrote {len(all_stops)} offshore stops -> {args.out}")
+    n_features = len({s["feature_id"] for s in all_stops})
+    print(
+        f"Wrote {len(all_stops)} offshore stops / {n_features} features "
+        f"(radius {FEATURE_CLUSTER_RADIUS_M:.2f} m) -> {args.out}"
+    )
 
 
 if __name__ == "__main__":

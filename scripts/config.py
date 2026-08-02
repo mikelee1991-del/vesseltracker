@@ -45,7 +45,12 @@ HOME_DOCKS = [
 STOP_MAX_SOG_KN = 0.8
 STOP_MIN_DURATION_MIN = 10
 STOP_GAP_MIN = 8  # merge only short AIS gaps; do not glue spot-to-spot runs
-STOP_CLUSTER_RADIUS_M = 250
+STOP_CLUSTER_RADIUS_M = 250  # legacy coarse grid label only (not the map feature key)
+
+# Group nearby AIS stop centroids into one underwater "feature"/spot.
+# ~50 ft ≈ AIS/GPS scatter for revisits to the same place (tunable).
+FEATURE_CLUSTER_RADIUS_FT = 50
+FEATURE_CLUSTER_RADIUS_M = FEATURE_CLUSTER_RADIUS_FT * 0.3048
 
 # Marine Cadastre 2025 daily AIS (1-minute sample of NAIS broadcasts).
 # Note: as of 2026-08-02, free bulk AIS appears published through 2025-12-31.

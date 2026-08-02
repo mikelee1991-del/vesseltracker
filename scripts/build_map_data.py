@@ -23,6 +23,8 @@ from config import (  # noqa: E402
     DATA_PROCESSED,
     DATA_RAW,
     DOCS_DATA,
+    FEATURE_CLUSTER_RADIUS_FT,
+    FEATURE_CLUSTER_RADIUS_M,
     FISH_REPORT_SOURCE,
     HOME_DOCKS,
     PILOT_AIS_END,
@@ -33,6 +35,7 @@ from config import (  # noqa: E402
     VESSEL_ALIASES,
 )
 from extract_ais import build_accepted_names, normalize_name  # noqa: E402
+from feature_cluster import assign_feature_ids, haversine_m  # noqa: E402
 
 
 def load_trips(path: Path) -> list[dict]:
@@ -82,7 +85,8 @@ def compact_stop(s: dict) -> dict:
         "duration_min": s["duration_min"],
         "start_utc": s["start_utc"],
         "end_utc": s["end_utc"],
-        "grid_id": s["grid_id"],
+        "grid_id": s.get("grid_id"),
+        "feature_id": s.get("feature_id"),
         "ais_vessel_name": s["ais_vessel_name"],
         "mean_sog_kn": s["mean_sog_kn"],
         "n_points": s["n_points"],
@@ -101,6 +105,10 @@ def main():
 
     trips = load_trips(args.trips)
     stops = json.loads(args.stops.read_text()) if args.stops.exists() else []
+    # Re-cluster with current radius so config changes apply on rebuild.
+    if stops:
+        assign_feature_ids(stops, FEATURE_CLUSTER_RADIUS_M)
+        args.stops.write_text(json.dumps(stops, indent=2))
     registry = json.loads(args.registry.read_text()) if args.registry.exists() else []
     accepted = build_accepted_names(args.trips)
     ais_start, ais_end = detect_ais_window(args.ais_dir)
@@ -215,19 +223,19 @@ def main():
     for day in days_out:
         (days_dir / f"{day['date']}.json").write_text(json.dumps(day))
 
-    # Location-centric aggregate (grid cells). Trip FPP is attached as visit
-    # context only — not a location catch rate.
+    # Feature-centric aggregate: stops within FEATURE_CLUSTER_RADIUS_M are one
+    # underwater spot. Trip FPP is visit context only — not a location catch rate.
     loc_map: dict[str, dict] = {}
     for d, trips_d in by_date.items():
         for t in trips_d:
             for s in t.get("offshore_stops") or []:
-                gid = s.get("grid_id") or f"pt_{round(s['lat'],3)}_{round(s['lon'],3)}"
+                fid = s.get("feature_id") or s.get("grid_id") or (
+                    f"pt_{round(s['lat'], 3)}_{round(s['lon'], 3)}"
+                )
                 loc = loc_map.setdefault(
-                    gid,
+                    fid,
                     {
-                        "grid_id": gid,
-                        "lat": 0.0,
-                        "lon": 0.0,
+                        "feature_id": fid,
                         "lat_sum": 0.0,
                         "lon_sum": 0.0,
                         "n_stops": 0,
@@ -237,6 +245,7 @@ def main():
                         "visits": [],
                         "fpp_values": [],
                         "species_totals": defaultdict(float),
+                        "stop_points": [],
                     },
                 )
                 loc["lat_sum"] += s["lat"]
@@ -245,6 +254,7 @@ def main():
                 loc["total_dwell_min"] += float(s.get("duration_min") or 0)
                 loc["boats"].add(t["boat_name"])
                 loc["dates"].add(d)
+                loc["stop_points"].append((s["lat"], s["lon"]))
                 visit = {
                     "date": d,
                     "boat_name": t["boat_name"],
@@ -263,8 +273,14 @@ def main():
                     loc["species_totals"][sp["species"]] += float(sp.get("count") or 0)
 
     locations = []
-    for gid, loc in loc_map.items():
+    for fid, loc in loc_map.items():
         n = loc["n_stops"]
+        lat = loc["lat_sum"] / n
+        lon = loc["lon_sum"] / n
+        # Max distance from centroid to a member stop (cluster footprint).
+        spread_m = 0.0
+        for plat, plon in loc["stop_points"]:
+            spread_m = max(spread_m, haversine_m(lat, lon, plat, plon))
         fpp_vals = loc["fpp_values"]
         species_top = sorted(
             ({"species": k, "count": round(v, 1)} for k, v in loc["species_totals"].items()),
@@ -272,14 +288,18 @@ def main():
         )[:8]
         locations.append(
             {
-                "grid_id": gid,
-                "lat": loc["lat_sum"] / n,
-                "lon": loc["lon_sum"] / n,
+                "feature_id": fid,
+                # Keep grid_id alias so older UI bits still key correctly.
+                "grid_id": fid,
+                "lat": lat,
+                "lon": lon,
                 "n_stops": n,
                 "n_boat_days": len(loc["visits"]),
                 "n_boats": len(loc["boats"]),
                 "n_days": len(loc["dates"]),
                 "total_dwell_min": round(loc["total_dwell_min"], 1),
+                "cluster_spread_m": round(spread_m, 1),
+                "cluster_radius_m": FEATURE_CLUSTER_RADIUS_M,
                 "mean_trip_fpp": (sum(fpp_vals) / len(fpp_vals)) if fpp_vals else None,
                 "median_trip_fpp": (
                     sorted(fpp_vals)[len(fpp_vals) // 2] if fpp_vals else None
@@ -294,14 +314,28 @@ def main():
             }
         )
     locations.sort(key=lambda x: (-x["total_dwell_min"], -x["n_stops"]))
-    (args.out_dir / "locations.json").write_text(json.dumps({"locations": locations}))
+    (args.out_dir / "locations.json").write_text(
+        json.dumps(
+            {
+                "cluster_radius_m": FEATURE_CLUSTER_RADIUS_M,
+                "cluster_radius_ft": FEATURE_CLUSTER_RADIUS_FT,
+                "cluster_method": (
+                    "centroid-bounded cluster of AIS stop positions within "
+                    f"{FEATURE_CLUSTER_RADIUS_FT} ft / {FEATURE_CLUSTER_RADIUS_M:.2f} m "
+                    "of a shared centroid (AIS positional noise; same underwater feature)"
+                ),
+                "locations": locations,
+            }
+        )
+    )
 
     meta = {
         "title": "LA-area sportfishing take (pilot)",
         "description": (
-            "Location-centric view of AIS offshore stops joined to "
-            "socalfishreports.com dock totals. Catch counts are NOT split "
-            "across stop locations; trip fish/person is shown as visit context."
+            "Feature-centric view of AIS offshore stops clustered by proximity "
+            f"({FEATURE_CLUSTER_RADIUS_FT} ft) and joined to socalfishreports.com "
+            "dock totals. Catch counts are NOT split across stop locations; "
+            "trip fish/person is shown as visit context."
         ),
         "sources": {
             "fish_reports": FISH_REPORT_SOURCE,
@@ -325,6 +359,12 @@ def main():
                 "SOG <= configured max, duration >= configured min, outside home-dock "
                 "radii; see scripts/config.py"
             ),
+            "feature_clustering": (
+                f"Centroid-bounded cluster of stop positions within "
+                f"{FEATURE_CLUSTER_RADIUS_FT} ft ({FEATURE_CLUSTER_RADIUS_M:.2f} m) "
+                "of a shared centroid; absorbs AIS/GPS scatter for revisits to the "
+                "same place without chaining along a reef."
+            ),
             "catch_location_attribution": (
                 "NOT applied. Trip totals remain at voyage level. Location "
                 "productivity will be estimated later by cross-vessel statistics."
@@ -334,12 +374,15 @@ def main():
                 "pull prior local days."
             ),
         },
+        "feature_cluster_radius_m": FEATURE_CLUSTER_RADIUS_M,
+        "feature_cluster_radius_ft": FEATURE_CLUSTER_RADIUS_FT,
         "home_docks": HOME_DOCKS,
         "dates": dates,
         "stats": {
             "n_days_with_reports": len(dates),
             "n_trips": len(trips),
             "n_offshore_stops": len(stops),
+            "n_features": len(locations),
             "n_locations": len(locations),
             "n_registry_vessels": len(registry),
             "n_trips_with_stops": matched_with_stops,
