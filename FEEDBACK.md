@@ -9,6 +9,8 @@ Only include **verified** corrections — do not invent MMSIs or catches.
 2. **Day join timezone:** AIS timestamps are UTC; fish reports are calendar days (likely Pacific). Near-midnight trips may join to the wrong local day.
 3. **Name ↔ MMSI matching:** Automated from AIS `vessel_name` vs report boat names. Ambiguous names need manual confirmation below.
 4. **Catch attribution:** Per your decision, trip totals are **not** split across stops yet.
+5. **Fleet coverage:** Expanded dock totals to Dana Point (2026-08-02). Most high-volume LA boats
+   without AIS (Betty-O, Pursuit, Patriot, Ghost, …) still cannot be added without a known MMSI.
 
 ## Confirmed MMSI mappings
 
@@ -33,6 +35,9 @@ Pilot allowlist (from AIS name + length/type/call-sign heuristics; please verify
 | Spitfire | 368269920 | SPITFIRE | Short length / type 36 — verify |
 | City of Long Beach | 367034320 | CITY OF LONG BEACH | |
 | Ahra-Ahn | 367038000 | AHRA-AHN | |
+| Dana Pride | 366849310 | DANA PRIDE | Dana Point only — not San Pedro Pride |
+| Apollo | 368370000 | APOLLO | Sparse AIS (few days in 2025) |
+| Dreamer | 338068929 | DREAMER | Sparse AIS; distinct from denied 338146692 |
 
 ## Wrong automated matches (reject)
 
@@ -47,20 +52,32 @@ Pilot allowlist (from AIS name + length/type/call-sign heuristics; please verify
 
 ## Boats in reports with no verified AIS MMSI (full 2025 NAIS search)
 
-Still unmatched after name search + trip-day correlation + dock-departure fingerprinting
-(2026-08-02). **Do not invent mappings** — dock heuristics produced wrong vessel names
-(e.g. Pursuit↛SEANA C).
+Still unmatched after repeated name search + trip-day correlation + dock-departure
+fingerprinting (2026-08-02). **Do not invent mappings** — dock heuristics produced
+wrong vessel names (e.g. Pursuit↛SEANA C; Betty-O↛LEGACY/SEANA C).
 
-| Report boat | Notes |
-|-------------|--------|
-| Pursuit | No AIS name hit on trip days in SoCal NAIS |
-| Betty-O | No trustworthy MDR match; VesselFinder has no BETTY-O |
-| Ghost | `GHOST DANCER` (366892030) **absent** on Ghost trip days |
-| Amigo, Aggressor, Blackfish, Sport King, Pride, Gail Force, Pescador, MarDiosa, Patriot (Newport), Truline, Navegante, Betty-G, Apollo | No verified identity |
+These account for a large share of trips (~1,000+) but do **not** appear under their
+report names in Marine Cadastre NAIS for SoCal:
 
-Likely causes: no AIS / Class B not in this feed / different broadcast name / land-based NAIS gaps.
+| Report boat | Trips (2025) | Notes |
+|-------------|-------------:|-------|
+| Betty-O | 198 | No BETTY-O AIS; parked BETTY/BETTY GENE are wrong vessels |
+| Patriot (Newport) | 178 | Exact PATRIOT MMSIs are MDR/Dana idle recreational craft |
+| Pursuit | 132 | No charter-sized PURSUIT track on trip days |
+| Ghost | 98 | `GHOST DANCER` absent on Ghost trip days |
+| Aggressor | 91 | No AIS name hit |
+| Blackfish | 78 | No AIS name hit |
+| Amigo | 69 | No AIS name hit |
+| Sport King | 67 | No AIS name hit |
+| Pride (San Pedro) | 53 | DANA PRIDE / WESTERN PRIDE are other boats |
+| Gail Force | 50 | GAIL-ANNE is a parked recreational craft |
+| Pescador, MarDiosa, Truline, Navegante, Betty-G | few | No verified identity |
 
-If you know an MMSI or AIS name, add it under **Confirmed MMSI mappings** above.
+Likely causes: no AIS transceiver / Class B not in this 1-min NAIS sample / different
+broadcast name / coverage gaps.
+
+**If you know an MMSI or AIS broadcast name for any of these, add it under Confirmed
+MMSI mappings** — that is the fastest way to get them on the map.
 
 ## Dock exclusion radius adjustments
 

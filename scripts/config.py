@@ -17,13 +17,16 @@ TARGET_CITIES = {
     "Long Beach",
     "Marina Del Rey",
     "Newport Beach",
+    # Nearby basin / adjacent landings with dock totals + AIS coverage.
+    "Dana Point",
 }
 
 # SoCal coastal bbox used when filtering Marine Cadastre AIS (WGS84).
+# Slightly extended south for Dana Point fishing grounds.
 AIS_BBOX = {
     "min_lon": -119.05,
-    "max_lon": -117.55,
-    "min_lat": 33.35,
+    "max_lon": -117.45,
+    "min_lat": 33.20,
     "max_lat": 34.15,
 }
 
@@ -37,6 +40,7 @@ HOME_DOCKS = [
     {"name": "Pierpoint Landing (Long Beach)", "lat": 33.7570, "lon": -118.1900, "radius_m": 800},
     {"name": "Marina Del Rey Sportfishing", "lat": 33.9735, "lon": -118.4485, "radius_m": 900},
     {"name": "Newport Landing / Davey's Locker", "lat": 33.6030, "lon": -117.9285, "radius_m": 900},
+    {"name": "Dana Wharf Sportfishing", "lat": 33.4605, "lon": -117.7070, "radius_m": 900},
 ]
 
 # Stop detection (pilot defaults; tune via FEEDBACK.md).
@@ -86,6 +90,7 @@ VESSEL_ALIASES = {
     "NATIVESUN": "Native Sun",
     "MONTECARLO": "Monte Carlo",
     "ELPATRON": "El Patron",
+    "DANAPRIDE": "Dana Pride",
 }
 
 # MMSIs rejected after inspection (same name as a charter, but wrong vessel).
@@ -104,6 +109,10 @@ MMSI_DENYLIST = {
     338353534,  # EL DORADO recreational
     338146692,  # DREAMER recreational (not MDR/Long Beach charter pattern)
     338424198,  # PATRIOT recreational near MDR — Newport Patriot AIS name unconfirmed
+    338429048,  # CURRENT — not Dana Wharf charter (moors ~San Pedro outer; weak trip overlap)
+    338477409,  # FURY recreational (len 13; only 3 AIS days)
+    # Note: 366849310 DANA PRIDE is allowlisted for report boat "Dana Pride" only;
+    # it must never map to San Pedro "Pride".
 }
 
 # Preferred MMSIs when known (wins over heuristic).
@@ -125,4 +134,7 @@ MMSI_ALLOWLIST = {
     368078070,  # THUNDERBIRD
     366915000,  # EL PATRON
     368269920,  # SPITFIRE (only AIS match; verify in FEEDBACK)
+    366849310,  # DANA PRIDE (Dana Point — not San Pedro Pride)
+    368370000,  # APOLLO
+    338068929,  # DREAMER (sparse AIS; keep for rare matches)
 }
