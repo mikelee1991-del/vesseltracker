@@ -63,3 +63,59 @@ PILOT_AIS_END = "2025-08-31"
 
 USER_AGENT = "vesseltracker-research/0.1 (+https://github.com/mikelee1991-del/vesseltracker; educational research)"
 REQUEST_SLEEP_SEC = 0.35
+
+# Explicit AIS vessel_name (normalized) -> report boat name.
+# Only exact normalized equality or these aliases are accepted (no fuzzy substring).
+VESSEL_ALIASES = {
+    "REDONDO": "Redondo Special",
+    "PATRIOT": "Patriot (Newport)",
+    "BETTYO": "Betty-O",
+    "BETTYG": "Betty-G",
+    "SPORTKING": "Sport King",
+    "CITYOFLONGBEACH": "City of Long Beach",
+    "AHRAAHN": "Ahra-Ahn",
+    "NEWDELMAR": "New Del Mar",
+    "WESTERNPRIDE": "Western Pride",
+    "NATIVESUN": "Native Sun",
+    "MONTECARLO": "Monte Carlo",
+    "ELPATRON": "El Patron",
+}
+
+# MMSIs rejected after inspection (same name as a charter, but wrong vessel).
+# Evidence lives in FEEDBACK.md / join_debug.
+MMSI_DENYLIST = {
+    338225409,  # SWEET FREEDOM (removed by alias tightening; keep listed)
+    368033280,  # VICTORY recreational
+    338189834,  # FREEDOM recreational
+    338164131,
+    338098628,
+    338509385,
+    338054072,
+    538070070,  # TRITON large yacht (Marshall Islands)
+    368215840,  # EL PATRON recreational
+    338360469,
+    338353534,  # EL DORADO recreational
+    338146692,  # DREAMER recreational (not MDR/Long Beach charter pattern)
+    338424198,  # PATRIOT recreational near MDR — Newport Patriot AIS name unconfirmed
+}
+
+# Preferred MMSIs when known (wins over heuristic).
+MMSI_ALLOWLIST = {
+    366855060,  # NEW DEL MAR
+    366760710,  # REDONDO / Redondo Special
+    366977270,  # VICTORY
+    367621160,  # FREEDOM (San Pedro)
+    367550710,  # TRITON (San Pedro sportfisher)
+    366977380,  # FREELANCE
+    367038000,  # AHRA-AHN
+    367034320,  # CITY OF LONG BEACH
+    367158550,  # WESTERN PRIDE
+    368014440,  # MONTE CARLO
+    367655460,  # NATIVE SUN
+    367095040,  # ENTERPRISE
+    368089620,  # ELDORADO
+    367169120,  # TORONADO
+    368078070,  # THUNDERBIRD
+    366915000,  # EL PATRON
+    368269920,  # SPITFIRE (only AIS match; verify in FEEDBACK)
+}

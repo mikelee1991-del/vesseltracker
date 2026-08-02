@@ -42,6 +42,7 @@ def main():
         if args.ais_end:
             cmd += ["--end", args.ais_end]
         run(cmd)
+        run([py, "scripts/refine_registry.py"])
         run([py, "scripts/detect_stops.py"])
 
     run([py, "scripts/build_map_data.py"])

@@ -1,0 +1,188 @@
+[
+  {
+    "date": "2025-08-01",
+    "rows": 6431,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-01.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-02",
+    "rows": 6154,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-02.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-03",
+    "rows": 4691,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-03.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-04",
+    "rows": 4185,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-04.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-05",
+    "rows": 4183,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-05.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-06",
+    "rows": 4299,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-06.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-07",
+    "rows": 4107,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-07.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-08",
+    "rows": 4435,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-08.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-09",
+    "rows": 5210,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-09.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-10",
+    "rows": 5715,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-10.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-11",
+    "rows": 4929,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-11.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-12",
+    "rows": 3781,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-12.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-13",
+    "rows": 3065,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-13.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-14",
+    "rows": 3099,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-14.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-15",
+    "rows": 3955,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-15.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-16",
+    "rows": 4921,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-16.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-17",
+    "rows": 5130,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-17.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-18",
+    "rows": 4143,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-18.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-19",
+    "rows": 5071,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-19.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-20",
+    "rows": 4582,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-20.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-21",
+    "rows": 4269,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-21.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-22",
+    "rows": 4335,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-22.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-23",
+    "rows": 6985,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-23.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-24",
+    "rows": 6208,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-24.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-25",
+    "rows": 4325,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-25.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-26",
+    "rows": 3695,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-26.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-27",
+    "rows": 4493,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-27.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-28",
+    "rows": 4079,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-28.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-29",
+    "rows": 4771,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-29.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-30",
+    "rows": 4661,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-30.parquet",
+    "skipped": false
+  },
+  {
+    "date": "2025-08-31",
+    "rows": 5223,
+    "path": "/workspace/data/processed/ais_daily/ais_2025-08-31.parquet",
+    "skipped": false
+  }
+]

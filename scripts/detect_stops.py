@@ -101,6 +101,7 @@ def cluster_label(lat: float, lon: float, radius_m: float = STOP_CLUSTER_RADIUS_
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ais-dir", type=Path, default=DATA_PROCESSED / "ais_daily")
+    ap.add_argument("--registry", type=Path, default=DATA_PROCESSED / "vessel_mmsi_registry.json")
     ap.add_argument("--out", type=Path, default=DATA_PROCESSED / "offshore_stops.json")
     args = ap.parse_args()
 
@@ -108,6 +109,16 @@ def main():
     if not files:
         print("No AIS parquet files found.", file=sys.stderr)
         sys.exit(2)
+
+    allowed = None
+    if args.registry.exists():
+        reg = json.loads(args.registry.read_text())
+        allowed = {
+            int(r["mmsi"])
+            for r in reg
+            if r.get("match_confidence") in ("high", "high_secondary")
+        }
+        print(f"Restricting stops to {len(allowed)} registry MMSIs")
 
     con = duckdb.connect()
     glob = (args.ais_dir / "ais_*.parquet").as_posix()
@@ -119,6 +130,8 @@ def main():
         ORDER BY mmsi, base_date_time
         """
     ).fetchdf()
+    if allowed is not None:
+        df = df[df["mmsi"].isin(allowed)]
     df["base_date_time"] = pd.to_datetime(df["base_date_time"], utc=True)
 
     all_stops: list[dict] = []

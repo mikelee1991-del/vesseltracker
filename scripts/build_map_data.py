@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -29,26 +28,9 @@ from config import (  # noqa: E402
     PILOT_REPORT_END,
     PILOT_REPORT_START,
     TARGET_CITIES,
+    VESSEL_ALIASES,
 )
-
-NAME_NORMALIZE_RE = re.compile(r"[^A-Z0-9]+")
-
-
-def normalize_name(name: str) -> str:
-    return NAME_NORMALIZE_RE.sub("", (name or "").upper())
-
-
-def aliases_for(name: str) -> set[str]:
-    n = normalize_name(name)
-    out = {n}
-    if n.endswith("SPECIAL"):
-        out.add(n[: -len("SPECIAL")])
-    if n.startswith("NEW"):
-        out.add(n[3:])
-    for suf in ("NEWPORT", "VENTURA", "MB", "LB"):
-        if n.endswith(suf) and len(n) > len(suf) + 2:
-            out.add(n[: -len(suf)])
-    return {x for x in out if x}
+from extract_ais import build_accepted_names, normalize_name  # noqa: E402
 
 
 def load_trips(path: Path) -> list[dict]:
@@ -72,18 +54,19 @@ def main():
     trips = load_trips(args.trips)
     stops = json.loads(args.stops.read_text()) if args.stops.exists() else []
     registry = json.loads(args.registry.read_text()) if args.registry.exists() else []
+    accepted = build_accepted_names(args.trips)
 
-    # Map report boat name -> mmsi(s)
+    # Map report boat name -> mmsi(s) using registry high-confidence rows only.
     name_to_mmsi: dict[str, set[int]] = defaultdict(set)
-    mmsi_to_names: dict[int, set[str]] = defaultdict(set)
     for r in registry:
+        if r.get("match_confidence") != "high":
+            continue
         mmsi = int(r["mmsi"])
         for bn in r.get("report_boat_names") or []:
-            for a in aliases_for(bn):
-                name_to_mmsi[a].add(mmsi)
-            mmsi_to_names[mmsi].add(bn)
-        for a in aliases_for(r.get("ais_vessel_name", "")):
-            name_to_mmsi[a].add(mmsi)
+            name_to_mmsi[normalize_name(bn)].add(mmsi)
+        ais_norm = normalize_name(r.get("ais_vessel_name", ""))
+        if ais_norm in accepted:
+            name_to_mmsi[normalize_name(accepted[ais_norm])].add(mmsi)
 
     # Index stops by mmsi + local date (UTC date; documented limitation)
     stops_by_key: dict[tuple[int, str], list[dict]] = defaultdict(list)
@@ -108,10 +91,8 @@ def main():
     unmatched_trips = 0
     matched_with_stops = 0
     for t in trips:
-        norms = aliases_for(t["boat_name"])
-        mmsis: set[int] = set()
-        for n in norms:
-            mmsis |= name_to_mmsi.get(n, set())
+        key = normalize_name(t["boat_name"])
+        mmsis = set(name_to_mmsi.get(key, set()))
         trip_stops = []
         for m in sorted(mmsis):
             trip_stops.extend(stops_by_key.get((m, t["date"]), []))
@@ -215,17 +196,13 @@ def main():
     # Also a small debug summary for FEEDBACK loop.
     debug = {
         "unmatched_boat_names": sorted(
-            {
-                t["boat_name"]
-                for t in trips
-                if not any(name_to_mmsi.get(a) for a in aliases_for(t["boat_name"]))
-            }
+            {t["boat_name"] for t in trips if not name_to_mmsi.get(normalize_name(t["boat_name"]))}
         ),
-        "registry_low_confidence": [
-            r for r in registry if r.get("match_confidence") != "high"
-        ],
+        "accepted_ais_name_keys": sorted(accepted.keys()),
+        "vessel_aliases_config": VESSEL_ALIASES,
+        "registry_non_high": [r for r in registry if r.get("match_confidence") != "high"],
         "notes": [
-            "Edit FEEDBACK.md to correct MMSI/boat matches or dock radii.",
+            "Edit FEEDBACK.md / scripts/config.py VESSEL_ALIASES to correct MMSI/boat matches.",
             "UTC date used for AIS-to-report day join (Pacific local day shift possible).",
         ],
     }

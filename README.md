@@ -23,8 +23,16 @@ Live page (GitHub Pages): `docs/index.html` → enable Pages from `/docs`.
 - Free, no API key required for this feed.
 - As of **2026-08-02**, the bulk daily feed used here is available through **2025-12-31**. 2026 days are not in that feed yet.
 - Pilot AIS extract defaults to **2025-08** (scalable scripts accept any range within available files).
+- No API keys needed for this path. If you later want denser-than-1-minute AIS from another free source, we can evaluate it.
 
-If you want higher-than-1-minute cadence from another free source, say so — we can evaluate it. No paid API keys are required for the current path.
+### Pilot data currently in-repo
+
+| Dataset | Coverage | Count |
+|---------|----------|------:|
+| Fish-report trips | 2025-01-01 → 2025-12-31 | 3,615 |
+| Matched charter MMSIs | allowlisted | 17 |
+| Offshore AIS stops | 2025-08 | 416 |
+| Report boats with no AIS name match in Aug extract | — | see `FEEDBACK.md` |
 
 ## Pipeline
 

@@ -266,19 +266,28 @@
 
     // NOAA BlueTopo bathymetry (nowCOAST WMTS, EPSG:3857)
     const blueTopo = L.tileLayer(
-      "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=bluetopo:bathymetry&STYLE=&FORMAT=image/png8&TILEMATRIXSET=EPSG:3857&TILEMATRIX=EPSG:3857:{z}&TILEROW={y}&TILECOL={x}",
+      "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts?layer=bluetopo:bathymetry&style=&tilematrixset=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png8&TileMatrix=EPSG:3857:{z}&TileCol={x}&TileRow={y}",
       {
         maxZoom: 14,
-        opacity: 0.95,
-        attribution: 'Bathymetry © NOAA BlueTopo / nowCOAST',
+        opacity: 0.92,
+        attribution: "Bathymetry © NOAA BlueTopo / nowCOAST",
+      }
+    );
+    const blueTopoRelief = L.tileLayer(
+      "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts?layer=bluetopo:hillshade&style=&tilematrixset=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png8&TileMatrix=EPSG:3857:{z}&TileCol={x}&TileRow={y}",
+      {
+        maxZoom: 14,
+        opacity: 0.35,
+        attribution: "Relief © NOAA BlueTopo / nowCOAST",
       }
     );
     const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 18,
-      opacity: 0.35,
-      attribution: '&copy; OpenStreetMap',
+      opacity: 0.28,
+      attribution: "&copy; OpenStreetMap",
     });
     blueTopo.addTo(map);
+    blueTopoRelief.addTo(map);
     osm.addTo(map);
 
     const dayInput = document.getElementById("day");
