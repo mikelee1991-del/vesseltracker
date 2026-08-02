@@ -1,0 +1,719 @@
+{
+  "generated_at": "2026-08-02T23:53:54.397658+00:00",
+  "focus_ports": [
+    "Redondo Beach",
+    "San Pedro"
+  ],
+  "instructions": "Confirm an MMSI only if you know it is that charter\u2019s AIS identity (hull, FCC/USCG docs, MarineTraffic track that matches trip days, or captain/landing confirmation). Include the AIS broadcast name if it differs from the dock-total name. Download JSON and send it back or run scripts/apply_mmsi_feedback.py.",
+  "stats": {
+    "n_unmatched_boats": 25,
+    "n_unmatched_focus_boats": 10,
+    "n_unmatched_focus_trips": 491,
+    "n_matched_focus_boats": 6
+  },
+  "unmatched": [
+    {
+      "report_boat": "Pursuit",
+      "n_trips": 132,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "22nd Street Landing",
+          "n": 132
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Pursuit",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Pursuit"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Ghost",
+      "n_trips": 98,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "22nd Street Landing",
+          "n": 98
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Ghost",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Ghost"
+      },
+      "search_hints": [
+        {
+          "mmsi": 366892030,
+          "ais_name": "GHOST DANCER",
+          "length_m": 24,
+          "vessel_type": 37,
+          "call_sign": "WDB3853",
+          "sample_day": "2025-06-04",
+          "denied": false,
+          "allowlisted": false,
+          "note": "Name-search candidate only \u2014 verify before confirming"
+        }
+      ],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Amigo",
+      "n_trips": 69,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "22nd Street Landing",
+          "n": 69
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Amigo",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Amigo"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Sport King",
+      "n_trips": 67,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "LA Waterfront Cruises and Sportfishing",
+          "n": 67
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Sport+King",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Sport+King"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Pride",
+      "n_trips": 53,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "22nd Street Landing",
+          "n": 53
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Pride",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Pride"
+      },
+      "search_hints": [
+        {
+          "mmsi": 367158550,
+          "ais_name": "WESTERN PRIDE",
+          "length_m": 23,
+          "vessel_type": 60,
+          "call_sign": "WDD5447",
+          "sample_day": "2025-06-08",
+          "denied": false,
+          "allowlisted": true,
+          "note": "Name-search candidate only \u2014 verify before confirming"
+        },
+        {
+          "mmsi": 366849310,
+          "ais_name": "DANA PRIDE",
+          "length_m": 29,
+          "vessel_type": 60,
+          "call_sign": "WEOO",
+          "sample_day": "2025-06-15",
+          "denied": false,
+          "allowlisted": true,
+          "note": "Name-search candidate only \u2014 verify before confirming"
+        }
+      ],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Gail Force",
+      "n_trips": 50,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "LA Waterfront Cruises and Sportfishing",
+          "n": 50
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Gail+Force",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Gail+Force"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Pescador",
+      "n_trips": 18,
+      "cities": [
+        "Redondo Beach"
+      ],
+      "landings": [
+        {
+          "name": "Redondo Beach Sportfishing",
+          "n": 18
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Pescador",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Pescador"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Truline",
+      "n_trips": 2,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "22nd Street Landing",
+          "n": 2
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Truline",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Truline"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Betty-G",
+      "n_trips": 1,
+      "cities": [
+        "Redondo Beach"
+      ],
+      "landings": [
+        {
+          "name": "Redondo Beach Sportfishing",
+          "n": 1
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Betty-G",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Betty-G"
+      },
+      "search_hints": [
+        {
+          "mmsi": 338364112,
+          "ais_name": "BETTY GENE",
+          "length_m": 12,
+          "vessel_type": 36,
+          "call_sign": "BETTYG",
+          "sample_day": "2025-05-23",
+          "denied": false,
+          "allowlisted": false,
+          "note": "Name-search candidate only \u2014 verify before confirming"
+        }
+      ],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Navegante",
+      "n_trips": 1,
+      "cities": [
+        "Redondo Beach"
+      ],
+      "landings": [
+        {
+          "name": "Redondo Beach Sportfishing",
+          "n": 1
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Navegante",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Navegante"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Clemente",
+      "n_trips": 319,
+      "cities": [
+        "Dana Point"
+      ],
+      "landings": [
+        {
+          "name": "Dana Wharf Sportfishing",
+          "n": 319
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Clemente",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Clemente"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Sum Fun",
+      "n_trips": 286,
+      "cities": [
+        "Dana Point"
+      ],
+      "landings": [
+        {
+          "name": "Dana Wharf Sportfishing",
+          "n": 286
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Sum+Fun",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Sum+Fun"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Reel Fun",
+      "n_trips": 202,
+      "cities": [
+        "Dana Point"
+      ],
+      "landings": [
+        {
+          "name": "Dana Wharf Sportfishing",
+          "n": 202
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Reel+Fun",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Reel+Fun"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Betty-O",
+      "n_trips": 198,
+      "cities": [
+        "Marina Del Rey"
+      ],
+      "landings": [
+        {
+          "name": "Marina Del Rey Sportfishing",
+          "n": 198
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Betty-O",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Betty-O"
+      },
+      "search_hints": [
+        {
+          "mmsi": 338319107,
+          "ais_name": "BETTY",
+          "length_m": 14,
+          "vessel_type": 36,
+          "call_sign": null,
+          "sample_day": "2025-06-01",
+          "denied": false,
+          "allowlisted": false,
+          "note": "Name-search candidate only \u2014 verify before confirming"
+        }
+      ],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Patriot (Newport)",
+      "n_trips": 178,
+      "cities": [
+        "Newport Beach"
+      ],
+      "landings": [
+        {
+          "name": "Newport Landing",
+          "n": 178
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Patriot+%28Newport%29",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Patriot+%28Newport%29"
+      },
+      "search_hints": [
+        {
+          "mmsi": 338424198,
+          "ais_name": "PATRIOT",
+          "length_m": 12,
+          "vessel_type": 36,
+          "call_sign": null,
+          "sample_day": "2025-06-01",
+          "denied": true,
+          "allowlisted": false,
+          "note": "Already denied \u2014 do not confirm"
+        }
+      ],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Fury",
+      "n_trips": 123,
+      "cities": [
+        "Dana Point"
+      ],
+      "landings": [
+        {
+          "name": "Dana Wharf Sportfishing",
+          "n": 123
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Fury",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Fury"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Aggressor",
+      "n_trips": 91,
+      "cities": [
+        "Newport Beach"
+      ],
+      "landings": [
+        {
+          "name": "Newport Landing",
+          "n": 91
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Aggressor",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Aggressor"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Blackfish",
+      "n_trips": 78,
+      "cities": [
+        "Newport Beach"
+      ],
+      "landings": [
+        {
+          "name": "Davey's Locker",
+          "n": 77
+        },
+        {
+          "name": "Newport Landing",
+          "n": 1
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Blackfish",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Blackfish"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "New San Mateo",
+      "n_trips": 56,
+      "cities": [
+        "Dana Point"
+      ],
+      "landings": [
+        {
+          "name": "Dana Wharf Sportfishing",
+          "n": 56
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=New+San+Mateo",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=New+San+Mateo"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Current",
+      "n_trips": 44,
+      "cities": [
+        "Dana Point"
+      ],
+      "landings": [
+        {
+          "name": "Dana Wharf Sportfishing",
+          "n": 44
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Current",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Current"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Helena",
+      "n_trips": 23,
+      "cities": [
+        "Dana Point"
+      ],
+      "landings": [
+        {
+          "name": "Dana Wharf Sportfishing",
+          "n": 23
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Helena",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Helena"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "MarDiosa",
+      "n_trips": 11,
+      "cities": [
+        "Long Beach"
+      ],
+      "landings": [
+        {
+          "name": "Long Beach Sportfishing",
+          "n": 11
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=MarDiosa",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=MarDiosa"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Lex Sea",
+      "n_trips": 10,
+      "cities": [
+        "Dana Point"
+      ],
+      "landings": [
+        {
+          "name": "Dana Wharf Sportfishing",
+          "n": 10
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Lex+Sea",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Lex+Sea"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "San Mateo",
+      "n_trips": 7,
+      "cities": [
+        "Dana Point"
+      ],
+      "landings": [
+        {
+          "name": "Dana Wharf Sportfishing",
+          "n": 7
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=San+Mateo",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=San+Mateo"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Second Chance",
+      "n_trips": 4,
+      "cities": [
+        "Dana Point"
+      ],
+      "landings": [
+        {
+          "name": "Dana Wharf Sportfishing",
+          "n": 4
+        }
+      ],
+      "priority": "other",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Second+Chance",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Second+Chance"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    }
+  ],
+  "matched_focus": [
+    {
+      "report_boat": "Monte Carlo",
+      "n_trips": 216,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "22nd Street Landing",
+          "n": 216
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Monte+Carlo",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Monte+Carlo"
+      },
+      "search_hints": [],
+      "status": "matched",
+      "mmsi": 368014440
+    },
+    {
+      "report_boat": "Native Sun",
+      "n_trips": 174,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "22nd Street Landing",
+          "n": 174
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Native+Sun",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Native+Sun"
+      },
+      "search_hints": [],
+      "status": "matched",
+      "mmsi": 367655460
+    },
+    {
+      "report_boat": "Redondo Special",
+      "n_trips": 132,
+      "cities": [
+        "Redondo Beach"
+      ],
+      "landings": [
+        {
+          "name": "Redondo Beach Sportfishing",
+          "n": 132
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Redondo+Special",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Redondo+Special"
+      },
+      "search_hints": [],
+      "status": "matched",
+      "mmsi": 366760710
+    },
+    {
+      "report_boat": "Freedom",
+      "n_trips": 47,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "22nd Street Landing",
+          "n": 47
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Freedom",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Freedom"
+      },
+      "search_hints": [],
+      "status": "matched",
+      "mmsi": 367621160
+    },
+    {
+      "report_boat": "Triton",
+      "n_trips": 28,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "LA Waterfront Cruises and Sportfishing",
+          "n": 28
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Triton",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Triton"
+      },
+      "search_hints": [],
+      "status": "matched",
+      "mmsi": 367550710
+    },
+    {
+      "report_boat": "Apollo",
+      "n_trips": 10,
+      "cities": [
+        "San Pedro"
+      ],
+      "landings": [
+        {
+          "name": "22nd Street Landing",
+          "n": 10
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Apollo",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Apollo"
+      },
+      "search_hints": [],
+      "status": "matched",
+      "mmsi": 368370000
+    }
+  ]
+}

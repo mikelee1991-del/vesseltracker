@@ -27,6 +27,8 @@ from config import (  # noqa: E402
     AIS_FILENAME,
     DATA_PROCESSED,
     DATA_RAW,
+    MMSI_ALLOWLIST,
+    MMSI_TO_REPORT_BOAT,
     PILOT_AIS_END,
     PILOT_AIS_START,
     VESSEL_ALIASES,
@@ -97,6 +99,8 @@ def extract_day(
 
     url = f"{AIS_BASE_URL}/{AIS_FILENAME.format(date=day.isoformat())}"
     bbox = AIS_BBOX
+    allow_mmsis = sorted(set(MMSI_ALLOWLIST) | set(MMSI_TO_REPORT_BOAT))
+    allow_sql = ",".join(str(int(m)) for m in allow_mmsis) if allow_mmsis else "-1"
     q = f"""
     SELECT
       mmsi,
@@ -117,7 +121,10 @@ def extract_day(
     FROM read_csv('{url}', compression='zstd', parallel=true, ignore_errors=true)
     WHERE longitude BETWEEN {bbox['min_lon']} AND {bbox['max_lon']}
       AND latitude BETWEEN {bbox['min_lat']} AND {bbox['max_lat']}
-      AND vessel_name IS NOT NULL
+      AND (
+        vessel_name IS NOT NULL
+        OR mmsi IN ({allow_sql})
+      )
     """
     df = con.execute(q).fetchdf()
     if df.empty:
@@ -125,11 +132,17 @@ def extract_day(
             out_path.unlink()
         return {"date": day.isoformat(), "rows": 0, "path": None, "skipped": False}
 
-    norms = df["vessel_name"].map(normalize_name)
-    mask = norms.isin(set(accepted.keys()))
-    fleet_df = df.loc[mask].copy()
-    fleet_df["vessel_name_norm"] = norms[mask].values
-    fleet_df["report_boat_name"] = fleet_df["vessel_name_norm"].map(accepted)
+    norms = df["vessel_name"].fillna("").map(normalize_name)
+    name_hit = norms.isin(set(accepted.keys()))
+    mmsi_hit = df["mmsi"].isin(set(allow_mmsis))
+    fleet_df = df.loc[name_hit | mmsi_hit].copy()
+    fleet_df["vessel_name_norm"] = norms.loc[fleet_df.index].values
+    # Prefer explicit MMSI→boat mapping (confirmed human / allowlist), else name.
+    report_by_mmsi = {int(k): v for k, v in MMSI_TO_REPORT_BOAT.items()}
+    fleet_df["report_boat_name"] = [
+        report_by_mmsi.get(int(m)) or accepted.get(n)
+        for m, n in zip(fleet_df["mmsi"], fleet_df["vessel_name_norm"])
+    ]
     fleet_df["date"] = day.isoformat()
     if fleet_df.empty:
         if out_path.exists():

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Match boats → AIS MMSI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #13202b;
+      --foam: #e8f1f4;
+      --sea: #0b3d4a;
+      --sea-mid: #17687a;
+      --sand: #c4a574;
+      --alert: #b54a2a;
+      --ok: #1f6b4a;
+      --panel: rgba(232, 241, 244, 0.94);
+      --line: rgba(19, 32, 43, 0.14);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; min-height: 100%; color: var(--ink);
+      font-family: "Source Sans 3", sans-serif;
+      background:
+        radial-gradient(1000px 520px at 8% -10%, #9fd0d8 0%, transparent 55%),
+        radial-gradient(800px 420px at 100% 0%, #d7c3a1 0%, transparent 50%),
+        linear-gradient(165deg, #dfe9ec 0%, #c5d5da 45%, #b7c8cf 100%);
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 1rem 1.1rem 3rem; }
+    header {
+      padding: 0.9rem 0 0.85rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1rem;
+    }
+    .brand {
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(1.45rem, 3vw, 2rem);
+      font-weight: 700; letter-spacing: -0.02em; color: var(--sea);
+      margin: 0; line-height: 1.1;
+    }
+    header p { margin: 0.35rem 0 0; max-width: 70ch; color: rgba(19,32,43,0.78); }
+    header a { color: var(--sea-mid); font-weight: 600; }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: end;
+      margin: 0.9rem 0 1rem;
+    }
+    label {
+      display: block; font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--sea); margin-bottom: 0.28rem;
+    }
+    select, input, textarea, button {
+      font: inherit; padding: 0.5rem 0.65rem;
+      border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink);
+    }
+    button {
+      cursor: pointer; background: var(--sea); color: #f4fafb; border-color: var(--sea); font-weight: 600;
+    }
+    button.secondary { background: #fff; color: var(--sea); }
+    button.danger { background: var(--alert); border-color: var(--alert); color: #fff; }
+    button.ok { background: var(--ok); border-color: var(--ok); color: #fff; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .stats {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem;
+      margin-bottom: 0.9rem;
+    }
+    @media (max-width: 700px) { .stats { grid-template-columns: 1fr; } }
+    .stat {
+      padding: 0.6rem 0.7rem; border: 1px solid var(--line); border-radius: 10px;
+      background: var(--panel);
+    }
+    .stat .k { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(19,32,43,0.65); }
+    .stat .v { font-family: Fraunces, Georgia, serif; font-size: 1.25rem; font-weight: 700; color: var(--sea); }
+    .note {
+      font-size: 0.88rem; line-height: 1.4; color: rgba(19,32,43,0.78);
+      margin: 0 0 1rem; padding: 0.65rem 0.75rem;
+      border-left: 3px solid var(--sand); background: rgba(196,165,116,0.14);
+    }
+    .boat {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+      padding: 0.85rem 0.9rem; margin-bottom: 0.7rem;
+    }
+    .boat.confirmed { border-color: rgba(31,107,74,0.45); box-shadow: inset 3px 0 0 var(--ok); }
+    .boat.rejected-row { border-color: rgba(181,74,42,0.35); }
+    .boat h2 {
+      margin: 0; font-family: Fraunces, Georgia, serif; font-size: 1.15rem; color: var(--sea);
+    }
+    .meta { margin: 0.2rem 0 0.55rem; font-size: 0.86rem; color: rgba(19,32,43,0.7); }
+    .badge {
+      display: inline-block; font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      padding: 0.15rem 0.4rem; border-radius: 999px;
+      background: rgba(23,104,122,0.12); color: var(--sea-mid); margin-right: 0.35rem;
+    }
+    .badge.focus { background: rgba(196,165,116,0.28); color: #6a4e24; }
+    .grid {
+      display: grid; grid-template-columns: 1.1fr 1.1fr 1.4fr auto; gap: 0.45rem; align-items: end;
+    }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .hints { margin-top: 0.55rem; font-size: 0.82rem; }
+    .hints summary { cursor: pointer; color: var(--sea-mid); font-weight: 600; }
+    .hint {
+      margin-top: 0.35rem; padding: 0.45rem 0.55rem;
+      background: rgba(255,255,255,0.65); border: 1px solid var(--line); border-radius: 8px;
+    }
+    .hint.denied { opacity: 0.7; }
+    .links { margin-top: 0.45rem; display: flex; flex-wrap: wrap; gap: 0.65rem; font-size: 0.86rem; }
+    .links a { color: var(--sea-mid); font-weight: 600; }
+    .draft-bar {
+      position: sticky; bottom: 0; z-index: 20;
+      display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+      margin-top: 1rem; padding: 0.75rem 0.85rem;
+      background: rgba(11,61,74,0.95); color: #e8f1f4; border-radius: 12px 12px 0 0;
+    }
+    .draft-bar strong { font-family: Fraunces, Georgia, serif; }
+    .draft-bar button.secondary { color: var(--sea); }
+    .empty { color: rgba(19,32,43,0.65); font-size: 0.92rem; }
+    #status { font-size: 0.82rem; color: rgba(19,32,43,0.65); min-height: 1.2em; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 class="brand">Match boats → AIS MMSI</h1>
+      <p>
+        Help fill Redondo &amp; San Pedro gaps. Only confirm an MMSI when you are sure
+        it is that charter (docs, captain/landing, or a track that matches trip days).
+        Drafts save in this browser; download JSON when ready and send it back
+        (or open a PR with <code>scripts/apply_mmsi_feedback.py</code>).
+        <a href="./index.html">← Back to map</a>
+      </p>
+    </header>
+
+    <p class="note" id="instructions">Loading unmatched boats…</p>
+    <div class="stats" id="stats" hidden>
+      <div class="stat"><div class="k">Focus unmatched boats</div><div class="v" id="statBoats">—</div></div>
+      <div class="stat"><div class="k">Focus unmatched trips</div><div class="v" id="statTrips">—</div></div>
+      <div class="stat"><div class="k">Your draft confirms</div><div class="v" id="statDraft">0</div></div>
+    </div>
+
+    <div class="toolbar">
+      <div>
+        <label for="portFilter">Show</label>
+        <select id="portFilter">
+          <option value="focus">Redondo + San Pedro</option>
+          <option value="unmatched">All unmatched ports</option>
+          <option value="matched">Already matched (focus)</option>
+        </select>
+      </div>
+      <div>
+        <label for="search">Filter name</label>
+        <input id="search" type="search" placeholder="Pursuit, Ghost…" />
+      </div>
+      <button type="button" class="secondary" id="btnLoadDraft">Reload draft</button>
+      <button type="button" class="secondary" id="btnClearDraft">Clear draft</button>
+    </div>
+    <p id="status"></p>
+    <div id="list"></div>
+
+    <div class="draft-bar">
+      <strong id="draftSummary">0 confirms · 0 rejects</strong>
+      <button type="button" class="ok" id="btnDownload">Download feedback JSON</button>
+      <button type="button" class="secondary" id="btnCopyMd">Copy FEEDBACK.md rows</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "vesseltracker.mmsiFeedback.v1";
+    const el = (id) => document.getElementById(id);
+    let payload = null;
+    let draft = loadDraft();
+
+    function loadDraft() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
+    function saveDraft() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+      syncDraftBar();
+    }
+    function boatDraft(name) {
+      if (!draft[name]) draft[name] = { mmsi: "", ais_name: "", notes: "", decision: "" };
+      return draft[name];
+    }
+
+    function syncDraftBar() {
+      const confirms = Object.values(draft).filter((d) => d.decision === "confirm" && d.mmsi).length;
+      const rejects = Object.values(draft).filter((d) => d.decision === "reject" && d.mmsi).length;
+      el("draftSummary").textContent = `${confirms} confirm${confirms === 1 ? "" : "s"} · ${rejects} reject${rejects === 1 ? "" : "s"}`;
+      el("statDraft").textContent = String(confirms);
+    }
+
+    function buildFeedback() {
+      const confirmations = [];
+      const rejections = [];
+      for (const [report_boat, d] of Object.entries(draft)) {
+        const mmsi = parseInt(String(d.mmsi || "").replace(/\D/g, ""), 10);
+        if (!mmsi) continue;
+        const row = {
+          report_boat,
+          mmsi,
+          ais_name: (d.ais_name || "").trim(),
+          notes: (d.notes || "").trim(),
+          source: "human",
+        };
+        if (d.decision === "confirm") confirmations.push(row);
+        if (d.decision === "reject") rejections.push(row);
+      }
+      return {
+        version: 1,
+        updated_at: new Date().toISOString(),
+        focus_ports: payload?.focus_ports || ["Redondo Beach", "San Pedro"],
+        confirmations,
+        rejections,
+      };
+    }
+
+    function render() {
+      if (!payload) return;
+      const mode = el("portFilter").value;
+      const q = el("search").value.trim().toLowerCase();
+      let rows = [];
+      if (mode === "matched") rows = payload.matched_focus || [];
+      else if (mode === "focus") rows = (payload.unmatched || []).filter((b) => b.priority === "focus");
+      else rows = payload.unmatched || [];
+      if (q) rows = rows.filter((b) => b.report_boat.toLowerCase().includes(q));
+
+      const list = el("list");
+      list.innerHTML = "";
+      if (!rows.length) {
+        list.innerHTML = `<p class="empty">No boats in this view.</p>`;
+        return;
+      }
+
+      for (const boat of rows) {
+        const d = boatDraft(boat.report_boat);
+        const card = document.createElement("article");
+        card.className = "boat";
+        if (d.decision === "confirm") card.classList.add("confirmed");
+        if (d.decision === "reject") card.classList.add("rejected-row");
+
+        const landing = (boat.landings || []).map((l) => `${l.name} (${l.n})`).join(", ") || "—";
+        const cities = (boat.cities || []).join(", ") || "—";
+        const matchedBit = boat.status === "matched"
+          ? `<span class="badge">Matched ${boat.mmsi}</span>`
+          : `<span class="badge">Unmatched</span>`;
+        const focusBit = boat.priority === "focus" ? `<span class="badge focus">Focus port</span>` : "";
+
+        const hints = boat.search_hints || [];
+        const hintsHtml = hints.length
+          ? `<details class="hints"><summary>${hints.length} prior name-search hint(s) — verify, don’t trust</summary>
+              ${hints.map((h) => `
+                <div class="hint ${h.denied ? "denied" : ""}">
+                  <strong>${h.mmsi}</strong> · ${h.ais_name || "?"}
+                  · len ${h.length_m ?? "?"} · type ${h.vessel_type ?? "?"}
+                  ${h.call_sign ? " · " + h.call_sign : ""}
+                  <div>${h.note || ""}</div>
+                  <button type="button" class="secondary hint-use" data-mmsi="${h.mmsi}" data-ais="${(h.ais_name || "").replace(/"/g, "&quot;")}">Use as starting point</button>
+                </div>`).join("")}
+            </details>`
+          : "";
+
+        card.innerHTML = `
+          <h2>${boat.report_boat}</h2>
+          <p class="meta">
+            ${matchedBit}${focusBit}
+            ${boat.n_trips} trip(s) · ${cities}<br />
+            ${landing}
+          </p>
+          <div class="links">
+            <a href="${boat.lookup.marinetraffic}" target="_blank" rel="noopener">MarineTraffic search</a>
+            <a href="${boat.lookup.vesselfinder}" target="_blank" rel="noopener">VesselFinder search</a>
+          </div>
+          ${boat.status === "matched" ? "" : `
+          <div class="grid" style="margin-top:0.65rem">
+            <div>
+              <label>MMSI</label>
+              <input class="f-mmsi" inputmode="numeric" placeholder="366XXXXXX" value="${d.mmsi || ""}" />
+            </div>
+            <div>
+              <label>AIS broadcast name</label>
+              <input class="f-ais" placeholder="if different from report name" value="${d.ais_name || ""}" />
+            </div>
+            <div>
+              <label>Notes</label>
+              <input class="f-notes" placeholder="how you know (captain, FCC, track…)" value="${d.notes || ""}" />
+            </div>
+            <div class="actions">
+              <button type="button" class="ok f-confirm">Confirm</button>
+              <button type="button" class="danger f-reject">Reject MMSI</button>
+            </div>
+          </div>
+          <p class="meta" style="margin-top:0.45rem">Decision: <strong class="f-decision">${d.decision || "none"}</strong></p>
+          ${hintsHtml}`}
+        `;
+
+        if (boat.status !== "matched") {
+          const mmsiIn = card.querySelector(".f-mmsi");
+          const aisIn = card.querySelector(".f-ais");
+          const notesIn = card.querySelector(".f-notes");
+          const decisionEl = card.querySelector(".f-decision");
+          const sync = () => {
+            d.mmsi = mmsiIn.value.trim();
+            d.ais_name = aisIn.value.trim();
+            d.notes = notesIn.value.trim();
+            saveDraft();
+          };
+          mmsiIn.addEventListener("input", sync);
+          aisIn.addEventListener("input", sync);
+          notesIn.addEventListener("input", sync);
+          card.querySelector(".f-confirm").addEventListener("click", () => {
+            sync();
+            if (!parseInt(String(d.mmsi).replace(/\D/g, ""), 10)) {
+              el("status").textContent = `Enter an MMSI for ${boat.report_boat} before confirming.`;
+              return;
+            }
+            d.decision = "confirm";
+            decisionEl.textContent = "confirm";
+            card.classList.add("confirmed");
+            card.classList.remove("rejected-row");
+            saveDraft();
+            el("status").textContent = `Queued confirm: ${boat.report_boat} → ${d.mmsi}`;
+          });
+          card.querySelector(".f-reject").addEventListener("click", () => {
+            sync();
+            if (!parseInt(String(d.mmsi).replace(/\D/g, ""), 10)) {
+              el("status").textContent = `Enter the MMSI to reject for ${boat.report_boat}.`;
+              return;
+            }
+            d.decision = "reject";
+            decisionEl.textContent = "reject";
+            card.classList.add("rejected-row");
+            card.classList.remove("confirmed");
+            saveDraft();
+            el("status").textContent = `Queued reject: ${d.mmsi} for ${boat.report_boat}`;
+          });
+          card.querySelectorAll(".hint-use").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              mmsiIn.value = btn.dataset.mmsi || "";
+              aisIn.value = btn.dataset.ais || "";
+              sync();
+            });
+          });
+        }
+        list.appendChild(card);
+      }
+    }
+
+    el("btnDownload").addEventListener("click", () => {
+      const fb = buildFeedback();
+      if (!fb.confirmations.length && !fb.rejections.length) {
+        el("status").textContent = "Nothing to download yet — confirm or reject at least one MMSI.";
+        return;
+      }
+      const blob = new Blob([JSON.stringify(fb, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `mmsi_human_feedback_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      el("status").textContent = "Downloaded feedback JSON — send that file back or apply with the script.";
+    });
+
+    el("btnCopyMd").addEventListener("click", async () => {
+      const fb = buildFeedback();
+      const lines = [];
+      for (const c of fb.confirmations) {
+        lines.push(`| ${c.report_boat} | ${c.mmsi} | ${c.ais_name || ""} | ${c.notes || "Human confirm"} |`);
+      }
+      for (const r of fb.rejections) {
+        lines.push(`| ${r.ais_name || "MMSI"} / ${r.mmsi} | ${r.report_boat} | Denied (${r.notes || "human"}) |`);
+      }
+      if (!lines.length) {
+        el("status").textContent = "Nothing to copy yet.";
+        return;
+      }
+      await navigator.clipboard.writeText(lines.join("\n"));
+      el("status").textContent = "Copied markdown rows — paste into FEEDBACK.md if you prefer.";
+    });
+
+    el("btnClearDraft").addEventListener("click", () => {
+      if (!confirm("Clear all drafted MMSI decisions in this browser?")) return;
+      draft = {};
+      saveDraft();
+      render();
+      el("status").textContent = "Draft cleared.";
+    });
+    el("btnLoadDraft").addEventListener("click", () => {
+      draft = loadDraft();
+      syncDraftBar();
+      render();
+      el("status").textContent = "Draft reloaded from this browser.";
+    });
+    el("portFilter").addEventListener("change", render);
+    el("search").addEventListener("input", render);
+
+    fetch("./data/unmatched_boats.json")
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        payload = data;
+        el("instructions").textContent = data.instructions || "";
+        el("stats").hidden = false;
+        el("statBoats").textContent = String(data.stats?.n_unmatched_focus_boats ?? "—");
+        el("statTrips").textContent = String(data.stats?.n_unmatched_focus_trips ?? "—");
+        syncDraftBar();
+        render();
+        el("status").textContent = `Loaded ${data.stats?.n_unmatched_boats ?? 0} unmatched boats.`;
+      })
+      .catch((err) => {
+        el("instructions").textContent =
+          "Could not load data/unmatched_boats.json. Run: python3 scripts/export_unmatched_boats.py";
+        el("status").textContent = String(err);
+      });
+  </script>
+</body>
+</html>

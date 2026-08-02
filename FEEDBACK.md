@@ -76,8 +76,11 @@ report names in Marine Cadastre NAIS for SoCal:
 Likely causes: no AIS transceiver / Class B not in this 1-min NAIS sample / different
 broadcast name / coverage gaps.
 
-**If you know an MMSI or AIS broadcast name for any of these, add it under Confirmed
-MMSI mappings** — that is the fastest way to get them on the map.
+**If you know an MMSI or AIS broadcast name for any of these, use the human tool:**
+[`docs/verify-mmsi.html`](docs/verify-mmsi.html) (also linked from the map). Confirm
+only verified identities, download the JSON, and send it back — or run
+`python3 scripts/apply_mmsi_feedback.py path/to/mmsi_human_feedback.json`.
+You can also paste rows under Confirmed MMSI mappings below.
 
 ## Dock exclusion radius adjustments
 

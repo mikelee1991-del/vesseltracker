@@ -412,6 +412,13 @@ def main():
         ],
     }
     (DATA_PROCESSED / "join_debug.json").write_text(json.dumps(debug, indent=2))
+    # Keep the human MMSI verification tool in sync with the latest join.
+    try:
+        from export_unmatched_boats import main as export_unmatched_main  # noqa: E402
+
+        export_unmatched_main()
+    except Exception as exc:  # pragma: no cover - best-effort side export
+        print(f"Warning: unmatched_boats export failed: {exc}")
     print(json.dumps(meta["stats"], indent=2))
     print(f"Wrote map data -> {args.out_dir}")
 

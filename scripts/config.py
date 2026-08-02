@@ -139,3 +139,32 @@ MMSI_ALLOWLIST = {
     368370000,  # APOLLO
     338068929,  # DREAMER (sparse AIS; keep for rare matches)
 }
+
+# Explicit MMSI → report boat. Used to pull AIS for confirmed MMSIs even when
+# the broadcast vessel_name differs from the dock-total name. Keep in sync with
+# MMSI_ALLOWLIST / FEEDBACK.md (scripts/apply_mmsi_feedback.py updates both).
+MMSI_TO_REPORT_BOAT = {
+    366855060: "New Del Mar",
+    366760710: "Redondo Special",
+    366977270: "Victory",
+    367621160: "Freedom",
+    367550710: "Triton",
+    366977380: "Freelance",
+    367038000: "Ahra-Ahn",
+    367034320: "City of Long Beach",
+    367158550: "Western Pride",
+    368014440: "Monte Carlo",
+    367655460: "Native Sun",
+    367095040: "Enterprise",
+    368089620: "Eldorado",
+    367169120: "Toronado",
+    368078070: "Thunderbird",
+    366915000: "El Patron",
+    368269920: "Spitfire",
+    366849310: "Dana Pride",
+    368370000: "Apollo",
+    338068929: "Dreamer",
+}
+
+# Ports emphasized in the human MMSI verification tool.
+FOCUS_MATCH_CITIES = {"Redondo Beach", "San Pedro"}
