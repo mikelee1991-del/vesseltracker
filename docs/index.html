@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LA Sportfishing Take — AIS + Dock Totals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --ink: #13202b;
+      --foam: #e8f1f4;
+      --sea: #0b3d4a;
+      --sea-mid: #17687a;
+      --sand: #c4a574;
+      --alert: #b54a2a;
+      --panel: rgba(232, 241, 244, 0.92);
+      --line: rgba(19, 32, 43, 0.14);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      color: var(--ink);
+      font-family: "Source Sans 3", sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #9fd0d8 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #d7c3a1 0%, transparent 50%),
+        linear-gradient(165deg, #dfe9ec 0%, #c5d5da 45%, #b7c8cf 100%);
+    }
+    .app {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100%;
+      min-height: 100vh;
+    }
+    header {
+      padding: 0.9rem 1.1rem 0.75rem;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.2));
+      backdrop-filter: blur(8px);
+    }
+    header .brand {
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(1.35rem, 2.5vw, 1.9rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--sea);
+      margin: 0;
+      line-height: 1.1;
+    }
+    header p {
+      margin: 0.25rem 0 0;
+      max-width: 62ch;
+      font-size: 0.95rem;
+      color: rgba(19, 32, 43, 0.78);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) 1fr;
+      min-height: 0;
+    }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; grid-template-rows: auto 55vh; }
+    }
+    .sidebar {
+      overflow: auto;
+      padding: 0.9rem 1rem 1.4rem;
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+    }
+    #map {
+      min-height: 420px;
+      height: 100%;
+      background: #0a2a33;
+    }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--sea);
+      margin-bottom: 0.3rem;
+    }
+    .controls {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+    input[type="date"], select, button {
+      width: 100%;
+      font: inherit;
+      padding: 0.55rem 0.65rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+    }
+    .day-nav {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    button {
+      cursor: pointer;
+      background: var(--sea);
+      color: #f4fafb;
+      border-color: var(--sea);
+      font-weight: 600;
+    }
+    button.secondary {
+      background: #fff;
+      color: var(--sea);
+    }
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .stat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+      margin-bottom: 0.9rem;
+    }
+    .stat {
+      padding: 0.65rem 0.7rem;
+      border-radius: 10px;
+      background: rgba(11, 61, 74, 0.08);
+      border: 1px solid var(--line);
+    }
+    .stat .k {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(19,32,43,0.65);
+    }
+    .stat .v {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--sea);
+      margin-top: 0.15rem;
+    }
+    .note {
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: rgba(19,32,43,0.72);
+      margin: 0 0 0.9rem;
+      padding: 0.65rem 0.7rem;
+      border-left: 3px solid var(--sand);
+      background: rgba(196, 165, 116, 0.12);
+    }
+    .trip {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .trip h3 {
+      margin: 0;
+      font-size: 1.02rem;
+      font-family: Fraunces, Georgia, serif;
+    }
+    .trip .meta {
+      font-size: 0.84rem;
+      color: rgba(19,32,43,0.7);
+      margin: 0.2rem 0 0.4rem;
+    }
+    .fpp {
+      display: inline-block;
+      font-weight: 700;
+      color: var(--sea-mid);
+    }
+    .species {
+      margin: 0;
+      padding-left: 1.1rem;
+      font-size: 0.86rem;
+    }
+    .stops-tag {
+      margin-top: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--alert);
+    }
+    .leaflet-popup-content {
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+    .legend {
+      position: absolute;
+      z-index: 500;
+      right: 12px;
+      bottom: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.55rem 0.7rem;
+      font-size: 0.78rem;
+      max-width: 220px;
+      box-shadow: 0 8px 24px rgba(11, 40, 48, 0.12);
+    }
+    .map-wrap { position: relative; min-height: 0; }
+    .status { font-size: 0.82rem; color: rgba(19,32,43,0.65); min-height: 1.2em; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1 class="brand">LA Sportfishing Take</h1>
+      <p>
+        Dock-total fish per person for LA-basin landings, with AIS offshore stops
+        for context. Catch counts are voyage totals — not split across spots.
+      </p>
+    </header>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="controls">
+          <div>
+            <label for="day">Day</label>
+            <input id="day" type="date" />
+          </div>
+          <div class="day-nav">
+            <button type="button" class="secondary" id="prevDay">Previous</button>
+            <button type="button" class="secondary" id="nextDay">Next</button>
+          </div>
+          <div>
+            <label for="boatFilter">Boat filter</label>
+            <select id="boatFilter"><option value="">All boats</option></select>
+          </div>
+          <p class="status" id="status">Loading…</p>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="k">Trips</div><div class="v" id="statTrips">—</div></div>
+          <div class="stat"><div class="k">Mean fish / person</div><div class="v" id="statFpp">—</div></div>
+        </div>
+        <p class="note" id="methodNote">
+          Location productivity is not estimated yet. Markers show where boats
+          were stationary offshore; species totals remain at the trip level.
+        </p>
+        <div id="tripList"></div>
+      </aside>
+      <div class="map-wrap">
+        <div id="map"></div>
+        <div class="legend">
+          <strong>BlueTopo</strong> bathymetry<br />
+          Circles = offshore AIS stops<br />
+          Size ∝ dwell time
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const state = {
+      meta: null,
+      day: null,
+      markers: [],
+      dockMarkers: [],
+    };
+
+    const map = L.map("map", { zoomControl: true }).setView([33.72, -118.35], 9);
+
+    // NOAA BlueTopo bathymetry (nowCOAST WMTS, EPSG:3857)
+    const blueTopo = L.tileLayer(
+      "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&LAYER=bluetopo:bathymetry&STYLE=&FORMAT=image/png8&TILEMATRIXSET=EPSG:3857&TILEMATRIX=EPSG:3857:{z}&TILEROW={y}&TILECOL={x}",
+      {
+        maxZoom: 14,
+        opacity: 0.95,
+        attribution: 'Bathymetry © NOAA BlueTopo / nowCOAST',
+      }
+    );
+    const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      opacity: 0.35,
+      attribution: '&copy; OpenStreetMap',
+    });
+    blueTopo.addTo(map);
+    osm.addTo(map);
+
+    const dayInput = document.getElementById("day");
+    const tripList = document.getElementById("tripList");
+    const boatFilter = document.getElementById("boatFilter");
+    const statusEl = document.getElementById("status");
+
+    function fmt(n, d = 1) {
+      if (n === null || n === undefined || Number.isNaN(n)) return "—";
+      return Number(n).toFixed(d);
+    }
+
+    function clearMarkers() {
+      state.markers.forEach((m) => map.removeLayer(m));
+      state.markers = [];
+    }
+
+    function renderDocks(docks) {
+      state.dockMarkers.forEach((m) => map.removeLayer(m));
+      state.dockMarkers = [];
+      (docks || []).forEach((d) => {
+        const m = L.circle([d.lat, d.lon], {
+          radius: d.radius_m,
+          color: "#17687a",
+          weight: 1,
+          fillOpacity: 0.05,
+          dashArray: "4 4",
+        }).bindPopup(`<strong>Home dock exclusion</strong><br>${d.name}`);
+        m.addTo(map);
+        state.dockMarkers.push(m);
+      });
+    }
+
+    function populateBoatFilter(trips) {
+      const current = boatFilter.value;
+      const boats = [...new Set(trips.map((t) => t.boat_name))].sort();
+      boatFilter.innerHTML = '<option value="">All boats</option>' +
+        boats.map((b) => `<option value="${b}">${b}</option>`).join("");
+      if (boats.includes(current)) boatFilter.value = current;
+    }
+
+    function renderDay(payload) {
+      state.day = payload;
+      const filterBoat = boatFilter.value;
+      const trips = payload.trips.filter((t) => !filterBoat || t.boat_name === filterBoat);
+      populateBoatFilter(payload.trips);
+
+      document.getElementById("statTrips").textContent = String(trips.length);
+      const fpps = trips.map((t) => t.fish_per_person).filter((x) => x != null);
+      document.getElementById("statFpp").textContent = fpps.length
+        ? fmt(fpps.reduce((a, b) => a + b, 0) / fpps.length, 2)
+        : "—";
+
+      tripList.innerHTML = trips.map((t) => {
+        const species = (t.species || [])
+          .slice()
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 8)
+          .map((s) => `<li>${s.count} ${s.species}${s.per_person != null ? ` <span class="fpp">(${fmt(s.per_person, 2)}/pp)</span>` : ""}</li>`)
+          .join("");
+        const stopN = (t.offshore_stops || []).length;
+        return `<article class="trip">
+          <h3>${t.boat_name}</h3>
+          <div class="meta">${t.city} · ${t.landing_name || "—"} · ${t.trip_type || "—"} · ${t.anglers ?? "?"} anglers</div>
+          <div><span class="fpp">${fmt(t.fish_per_person, 2)} fish / person</span> · ${t.total_fish_kept ?? 0} kept</div>
+          <ul class="species">${species || "<li>No species parsed</li>"}</ul>
+          <div class="stops-tag">${stopN ? `${stopN} offshore AIS stop(s) plotted (catch not split)` : "No offshore AIS stop matched for this day"}</div>
+        </article>`;
+      }).join("") || "<p class='status'>No trips for this filter/day.</p>";
+
+      clearMarkers();
+      const bounds = [];
+      trips.forEach((t) => {
+        (t.offshore_stops || []).forEach((s) => {
+          const radius = Math.max(80, Math.min(900, (s.duration_min || 20) * 4));
+          const marker = L.circleMarker([s.lat, s.lon], {
+            radius: Math.max(6, Math.min(18, Math.sqrt(s.duration_min || 20))),
+            color: "#b54a2a",
+            weight: 2,
+            fillColor: "#e07a55",
+            fillOpacity: 0.65,
+          }).bindPopup(
+            `<strong>${t.boat_name}</strong><br>
+             Stop ${fmt(s.duration_min, 0)} min<br>
+             Trip: <strong>${fmt(t.fish_per_person, 2)} fish/person</strong><br>
+             <em>Catch not attributed to this spot</em><br>
+             ${ (t.species || []).slice(0,5).map(x => `${x.count} ${x.species}`).join(", ") }`
+          );
+          marker.addTo(map);
+          state.markers.push(marker);
+          // subtle dwell ring
+          const ring = L.circle([s.lat, s.lon], {
+            radius,
+            color: "#b54a2a",
+            weight: 1,
+            fillOpacity: 0.06,
+          }).addTo(map);
+          state.markers.push(ring);
+          bounds.push([s.lat, s.lon]);
+        });
+      });
+      if (bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
+      statusEl.textContent = `${payload.date} · ${trips.length} trip(s) shown`;
+    }
+
+    async function loadDay(dateStr) {
+      statusEl.textContent = `Loading ${dateStr}…`;
+      const res = await fetch(`data/days/${dateStr}.json`);
+      if (!res.ok) {
+        statusEl.textContent = `No report file for ${dateStr}`;
+        tripList.innerHTML = "";
+        clearMarkers();
+        document.getElementById("statTrips").textContent = "0";
+        document.getElementById("statFpp").textContent = "—";
+        return;
+      }
+      const payload = await res.json();
+      dayInput.value = dateStr;
+      renderDay(payload);
+    }
+
+    function shiftDay(delta) {
+      const dates = state.meta?.dates || [];
+      const idx = dates.indexOf(dayInput.value);
+      if (idx < 0) return;
+      const next = dates[idx + delta];
+      if (next) loadDay(next);
+    }
+
+    dayInput.addEventListener("change", () => loadDay(dayInput.value));
+    boatFilter.addEventListener("change", () => {
+      if (state.day) renderDay(state.day);
+    });
+    document.getElementById("prevDay").addEventListener("click", () => shiftDay(-1));
+    document.getElementById("nextDay").addEventListener("click", () => shiftDay(1));
+
+    (async function init() {
+      const meta = await (await fetch("data/meta.json")).json();
+      state.meta = meta;
+      dayInput.min = meta.dates[0];
+      dayInput.max = meta.dates[meta.dates.length - 1];
+      renderDocks(meta.home_docks);
+      document.getElementById("methodNote").textContent =
+        `Reports ${meta.report_window.start}→${meta.report_window.end}. AIS extract ${meta.ais_window.start}→${meta.ais_window.end}. ${meta.ais_availability_note} Catch attribution: ${meta.methods.catch_location_attribution}`;
+      await loadDay(meta.default_date || meta.dates[meta.dates.length - 1]);
+    })().catch((err) => {
+      statusEl.textContent = `Failed to load data: ${err.message}`;
+    });
+  </script>
+</body>
+</html>

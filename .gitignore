@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+data/raw/ais_cache/
+*.csv.zst
+.ipynb_checkpoints/
