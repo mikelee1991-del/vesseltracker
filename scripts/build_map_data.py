@@ -341,8 +341,8 @@ def main():
             "fish_reports": FISH_REPORT_SOURCE,
             "ais": "NOAA Marine Cadastre / U.S. Coast Guard NAIS daily CSV (1-minute sample)",
             "bathymetry": (
-                "NOAA BlueTopo (nowCOAST WMTS) over NCEI DEM mosaic "
-                "ColorHillshade (DEM_all ImageServer)"
+                "Zoomable NCEI DEM_all ColorHillshade tiles (≤3″ coastal DEMs) "
+                "+ BlueTopo WMS elevation/hillshade + BAG survey hillshade"
             ),
         },
         "target_cities": sorted(TARGET_CITIES),

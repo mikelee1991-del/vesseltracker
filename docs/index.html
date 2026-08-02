@@ -184,9 +184,10 @@
           <div>
             <label>Bathymetry stack</label>
             <div class="basemap-toggles">
-              <label class="chk"><input type="checkbox" id="toggleNcei" checked /> NCEI DEM color hillshade</label>
-              <label class="chk"><input type="checkbox" id="toggleBlueTopo" checked /> BlueTopo bathymetry</label>
+              <label class="chk"><input type="checkbox" id="toggleNcei" checked /> NCEI DEM (≤3″ tiles)</label>
+              <label class="chk"><input type="checkbox" id="toggleBlueTopo" checked /> BlueTopo elevation</label>
               <label class="chk"><input type="checkbox" id="toggleBlueTopoHill" checked /> BlueTopo hillshade</label>
+              <label class="chk"><input type="checkbox" id="toggleBag" checked /> BAG survey hillshade</label>
               <label class="chk"><input type="checkbox" id="toggleOsm" checked /> Coast reference</label>
             </div>
           </div>
@@ -205,8 +206,8 @@
       <div class="map-wrap">
         <div id="map"></div>
         <div class="legend">
-          <strong>BlueTopo + NCEI DEM</strong>
-          <div class="sub">Spots ≤50 ft AIS cluster</div>
+          <strong>High-res bathymetry</strong>
+          <div class="sub">NCEI DEM + BlueTopo · zoom for detail<br />Spots ≤50 ft AIS cluster</div>
           <div class="scale-title">Mean trip fish/person</div>
           <div class="swatches" aria-label="Fish per person color scale">
             <div class="swatch-row"><span class="swatch" style="background:#8aa3ad"></span><span>&lt; 3</span></div>
@@ -229,7 +230,6 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
   <script>
     const state = {
       meta: null,
@@ -240,42 +240,102 @@
       markers: [],
       dockMarkers: [],
       layer: null,
+      hasFittedBounds: false,
     };
 
-    const map = L.map("map", { zoomControl: true, maxZoom: 18 }).setView([33.72, -118.35], 9);
+    const map = L.map("map", { zoomControl: true, maxZoom: 18, minZoom: 7 }).setView([33.72, -118.35], 9);
 
-    // Detailed regional DEM mosaic (Santa Monica / Orange County / etc.) under BlueTopo.
-    const nceiDem = L.esri.imageMapLayer({
-      url: "https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_all/ImageServer",
-      renderingRule: { rasterFunction: "ColorHillshade" },
-      format: "jpgpng",
+    // Web-mercator tile bbox helper for ArcGIS ImageServer XYZ tiling.
+    function webMercatorTileBbox(x, y, z) {
+      const n = 2 ** z;
+      const res = 40075016.68557849 / n;
+      const minx = -20037508.342789244 + x * res;
+      const maxy = 20037508.342789244 - y * res;
+      return [minx, maxy - res, minx + res, maxy];
+    }
+
+    const NCEI_RENDER = encodeURIComponent(JSON.stringify({ rasterFunction: "ColorHillshade" }));
+    // Prefer coastal 1/3″–3″ DEMs (Santa Monica, Orange County, SoCal CRM) over ETOPO.
+    const NCEI_MOSAIC = encodeURIComponent(JSON.stringify({
+      mosaicMethod: "ByAttribute",
+      sortField: "CellsizeArcseconds",
+      sortValue: "0",
+      ascending: true,
+      where: "CellsizeArcseconds <= 3",
+    }));
+    const BAG_RENDER = encodeURIComponent(JSON.stringify({ rasterFunction: "ColorHillshadeBAG" }));
+
+    const NceiDemTiles = L.TileLayer.extend({
+      getTileUrl(coords) {
+        const [minx, miny, maxx, maxy] = webMercatorTileBbox(coords.x, coords.y, coords.z);
+        // 512px tiles stay sharp when zoomed (true tile pyramid, not one soft viewport image).
+        const px = 512;
+        return (
+          "https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_all/ImageServer/exportImage?" +
+          `bbox=${minx},${miny},${maxx},${maxy}&bboxSR=3857&imageSR=3857&size=${px},${px}` +
+          "&format=jpg&f=image&interpolation=RSP_BilinearInterpolation" +
+          `&renderingRule=${NCEI_RENDER}&mosaicRule=${NCEI_MOSAIC}`
+        );
+      },
+    });
+
+    const BagSurveyTiles = L.TileLayer.extend({
+      getTileUrl(coords) {
+        const [minx, miny, maxx, maxy] = webMercatorTileBbox(coords.x, coords.y, coords.z);
+        const px = 512;
+        return (
+          "https://gis.ngdc.noaa.gov/arcgis/rest/services/bag_bathymetry/ImageServer/exportImage?" +
+          `bbox=${minx},${miny},${maxx},${maxy}&bboxSR=3857&imageSR=3857&size=${px},${px}` +
+          "&format=jpgpng&f=image&interpolation=RSP_BilinearInterpolation" +
+          `&renderingRule=${BAG_RENDER}`
+        );
+      },
+    });
+
+    const nceiDem = new NceiDemTiles("", {
+      maxZoom: 18,
+      maxNativeZoom: 17,
+      minZoom: 7,
       opacity: 1,
-      attribution: "NCEI DEM © NOAA National Centers for Environmental Information",
+      attribution: "NCEI DEM ≤3″ ColorHillshade © NOAA NCEI",
+      crossOrigin: true,
     }).addTo(map);
 
-    const blueTopoBathy = L.tileLayer(
-      "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts?layer=bluetopo:bathymetry&style=&tilematrixset=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png8&TileMatrix=EPSG:3857:{z}&TileCol={x}&TileRow={y}",
-      {
-        maxZoom: 18,
-        maxNativeZoom: 18,
-        opacity: 0.7,
-        attribution: "BlueTopo © NOAA OCS / nowCOAST",
-      }
-    ).addTo(map);
+    // WMS-per-tile BlueTopo (server-rendered for each tile bbox — sharper than WMTS cache).
+    const blueTopoBathy = L.tileLayer.wms("https://nowcoast.noaa.gov/geoserver/bluetopo/wms", {
+      layers: "bluetopo:bathymetry",
+      styles: "nbs_elevation",
+      format: "image/png",
+      transparent: true,
+      version: "1.1.1",
+      maxZoom: 18,
+      opacity: 0.5,
+      attribution: "BlueTopo © NOAA OCS / nowCOAST",
+    }).addTo(map);
 
-    const blueTopoHill = L.tileLayer(
-      "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts?layer=bluetopo:hillshade&style=&tilematrixset=EPSG:3857&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image/png8&TileMatrix=EPSG:3857:{z}&TileCol={x}&TileRow={y}",
-      {
-        maxZoom: 18,
-        maxNativeZoom: 18,
-        opacity: 0.28,
-        attribution: "BlueTopo relief © NOAA OCS / nowCOAST",
-      }
-    ).addTo(map);
+    const blueTopoHill = L.tileLayer.wms("https://nowcoast.noaa.gov/geoserver/bluetopo/wms", {
+      layers: "bluetopo:hillshade",
+      styles: "nbs_hillshade",
+      format: "image/png",
+      transparent: true,
+      version: "1.1.1",
+      maxZoom: 18,
+      opacity: 0.4,
+      attribution: "BlueTopo relief © NOAA OCS / nowCOAST",
+    }).addTo(map);
+
+    const bagSurvey = new BagSurveyTiles("", {
+      maxZoom: 18,
+      maxNativeZoom: 17,
+      minZoom: 9,
+      opacity: 0.45,
+      attribution: "BAG survey hillshade © NOAA NCEI",
+      crossOrigin: true,
+    }).addTo(map);
 
     const osmRef = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 18,
-      opacity: 0.2,
+      opacity: 0.18,
       attribution: "&copy; OpenStreetMap",
     }).addTo(map);
 
@@ -294,6 +354,7 @@
     bindLayerToggle("toggleNcei", nceiDem);
     bindLayerToggle("toggleBlueTopo", blueTopoBathy);
     bindLayerToggle("toggleBlueTopoHill", blueTopoHill);
+    bindLayerToggle("toggleBag", bagSurvey);
     bindLayerToggle("toggleOsm", osmRef);
 
     function fppColor(fpp) {
@@ -452,7 +513,7 @@
       if (marker) marker.openPopup();
     }
 
-    function renderMap(locs) {
+    function renderMap(locs, { fit = false } = {}) {
       clearMarkers();
       state.layer = L.layerGroup().addTo(map);
       const bounds = [];
@@ -478,7 +539,11 @@
         state.markers.push(marker);
         bounds.push([loc.lat, loc.lon]);
       });
-      if (bounds.length) map.fitBounds(bounds, { padding: [36, 36], maxZoom: 11 });
+      // Only auto-fit on first load / mode switch — never yank the user out of a zoomed bathy view.
+      if (bounds.length && (fit || !state.hasFittedBounds)) {
+        map.fitBounds(bounds, { padding: [36, 36], maxZoom: 12 });
+        state.hasFittedBounds = true;
+      }
     }
 
     function render() {
@@ -523,6 +588,7 @@
       el("modeDay").classList.toggle("secondary", mode !== "day");
       el("dayControls").hidden = mode !== "day";
       state.selectedId = null;
+      state.hasFittedBounds = false; // re-frame when switching all/day
       if (mode === "day") {
         loadDay(el("day").value || state.meta.default_date);
       } else {
