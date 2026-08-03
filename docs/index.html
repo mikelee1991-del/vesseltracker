@@ -184,10 +184,10 @@
             <label for="sortBy">Sort spots</label>
             <select id="sortBy">
               <option value="dwell_fph">Dwell-attributed fish/person/hour</option>
-              <option value="dwell">Total dwell</option>
-              <option value="visits">Boat-days</option>
               <option value="fph">Mean trip fish/person/hour</option>
               <option value="fpp">Mean trip fish/person</option>
+              <option value="dwell">Total dwell</option>
+              <option value="visits">Boat-days</option>
             </select>
           </div>
           <div>
@@ -584,8 +584,10 @@
         <article class="loc ${state.selectedId === locId(loc) ? "selected" : ""}" data-id="${locId(loc)}">
           <h3>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</h3>
           <div class="meta">${loc.n_stops} stops · ${loc.n_boats} boat(s) · ${fmt(loc.total_dwell_min, 0)} min dwell</div>
-          <div><span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell-attributed FPH</span>
-            <span class="meta"> · trip ${fmt(loc.mean_trip_fph, 2)} FPH</span></div>
+          <div>
+            <span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell FPH</span>
+            <span class="meta"> · ${fmt(loc.mean_trip_fph, 2)} trip FPH · ${fmt(loc.mean_trip_fpp, 2)} fish/person</span>
+          </div>
           <div class="meta">${(loc.boats || []).slice(0, 4).join(", ")}${(loc.boats || []).length > 4 ? "…" : ""}</div>
         </article>
       `).join("") || "<p class='status'>No spots for this filter.</p>";
