@@ -5,10 +5,10 @@ Only include **verified** corrections — do not invent MMSIs or catches.
 
 ## Open questions / known limitations
 
-1. **AIS availability:** Marine Cadastre bulk daily AIS still ends at `2025-12-31`
-   (checked 2026-08-03; no `csv2026` folder; AccessAIS ordering unavailable).
-   Fish reports are scraped through **2026-08-02**. When NOAA publishes 2026 bulk
-   AIS, raise `PILOT_AIS_END` and re-run `extract_ais.py` (URL is year-aware).
+1. **AIS availability (researched 2026-08-03):** There is **no free drop-in historical
+   AIS archive for US waters covering 2026 YTD** yet. Details in
+   [AIS source options](#ais-source-options-2026) below. Fish reports are scraped
+   through **2026-08-02**.
 2. **Day join timezone:** AIS timestamps are UTC; fish reports are calendar days (likely Pacific). Near-midnight trips may join to the wrong local day.
 3. **Name ↔ MMSI matching:** Automated from AIS `vessel_name` vs report boat names. Ambiguous names need manual confirmation below.
 4. **Catch attribution:** Per your decision, trip totals are **not** split across stops yet.
@@ -134,6 +134,26 @@ Preferred approach when we resume this (do not implement until confirmed):
 - [ ] Cross-vessel co-occurrence / residual model
 - [ ] Presence-weighted priors without hard splitting single-trip counts
 - [ ] Other: ________
+
+## AIS source options (2026)
+
+Checked 2026-08-03. Goal: free historical AIS points for SoCal stop detection.
+
+| Source | Cost | Historical 2026? | Fit for this project |
+|--------|------|------------------|----------------------|
+| **Marine Cadastre bulk** (`csv{YYYY}/ais-*.csv.zst`) | Free | **No** — last day `2025-12-31`; no `csv2026` | Still the best US archive when published (quarterly lag). Extractor already year-aware. |
+| **AccessAIS** | Free | Unclear / **service unavailable** now; UI range ends 2025-12-31 | Prefer when back online for custom SoCal clips. |
+| **aisstream.io** | Free (API key) | **No** — live websocket only | **Best free forward path.** Collector: `scripts/collect_aisstream.py`. Coverage depends on their terrestrial network. |
+| **AISHub** | Free if you contribute a receiver | No (≈30 min buffer) | Not usable without running our own AIS station. |
+| **Global Fishing Watch API** | Free token | Events/presence to ~96h ago; **not raw 1‑min tracks** | Useful for fishing-event centroids / identity, not a Marine Cadastre substitute for sportfishing dwells. |
+| MarineTraffic / Spire / Kpler | Paid | Yes | Only option for true 2026 YTD backfill today. |
+
+**Practical plan**
+
+1. Keep using Marine Cadastre for all of **2025**.
+2. Start archiving live SoCal with **aisstream** (`AISSTREAM_API_KEY`) so 2026+ gaps close going forward.
+3. When NOAA drops `csv2026`, pull it and prefer it over aisstream for those days.
+4. 2026-01-01 → today backfill is **not freely available** as bulk points; paid AIS or waiting on NOAA.
 
 ## Free-form notes
 
