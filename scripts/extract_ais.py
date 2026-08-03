@@ -22,7 +22,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from config import (  # noqa: E402
-    AIS_BASE_URL,
+    AIS_BASE_URL_TMPL,
     AIS_BBOX,
     AIS_FILENAME,
     DATA_PROCESSED,
@@ -97,7 +97,10 @@ def extract_day(
         n = con.execute(f"SELECT count(*) FROM read_parquet('{out_path.as_posix()}')").fetchone()[0]
         return {"date": day.isoformat(), "rows": int(n), "path": str(out_path), "skipped": True}
 
-    url = f"{AIS_BASE_URL}/{AIS_FILENAME.format(date=day.isoformat())}"
+    url = (
+        f"{AIS_BASE_URL_TMPL.format(year=day.year)}/"
+        f"{AIS_FILENAME.format(date=day.isoformat())}"
+    )
     bbox = AIS_BBOX
     allow_mmsis = sorted(set(MMSI_ALLOWLIST) | set(MMSI_TO_REPORT_BOAT))
     allow_sql = ",".join(str(int(m)) for m in allow_mmsis) if allow_mmsis else "-1"
@@ -126,7 +129,19 @@ def extract_day(
         OR mmsi IN ({allow_sql})
       )
     """
-    df = con.execute(q).fetchdf()
+    try:
+        df = con.execute(q).fetchdf()
+    except Exception as exc:
+        # Missing year folders (e.g. csv2026 not published yet) or bad remote day.
+        msg = str(exc)
+        print(f"[warn] {day.isoformat()}: AIS fetch failed: {msg[:180]}", file=sys.stderr)
+        return {
+            "date": day.isoformat(),
+            "rows": 0,
+            "path": None,
+            "skipped": False,
+            "error": msg[:300],
+        }
     if df.empty:
         if out_path.exists():
             out_path.unlink()

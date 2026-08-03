@@ -5,7 +5,10 @@ Only include **verified** corrections — do not invent MMSIs or catches.
 
 ## Open questions / known limitations
 
-1. **AIS availability:** Marine Cadastre bulk daily AIS used by this repo currently ends at `2025-12-31`. Confirm if you have another free source for 2026+ high-frequency AIS.
+1. **AIS availability:** Marine Cadastre bulk daily AIS still ends at `2025-12-31`
+   (checked 2026-08-03; no `csv2026` folder; AccessAIS ordering unavailable).
+   Fish reports are scraped through **2026-08-02**. When NOAA publishes 2026 bulk
+   AIS, raise `PILOT_AIS_END` and re-run `extract_ais.py` (URL is year-aware).
 2. **Day join timezone:** AIS timestamps are UTC; fish reports are calendar days (likely Pacific). Near-midnight trips may join to the wrong local day.
 3. **Name ↔ MMSI matching:** Automated from AIS `vessel_name` vs report boat names. Ambiguous names need manual confirmation below.
 4. **Catch attribution:** Per your decision, trip totals are **not** split across stops yet.

@@ -57,19 +57,24 @@ STOP_CLUSTER_RADIUS_M = 250  # legacy coarse grid label only (not the map featur
 FEATURE_CLUSTER_RADIUS_FT = 150
 FEATURE_CLUSTER_RADIUS_M = FEATURE_CLUSTER_RADIUS_FT * 0.3048
 
-# Marine Cadastre 2025 daily AIS (1-minute sample of NAIS broadcasts).
-# Note: as of 2026-08-02, free bulk AIS appears published through 2025-12-31.
-AIS_BASE_URL = "https://noaaocm.blob.core.windows.net/ais/csv2/csv2025"
+# Marine Cadastre daily AIS (1-minute sample of NAIS broadcasts).
+# URL is year-aware: .../csv{YYYY}/ais-YYYY-MM-DD.csv.zst
+# As of 2026-08-03, bulk files are published through 2025-12-31 only
+# (no csv2026 yet; AccessAIS also unavailable for 2026 orders).
+AIS_BASE_URL_TMPL = "https://noaaocm.blob.core.windows.net/ais/csv2/csv{year}"
 AIS_FILENAME = "ais-{date}.csv.zst"  # date = YYYY-MM-DD
+# Back-compat for older scripts/docs.
+AIS_BASE_URL = AIS_BASE_URL_TMPL.format(year=2025)
 
 FISH_REPORT_URL = "https://www.socalfishreports.com/dock_totals/boats.php"
 FISH_REPORT_SOURCE = "https://www.socalfishreports.com/"
 
 # Pilot date windows (real data only; no fabrication).
-# Fish reports: calendar year overlapping available AIS.
+# Fish reports: 2025 + 2026 YTD (dock totals are live).
 PILOT_REPORT_START = "2025-01-01"
-PILOT_REPORT_END = "2025-12-31"
-# AIS extract window (Marine Cadastre bulk daily files through 2025-12-31).
+PILOT_REPORT_END = "2026-08-02"
+# AIS extract window — bulk Marine Cadastre currently ends 2025-12-31.
+# When csv2026 appears, raise PILOT_AIS_END (extract_ais resolves year folders).
 PILOT_AIS_START = "2025-01-01"
 PILOT_AIS_END = "2025-12-31"
 

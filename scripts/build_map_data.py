@@ -349,8 +349,10 @@ def main():
         "report_window": {"start": PILOT_REPORT_START, "end": PILOT_REPORT_END},
         "ais_window": {"start": ais_start, "end": ais_end},
         "ais_availability_note": (
-            "Free Marine Cadastre bulk AIS daily files used here currently run "
-            "through 2025-12-31. Stops are dated in America/Los_Angeles."
+            "Fish reports include 2026 YTD. Free Marine Cadastre bulk AIS daily "
+            "files currently run through 2025-12-31 (no csv2026 published yet), "
+            "so 2026 trips usually show as no_offshore_stop until AIS catches up. "
+            "Stops are dated in America/Los_Angeles."
         ),
         "methods": {
             "fish_per_person": "total kept fish / anglers from the dock total (direct)",
