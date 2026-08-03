@@ -9,7 +9,9 @@ to build our own archive.
 Setup:
   1. Create a free API key at https://aisstream.io/ (GitHub login)
   2. export AISSTREAM_API_KEY=...
-  3. python3 scripts/collect_aisstream.py --hours 6
+  3. python3 scripts/collect_aisstream.py --hours 0   # 0 = run forever
+
+For free-tier VM install, see deploy/aisstream/README.md.
 
 Output lands in data/processed/ais_daily/ais_YYYY-MM-DD.parquet with schema
 compatible with detect_stops.py (plus ais_source='aisstream').
@@ -20,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import signal
 import sys
 import time
 from collections import defaultdict
@@ -46,6 +49,14 @@ except ImportError as e:  # pragma: no cover
 WS_URL = "wss://stream.aisstream.io/v0/stream"
 OUT_DIR = DATA_PROCESSED / "ais_daily"
 
+_stop = False
+
+
+def _handle_stop(signum, frame):  # noqa: ARG001
+    global _stop
+    _stop = True
+    print(f"received signal {signum}; will flush and exit…", flush=True)
+
 
 def bbox_for_aisstream() -> list[list[list[float]]]:
     # aisstream bbox corners: [[lat, lon], [lat, lon]]
@@ -53,6 +64,19 @@ def bbox_for_aisstream() -> list[list[list[float]]]:
         [AIS_BBOX["min_lat"], AIS_BBOX["min_lon"]],
         [AIS_BBOX["max_lat"], AIS_BBOX["max_lon"]],
     ]]
+
+
+def load_accepted_names(path: Path | None, trips_path: Path) -> dict[str, str]:
+    """Prefer a small JSON mapping (VM-friendly); fall back to fish-report trips."""
+    if path and path.exists():
+        payload = json.loads(path.read_text())
+        raw = payload.get("accepted_names") or payload
+        out = {str(k): str(v) for k, v in raw.items()}
+        print(f"loaded {len(out)} accepted names from {path}", flush=True)
+        return out
+    accepted = build_accepted_names(trips_path)
+    print(f"built {len(accepted)} accepted names from {trips_path}", flush=True)
+    return accepted
 
 
 def parse_message(msg: dict, accepted: dict[str, str]) -> dict | None:
@@ -164,7 +188,13 @@ def flush_day_buffers(buffers: dict[str, list[dict]], out_dir: Path) -> int:
     return written
 
 
-def collect(api_key: str, hours: float, flush_every: int, accepted: dict[str, str]) -> None:
+def collect(
+    api_key: str,
+    hours: float,
+    flush_every: int,
+    accepted: dict[str, str],
+    out_dir: Path,
+) -> None:
     sub = {
         "APIKey": api_key,
         "BoundingBoxes": bbox_for_aisstream(),
@@ -176,27 +206,36 @@ def collect(api_key: str, hours: float, flush_every: int, accepted: dict[str, st
         ],
     }
     buffers: dict[str, list[dict]] = defaultdict(list)
-    deadline = time.time() + hours * 3600
+    forever = hours <= 0
+    deadline = None if forever else (time.time() + hours * 3600)
     total = 0
     kept = 0
+    last_heartbeat = time.time()
 
     print(
         f"Connecting aisstream bbox "
         f"lat[{AIS_BBOX['min_lat']},{AIS_BBOX['max_lat']}] "
         f"lon[{AIS_BBOX['min_lon']},{AIS_BBOX['max_lon']}] "
-        f"for {hours}h…",
+        f"{'forever' if forever else f'for {hours}h'}…",
         flush=True,
     )
 
-    while time.time() < deadline:
+    while not _stop and (forever or time.time() < deadline):
         try:
             with ws_connect(WS_URL, open_timeout=30, close_timeout=5) as ws:
                 ws.send(json.dumps(sub))
                 print("subscribed", flush=True)
-                while time.time() < deadline:
+                while not _stop and (forever or time.time() < deadline):
                     try:
                         raw = ws.recv(timeout=30)
                     except TimeoutError:
+                        if time.time() - last_heartbeat >= 300:
+                            print(
+                                f"heartbeat messages={total} kept={kept} "
+                                f"(waiting on stream)",
+                                flush=True,
+                            )
+                            last_heartbeat = time.time()
                         continue
                     total += 1
                     try:
@@ -213,31 +252,51 @@ def collect(api_key: str, hours: float, flush_every: int, accepted: dict[str, st
                     buffers[row["date"]].append(row)
                     kept += 1
                     if kept % flush_every == 0:
-                        flush_day_buffers(buffers, OUT_DIR)
+                        flush_day_buffers(buffers, out_dir)
                         print(f"progress messages={total} kept={kept}", flush=True)
+                        last_heartbeat = time.time()
+                    elif time.time() - last_heartbeat >= 300:
+                        print(f"heartbeat messages={total} kept={kept}", flush=True)
+                        last_heartbeat = time.time()
         except Exception as exc:
             print(f"[warn] websocket error: {exc}; reconnecting in 5s", flush=True)
-            flush_day_buffers(buffers, OUT_DIR)
+            flush_day_buffers(buffers, out_dir)
             time.sleep(5)
 
-    flush_day_buffers(buffers, OUT_DIR)
+    flush_day_buffers(buffers, out_dir)
     print(f"done messages={total} kept={kept}", flush=True)
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--api-key", default=os.environ.get("AISSTREAM_API_KEY", ""))
-    ap.add_argument("--hours", type=float, default=1.0, help="How long to collect")
+    ap.add_argument(
+        "--hours",
+        type=float,
+        default=0.0,
+        help="How long to collect (0 = forever / daemon mode)",
+    )
     ap.add_argument("--flush-every", type=int, default=200)
     ap.add_argument("--trips", type=Path, default=DATA_RAW / "fish_reports" / "by_year")
+    ap.add_argument(
+        "--accepted-names",
+        type=Path,
+        default=None,
+        help="Optional JSON {accepted_names: {NORM: Boat}} for VMs without full trips",
+    )
+    ap.add_argument("--out-dir", type=Path, default=OUT_DIR)
     args = ap.parse_args()
     if not args.api_key:
         raise SystemExit(
             "Set AISSTREAM_API_KEY or pass --api-key.\n"
             "Free key: https://aisstream.io/ (sign in → API Keys)"
         )
-    accepted = build_accepted_names(args.trips)
-    collect(args.api_key, args.hours, args.flush_every, accepted)
+
+    signal.signal(signal.SIGTERM, _handle_stop)
+    signal.signal(signal.SIGINT, _handle_stop)
+
+    accepted = load_accepted_names(args.accepted_names, args.trips)
+    collect(args.api_key, args.hours, args.flush_every, accepted, args.out_dir)
 
 
 if __name__ == "__main__":

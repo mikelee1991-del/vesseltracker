@@ -1,0 +1,36 @@
+[Unit]
+Description=LA sportfishing aisstream live AIS collector
+Documentation=https://github.com/mikelee1991-del/vesseltracker/blob/main/deploy/aisstream/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aisstream
+Group=aisstream
+WorkingDirectory=/opt/vesseltracker
+EnvironmentFile=/etc/aisstream.env
+ExecStart=/opt/vesseltracker/.venv/bin/python scripts/collect_aisstream.py \
+  --hours 0 \
+  --flush-every 200 \
+  --accepted-names deploy/aisstream/accepted_names.json \
+  --out-dir /var/lib/aisstream/ais_daily
+Restart=always
+RestartSec=10
+# Soft daily rotate via journald; keep process simple.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aisstream-collector
+
+# Hardening (outbound WSS still allowed)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/aisstream
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target
