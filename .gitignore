@@ -6,3 +6,7 @@ venv/
 data/raw/ais_cache/
 *.csv.zst
 .ipynb_checkpoints/
+# Regenerable from Marine Cadastre; too large to keep every day in git.
+data/processed/ais_daily/
+# Legacy monolith (split into by_year/ for GitHub's 100MB file limit).
+data/raw/fish_reports/trips.jsonl

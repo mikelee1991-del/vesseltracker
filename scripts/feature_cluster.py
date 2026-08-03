@@ -46,12 +46,17 @@ def cluster_indices_by_distance(
     order = sorted(range(n), key=lambda i: (round(lats[i], 6), round(lons[i], 6)))
     clusters: list[list[int]] = []
     centroids: list[tuple[float, float]] = []
+    # Running sums so centroid updates are O(1).
+    sum_lat: list[float] = []
+    sum_lon: list[float] = []
 
-    # Spatial hash for candidate centroids.
     def bin_key(lat: float, lon: float) -> tuple[int, int]:
         x = lon * 111320.0 * math.cos(math.radians(lat))
         y = lat * 111320.0
         return int(math.floor(x / radius_m)), int(math.floor(y / radius_m))
+
+    centroid_bins: dict[tuple[int, int], list[int]] = defaultdict(list)
+    centroid_bin_of: list[tuple[int, int] | None] = []
 
     def nearby_cluster_ids(lat: float, lon: float) -> list[int]:
         bx, by = bin_key(lat, lon)
@@ -61,12 +66,33 @@ def cluster_indices_by_distance(
                 out.extend(centroid_bins.get((bx + dx, by + dy), []))
         return out
 
-    centroid_bins: dict[tuple[int, int], list[int]] = defaultdict(list)
+    def set_centroid_bin(k: int, lat: float, lon: float) -> None:
+        new_b = bin_key(lat, lon)
+        old_b = centroid_bin_of[k] if k < len(centroid_bin_of) else None
+        if old_b == new_b:
+            return
+        if old_b is not None:
+            bucket = centroid_bins.get(old_b)
+            if bucket:
+                try:
+                    bucket.remove(k)
+                except ValueError:
+                    pass
+                if not bucket:
+                    centroid_bins.pop(old_b, None)
+        centroid_bins[new_b].append(k)
+        if k < len(centroid_bin_of):
+            centroid_bin_of[k] = new_b
+        else:
+            centroid_bin_of.append(new_b)
 
     def reindex_bins() -> None:
         centroid_bins.clear()
+        centroid_bin_of.clear()
         for k, (clat, clon) in enumerate(centroids):
-            centroid_bins[bin_key(clat, clon)].append(k)
+            b = bin_key(clat, clon)
+            centroid_bins[b].append(k)
+            centroid_bin_of.append(b)
 
     for i in order:
         best_k = None
@@ -80,15 +106,25 @@ def cluster_indices_by_distance(
         if best_k is None:
             centroids.append((lats[i], lons[i]))
             clusters.append([i])
-            centroid_bins[bin_key(lats[i], lons[i])].append(len(clusters) - 1)
+            sum_lat.append(lats[i])
+            sum_lon.append(lons[i])
+            centroid_bin_of.append(None)
+            set_centroid_bin(len(clusters) - 1, lats[i], lons[i])
         else:
             clusters[best_k].append(i)
-            centroids[best_k] = _centroid(lats, lons, clusters[best_k])
-            reindex_bins()
+            sum_lat[best_k] += lats[i]
+            sum_lon[best_k] += lons[i]
+            m = len(clusters[best_k])
+            clat = sum_lat[best_k] / m
+            clon = sum_lon[best_k] / m
+            centroids[best_k] = (clat, clon)
+            set_centroid_bin(best_k, clat, clon)
 
     # Reassignment passes: each point → nearest centroid within radius; orphans
     # seed new clusters. Guarantees centroid membership after convergence.
-    for _ in range(4):
+    # Skip on very large N — greedy pass already keeps members near centroids.
+    n_passes = 0 if n > 80000 else (2 if n > 25000 else 4)
+    for _ in range(n_passes):
         new_assign = [-1] * n
         for i in range(n):
             best_k = None
@@ -101,7 +137,6 @@ def cluster_indices_by_distance(
                     best_k = k
             new_assign[i] = best_k if best_k is not None else -1
 
-        # Rebuild clusters from assignments; orphans become singleton seeds in order.
         rebuilt: list[list[int]] = [[] for _ in centroids]
         orphans: list[int] = []
         for i in order:
@@ -112,10 +147,11 @@ def cluster_indices_by_distance(
                 rebuilt[k].append(i)
         clusters = [m for m in rebuilt if m]
         for i in orphans:
-            # try existing rebuilt centroids first
             placed = False
-            cents = [_centroid(lats, lons, m) for m in clusters]
-            for k, (clat, clon) in enumerate(cents):
+            for k in nearby_cluster_ids(lats[i], lons[i]):
+                if k >= len(clusters):
+                    continue
+                clat, clon = _centroid(lats, lons, clusters[k])
                 if haversine_m(lats[i], lons[i], clat, clon) <= radius_m:
                     clusters[k].append(i)
                     placed = True
@@ -123,6 +159,8 @@ def cluster_indices_by_distance(
             if not placed:
                 clusters.append([i])
         centroids = [_centroid(lats, lons, m) for m in clusters]
+        sum_lat = [sum(lats[i] for i in m) for m in clusters]
+        sum_lon = [sum(lons[i] for i in m) for m in clusters]
         reindex_bins()
 
     # Stable ids by centroid location.

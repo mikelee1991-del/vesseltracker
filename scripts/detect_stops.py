@@ -125,36 +125,75 @@ def main():
             for r in reg
             if r.get("match_confidence") in ("high", "high_secondary")
         }
-        print(f"Restricting stops to {len(allowed)} registry MMSIs")
+        print(f"Restricting stops to {len(allowed)} registry MMSIs", flush=True)
 
     con = duckdb.connect()
-    glob = (args.ais_dir / "ais_*.parquet").as_posix()
-    df = con.execute(
-        f"""
-        SELECT *
-        FROM read_parquet('{glob}')
-        WHERE sog IS NOT NULL AND sog <= {STOP_MAX_SOG_KN}
-        ORDER BY mmsi, base_date_time
-        """
-    ).fetchdf()
-    if allowed is not None:
-        df = df[df["mmsi"].isin(allowed)]
-    df["base_date_time"] = pd.to_datetime(df["base_date_time"], utc=True)
+    if allowed is not None and not allowed:
+        print("Registry has no accepted MMSIs; writing 0 stops.", file=sys.stderr)
+        args.out.write_text("[]")
+        return
+    allow_sql = (
+        ",".join(str(int(m)) for m in sorted(allowed)) if allowed is not None else None
+    )
 
+    # Process year-by-year so multi-year Cadastre extracts fit in memory.
+    # union_by_name: column nullability/types can differ across Cadastre years.
+    years = sorted(
+        {
+            p.name[4:8]
+            for p in files
+            if len(p.name) >= 8 and p.name[4:8].isdigit()
+        }
+    )
     all_stops: list[dict] = []
-    for mmsi, g in df.groupby("mmsi"):
-        all_stops.extend(merge_low_speed_segments(g.reset_index(drop=True)))
+    for year in years:
+        yglob = (args.ais_dir / f"ais_{year}-*.parquet").as_posix()
+        mmsi_filter = f"AND mmsi IN ({allow_sql})" if allow_sql else ""
+        print(f"{year}: loading…", flush=True)
+        df = con.execute(
+            f"""
+            SELECT
+              mmsi,
+              base_date_time,
+              longitude,
+              latitude,
+              sog,
+              vessel_name,
+              report_boat_name
+            FROM read_parquet('{yglob}', union_by_name=true)
+            WHERE sog IS NOT NULL AND sog <= {STOP_MAX_SOG_KN}
+              {mmsi_filter}
+            ORDER BY mmsi, base_date_time
+            """
+        ).fetchdf()
+        if df.empty:
+            print(f"{year}: 0 low-speed rows", flush=True)
+            continue
+        df["base_date_time"] = pd.to_datetime(df["base_date_time"], utc=True)
+        year_stops: list[dict] = []
+        for mmsi, g in df.groupby("mmsi"):
+            year_stops.extend(merge_low_speed_segments(g.reset_index(drop=True)))
+        all_stops.extend(year_stops)
+        print(
+            f"{year}: {len(df)} low-speed rows -> {len(year_stops)} stops",
+            flush=True,
+        )
+        del df
 
+    print(f"Clustering {len(all_stops)} stops…", flush=True)
     for s in all_stops:
         s["grid_id"] = cluster_label(s["lat"], s["lon"])
     assign_feature_ids(all_stops, FEATURE_CLUSTER_RADIUS_M)
+    n_features = len({s["feature_id"] for s in all_stops})
+    print(f"Clustered into {n_features} features; writing JSON…", flush=True)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(all_stops, indent=2))
-    n_features = len({s["feature_id"] for s in all_stops})
+    # Compact JSON — multi-year stop archives are large.
+    args.out.write_text(json.dumps(all_stops, separators=(",", ":")))
     print(
         f"Wrote {len(all_stops)} offshore stops / {n_features} features "
-        f"(radius {FEATURE_CLUSTER_RADIUS_M:.2f} m) -> {args.out}"
+        f"(radius {FEATURE_CLUSTER_RADIUS_M:.2f} m) -> {args.out}",
+        flush=True,
     )
 
 

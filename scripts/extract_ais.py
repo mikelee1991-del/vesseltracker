@@ -35,6 +35,7 @@ from config import (  # noqa: E402
     PILOT_AIS_START,
     VESSEL_ALIASES,
 )
+from trips_io import load_trips  # noqa: E402
 
 NAME_NORMALIZE_RE = re.compile(r"[^A-Z0-9]+")
 
@@ -58,17 +59,17 @@ def build_accepted_names(trips_path: Path) -> dict[str, str]:
     Substring containment is intentionally NOT used (avoids SWEET FREEDOM→Freedom).
     """
     accepted: dict[str, str] = {}
-    if not trips_path.exists():
+    trips = load_trips(trips_path)
+    if not trips:
         return accepted
 
     report_names: set[str] = set()
-    with trips_path.open() as f:
-        for line in f:
-            bn = json.loads(line).get("boat_name") or ""
-            if not bn:
-                continue
-            report_names.add(bn)
-            accepted[normalize_name(bn)] = bn
+    for row in trips:
+        bn = row.get("boat_name") or ""
+        if not bn:
+            continue
+        report_names.add(bn)
+        accepted[normalize_name(bn)] = bn
 
     for ais_norm, report_name in VESSEL_ALIASES.items():
         if report_name in report_names:
@@ -245,7 +246,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--start", default=PILOT_AIS_START)
     ap.add_argument("--end", default=PILOT_AIS_END)
-    ap.add_argument("--trips", type=Path, default=DATA_RAW / "fish_reports" / "trips.jsonl")
+    ap.add_argument(
+        "--trips",
+        type=Path,
+        default=DATA_RAW / "fish_reports" / "by_year",
+    )
     ap.add_argument("--out-dir", type=Path, default=DATA_PROCESSED / "ais_daily")
     ap.add_argument("--force", action="store_true", help="Re-download/filter even if parquet exists")
     ap.add_argument(

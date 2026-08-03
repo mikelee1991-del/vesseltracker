@@ -156,6 +156,24 @@ Checked 2026-08-03. Goal: free historical AIS points for SoCal stop detection.
 4. When NOAA drops `csv2026`, pull it and prefer it over aisstream for those days.
 5. 2026-01-01 → today backfill is **not freely available** as bulk points; paid AIS or waiting on NOAA.
 
+### Full-archive pull status (2026-08-03)
+
+| Dataset | Coverage | Count |
+|---------|----------|------:|
+| Fish-report trips | 2005-01-01 → 2026-08-02 | 144,545 |
+| Cadastre AIS days extracted | 2015-01-01 → 2025-12-31 | 4,004 days (14 empty) |
+| Offshore stops | 2015–2025 (local Pacific dates) | 129,319 |
+| Feature clusters (150 ft) | — | 12,351 |
+| Trips with matched offshore stops | AIS overlap years | 20,449 |
+| Trips `no_mmsi` | — | 71,863 |
+| Trips `outside_ais_window` | mostly 2005–2014 + 2026 | 38,698 |
+| Trips `no_offshore_stop` | in AIS window, matched MMSI | 13,535 |
+
+Notes:
+- AIS parquet under `data/processed/ais_daily/` is regenerable / gitignored (too large).
+- Fish reports are stored as yearly shards in `data/raw/fish_reports/by_year/`.
+- Some auto-matched MMSIs (non-allowlist name collisions) still need human review via `verify-mmsi.html`.
+
 ## Free-form notes
 
 -

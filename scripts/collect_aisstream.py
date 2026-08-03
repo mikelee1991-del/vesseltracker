@@ -229,7 +229,7 @@ def main() -> None:
     ap.add_argument("--api-key", default=os.environ.get("AISSTREAM_API_KEY", ""))
     ap.add_argument("--hours", type=float, default=1.0, help="How long to collect")
     ap.add_argument("--flush-every", type=int, default=200)
-    ap.add_argument("--trips", type=Path, default=DATA_RAW / "fish_reports" / "trips.jsonl")
+    ap.add_argument("--trips", type=Path, default=DATA_RAW / "fish_reports" / "by_year")
     args = ap.parse_args()
     if not args.api_key:
         raise SystemExit(

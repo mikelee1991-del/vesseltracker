@@ -24,16 +24,7 @@ from config import (  # noqa: E402
     VESSEL_ALIASES,
 )
 from extract_ais import build_accepted_names, normalize_name  # noqa: E402
-
-
-def load_trips(path: Path) -> list[dict]:
-    rows = []
-    if not path.exists():
-        return rows
-    with path.open() as f:
-        for line in f:
-            rows.append(json.loads(line))
-    return rows
+from trips_io import load_trips  # noqa: E402
 
 
 def high_confidence_names(registry: list[dict]) -> dict[str, int]:
@@ -181,7 +172,7 @@ def build_payload(trips: list[dict], registry: list[dict], hints: dict[str, list
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--trips", type=Path, default=DATA_RAW / "fish_reports" / "trips.jsonl")
+    ap.add_argument("--trips", type=Path, default=DATA_RAW / "fish_reports" / "by_year")
     ap.add_argument("--registry", type=Path, default=DATA_PROCESSED / "vessel_mmsi_registry.json")
     ap.add_argument(
         "--hints",

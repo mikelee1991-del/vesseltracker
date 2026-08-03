@@ -36,16 +36,7 @@ from config import (  # noqa: E402
 )
 from extract_ais import build_accepted_names, normalize_name  # noqa: E402
 from feature_cluster import assign_feature_ids, haversine_m  # noqa: E402
-
-
-def load_trips(path: Path) -> list[dict]:
-    rows = []
-    if not path.exists():
-        return rows
-    with path.open() as f:
-        for line in f:
-            rows.append(json.loads(line))
-    return rows
+from trips_io import load_trips  # noqa: E402
 
 
 def detect_ais_window(ais_dir: Path) -> tuple[str | None, str | None]:
@@ -96,7 +87,7 @@ def compact_stop(s: dict) -> dict:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--trips", type=Path, default=DATA_RAW / "fish_reports" / "trips.jsonl")
+    ap.add_argument("--trips", type=Path, default=DATA_RAW / "fish_reports" / "by_year")
     ap.add_argument("--stops", type=Path, default=DATA_PROCESSED / "offshore_stops.json")
     ap.add_argument("--registry", type=Path, default=DATA_PROCESSED / "vessel_mmsi_registry.json")
     ap.add_argument("--ais-dir", type=Path, default=DATA_PROCESSED / "ais_daily")
@@ -107,8 +98,10 @@ def main():
     stops = json.loads(args.stops.read_text()) if args.stops.exists() else []
     # Re-cluster with current radius so config changes apply on rebuild.
     if stops:
+        print(f"Re-clustering {len(stops)} stops…", flush=True)
         assign_feature_ids(stops, FEATURE_CLUSTER_RADIUS_M)
-        args.stops.write_text(json.dumps(stops, indent=2))
+        args.stops.write_text(json.dumps(stops, separators=(",", ":")))
+        print("Stops re-clustered.", flush=True)
     registry = json.loads(args.registry.read_text()) if args.registry.exists() else []
     accepted = build_accepted_names(args.trips)
     ais_start, ais_end = detect_ais_window(args.ais_dir)
@@ -306,7 +299,11 @@ def main():
                 ),
                 "boats": sorted(loc["boats"]),
                 "species_top": species_top,
-                "visits": sorted(loc["visits"], key=lambda v: (v["date"], v["boat_name"])),
+                # Cap visit payload for multi-year archives (UI still has day files).
+                "visits": sorted(
+                    loc["visits"], key=lambda v: (v["date"], v["boat_name"])
+                )[-80:],
+                "visits_total": len(loc["visits"]),
                 "fpp_note": (
                     "mean_trip_fpp is the average fish/person of dock totals for "
                     "boat-days that stopped here — not catch attributed to this spot"

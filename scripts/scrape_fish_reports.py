@@ -27,6 +27,7 @@ from config import (  # noqa: E402
     TARGET_CITIES,
     USER_AGENT,
 )
+from trips_io import iter_seen_dates  # noqa: E402
 
 ANGLERS_RE = re.compile(r"(\d+)\s*Anglers?", re.I)
 COUNT_RE = re.compile(
@@ -139,7 +140,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--start", default=PILOT_REPORT_START)
     ap.add_argument("--end", default=PILOT_REPORT_END)
-    ap.add_argument("--out", type=Path, default=DATA_RAW / "fish_reports" / "trips.jsonl")
+    # Yearly shards stay under GitHub's 100MB file limit.
+    ap.add_argument(
+        "--out-dir",
+        type=Path,
+        default=DATA_RAW / "fish_reports" / "by_year",
+        help="Directory for trips_YYYY.jsonl shards",
+    )
     ap.add_argument(
         "--workers",
         type=int,
@@ -150,23 +157,21 @@ def main():
 
     start = datetime.strptime(args.start, "%Y-%m-%d").date()
     end = datetime.strptime(args.end, "%Y-%m-%d").date()
-    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Resume support: skip dates already present.
-    seen_dates: set[str] = set()
-    if args.out.exists():
-        with args.out.open() as f:
-            for line in f:
-                try:
-                    seen_dates.add(json.loads(line)["date"])
-                except Exception:
-                    continue
+    # Resume support: skip dates already present in yearly shards or legacy file.
+    seen_dates = iter_seen_dates(args.out_dir)
+    legacy = DATA_RAW / "fish_reports" / "trips.jsonl"
+    if legacy.exists():
+        seen_dates |= iter_seen_dates(legacy)
 
     days = [d for d in daterange(start, end) if d.isoformat() not in seen_dates]
-    print(f"Days to scrape: {len(days)} (already have {len(seen_dates)}; workers={args.workers})")
+    print(
+        f"Days to scrape: {len(days)} (already have {len(seen_dates)}; "
+        f"workers={args.workers})"
+    )
 
     write_lock = Lock()
-    total_rows = 0
     workers = max(1, int(args.workers))
 
     def _job(day: date) -> tuple[str, int, str | None]:
@@ -177,15 +182,15 @@ def main():
         except Exception as e:
             time.sleep(REQUEST_SLEEP_SEC * 3)
             return day.isoformat(), 0, str(e)
+        shard = args.out_dir / f"trips_{day.year}.jsonl"
         with write_lock:
-            with args.out.open("a") as out:
+            with shard.open("a") as out:
                 for row in rows:
                     out.write(json.dumps(row, ensure_ascii=False) + "\n")
                 out.flush()
         time.sleep(REQUEST_SLEEP_SEC)
         return day.isoformat(), len(rows), None
 
-    # Avoid Python nonlocal complexity for counter across threads.
     row_counter = {"n": 0}
     err_counter = {"n": 0}
 
@@ -207,9 +212,8 @@ def main():
             for fut in as_completed(futs):
                 fut.result()
 
-    total_rows = row_counter["n"]
     print(
-        f"Wrote/updated {args.out} (+{total_rows} new rows; "
+        f"Wrote/updated {args.out_dir} (+{row_counter['n']} new rows; "
         f"{err_counter['n']} day errors)"
     )
 

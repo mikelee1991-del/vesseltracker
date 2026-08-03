@@ -10,10 +10,27 @@ from collections import defaultdict
 from pathlib import Path
 
 import duckdb
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from config import DATA_PROCESSED, MMSI_ALLOWLIST, MMSI_DENYLIST  # noqa: E402
+
+
+def _clean_int(val):
+    if val is None or pd.isna(val):
+        return None
+    try:
+        return int(val)
+    except (TypeError, ValueError):
+        return None
+
+
+def _clean_str(val):
+    if val is None or pd.isna(val):
+        return None
+    s = str(val).strip()
+    return s or None
 
 
 def score_row(r: dict) -> float:
@@ -22,24 +39,38 @@ def score_row(r: dict) -> float:
         return -1e9
     if mmsi in MMSI_ALLOWLIST:
         return 1e6 + r.get("n_points", 0)
+
+    # Auto-match guardrails: long Cadastre history surfaces many same-name
+    # commercial / yacht / foreign vessels. Only keep plausible SoCal charters.
+    mmsi_s = str(mmsi)
+    if not mmsi_s.startswith(("366", "367", "368", "338")):
+        return -1e8
+    length = r.get("length")
+    if length is not None and (length < 12 or length > 45):
+        return -1e8
+
     s = 0.0
     vt = r.get("vessel_type")
-    if vt in (30, 31, 60):
+    # Fishing / towing / passenger / USCG type encodings seen on charters.
+    if vt in (30, 31, 60, 1001, 1012, 1019):
         s += 30
-    elif vt in (36, 37):
+    elif vt in (36, 37):  # sailing / pleasure — weak for sportfish charters
         s -= 10
-    length = r.get("length")
+    elif vt in (70, 71, 72, 73, 74, 80, 81, 82, 83, 84, 90, 1004, 1024):
+        return -1e8
     if length is not None:
-        if length >= 18:
+        if 18 <= length <= 40:
             s += 20
-        elif length < 12:
+        elif length < 14:
             s -= 15
     if r.get("call_sign"):
         s += 5
-    # Prefer US mid-band MMSIs common for domestic commercial
-    if str(mmsi).startswith(("366", "367", "368")):
+    if mmsi_s.startswith(("366", "367", "368")):
         s += 3
     s += min(r.get("n_points", 0), 5000) / 5000.0
+    # Require a minimum auto score so weak name collisions stay rejected.
+    if s < 25:
+        return -1e7
     return s
 
 
@@ -65,7 +96,7 @@ def main():
                count(*) AS n_points,
                min(base_date_time) AS first_seen,
                max(base_date_time) AS last_seen
-        FROM read_parquet('{glob}')
+        FROM read_parquet('{glob}', union_by_name=true)
         GROUP BY mmsi
         """
     ).fetchdf()
@@ -73,15 +104,16 @@ def main():
     by_report: dict[str, list[dict]] = defaultdict(list)
     rows = []
     for _, r in stats.iterrows():
+        report_name = _clean_str(r["report_boat_name"])
         item = {
             "mmsi": int(r["mmsi"]),
-            "ais_vessel_name": r["ais_vessel_name"],
-            "vessel_name_norm": r["vessel_name_norm"],
-            "call_sign": None if r["call_sign"] != r["call_sign"] else r["call_sign"],
-            "vessel_type": None if r["vessel_type"] != r["vessel_type"] else int(r["vessel_type"]),
-            "length": None if r["length"] != r["length"] else int(r["length"]),
-            "width": None if r["width"] != r["width"] else int(r["width"]),
-            "report_boat_names": [r["report_boat_name"]] if r["report_boat_name"] else [],
+            "ais_vessel_name": _clean_str(r["ais_vessel_name"]),
+            "vessel_name_norm": _clean_str(r["vessel_name_norm"]),
+            "call_sign": _clean_str(r["call_sign"]),
+            "vessel_type": _clean_int(r["vessel_type"]),
+            "length": _clean_int(r["length"]),
+            "width": _clean_int(r["width"]),
+            "report_boat_names": [report_name] if report_name else [],
             "n_points": int(r["n_points"]),
             "first_seen": str(r["first_seen"]),
             "last_seen": str(r["last_seen"]),

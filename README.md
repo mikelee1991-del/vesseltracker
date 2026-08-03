@@ -68,8 +68,8 @@ Outputs:
 
 | Path | Purpose |
 |------|---------|
-| `data/raw/fish_reports/trips.jsonl` | Scraped dock totals |
-| `data/processed/ais_daily/*.parquet` | Filtered AIS for fleet |
+| `data/raw/fish_reports/by_year/trips_YYYY.jsonl` | Scraped dock totals (yearly shards) |
+| `data/processed/ais_daily/*.parquet` | Filtered AIS for fleet (local/regenerable; gitignored) |
 | `data/processed/vessel_mmsi_registry.json` | Boat name ↔ MMSI matches |
 | `data/processed/offshore_stops.json` | Detected fishing stops |
 | `docs/data/meta.json` + `docs/data/days/*.json` | GitHub Pages payloads |

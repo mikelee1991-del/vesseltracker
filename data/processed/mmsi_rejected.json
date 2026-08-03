@@ -1,5 +1,158 @@
 [
   {
+    "mmsi": 367467080,
+    "ais_vessel_name": "TRADITION",
+    "vessel_name_norm": "TRADITION",
+    "call_sign": "WDF5775",
+    "vessel_type": 1018,
+    "length": null,
+    "width": null,
+    "report_boat_names": [
+      "Tradition"
+    ],
+    "n_points": 583290,
+    "first_seen": "2015-01-01 00:00:01",
+    "last_seen": "2023-12-31 23:56:35",
+    "score": -10000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 367084220,
+    "ais_vessel_name": "TRADITION",
+    "vessel_name_norm": "TRADITION",
+    "call_sign": "WCV7485",
+    "vessel_type": 37,
+    "length": null,
+    "width": null,
+    "report_boat_names": [
+      "Tradition"
+    ],
+    "n_points": 5017,
+    "first_seen": "2024-05-14 17:20:29",
+    "last_seen": "2024-05-25 10:20:35",
+    "score": -10000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 338403914,
+    "ais_vessel_name": "TRADITION",
+    "vessel_name_norm": "TRADITION",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 3,
+    "width": 2,
+    "report_boat_names": [
+      "Tradition"
+    ],
+    "n_points": 865,
+    "first_seen": "2021-05-16 22:03:06",
+    "last_seen": "2021-09-27 00:24:20",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 338452084,
+    "ais_vessel_name": "RELENTLESS",
+    "vessel_name_norm": "RELENTLESS",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 15,
+    "width": 4,
+    "report_boat_names": [
+      "Relentless"
+    ],
+    "n_points": 4360,
+    "first_seen": "2022-07-14 16:50:22",
+    "last_seen": "2024-08-12 00:11:59",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338449812,
+    "ais_vessel_name": "RELENTLESS",
+    "vessel_name_norm": "RELENTLESS",
+    "call_sign": null,
+    "vessel_type": null,
+    "length": 13,
+    "width": 5,
+    "report_boat_names": [
+      "Relentless"
+    ],
+    "n_points": 18107,
+    "first_seen": "2023-11-29 16:55:40",
+    "last_seen": "2024-10-23 18:49:48",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338121724,
+    "ais_vessel_name": "RELENTLESS",
+    "vessel_name_norm": "RELENTLESS",
+    "call_sign": "WDE7738",
+    "vessel_type": 37,
+    "length": 15,
+    "width": 4,
+    "report_boat_names": [
+      "Relentless"
+    ],
+    "n_points": 31,
+    "first_seen": "2019-05-13 22:27:12",
+    "last_seen": "2023-06-14 00:22:20",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367503970,
+    "ais_vessel_name": "RELENTLESS",
+    "vessel_name_norm": "RELENTLESS",
+    "call_sign": "WDF9322",
+    "vessel_type": 1019,
+    "length": 10,
+    "width": null,
+    "report_boat_names": [
+      "Relentless"
+    ],
+    "n_points": 3397,
+    "first_seen": "2015-06-04 06:12:34",
+    "last_seen": "2018-04-27 23:39:37",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 636012163,
+    "ais_vessel_name": "COMMANDER",
+    "vessel_name_norm": "COMMANDER",
+    "call_sign": "A8DU6",
+    "vessel_type": 1024,
+    "length": 228,
+    "width": 32,
+    "report_boat_names": [
+      "Commander"
+    ],
+    "n_points": 21137,
+    "first_seen": "2015-04-28 17:39:08",
+    "last_seen": "2019-03-08 10:14:14",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 338408127,
+    "ais_vessel_name": "VICTORY",
+    "vessel_name_norm": "VICTORY",
+    "call_sign": "VICTORY",
+    "vessel_type": 52,
+    "length": null,
+    "width": null,
+    "report_boat_names": [
+      "Victory"
+    ],
+    "n_points": 4,
+    "first_seen": "2021-07-08 18:22:00",
+    "last_seen": "2021-07-08 18:34:02",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
     "mmsi": 368033280,
     "ais_vessel_name": "VICTORY",
     "vessel_name_norm": "VICTORY",
@@ -10,44 +163,214 @@
     "report_boat_names": [
       "Victory"
     ],
-    "n_points": 52334,
-    "first_seen": "2025-05-28 21:01:30",
+    "n_points": 288928,
+    "first_seen": "2022-02-10 21:57:24",
     "last_seen": "2025-12-31 23:57:40",
     "score": -1000000000.0,
     "match_confidence": "rejected_duplicate_name"
   },
   {
-    "mmsi": 338360469,
-    "ais_vessel_name": "EL PATRON",
-    "vessel_name_norm": "ELPATRON",
+    "mmsi": 366979350,
+    "ais_vessel_name": "CHIEF",
+    "vessel_name_norm": "CHIEF",
+    "call_sign": "WCW8228",
+    "vessel_type": 52,
+    "length": 20,
+    "width": 8,
+    "report_boat_names": [
+      "Chief"
+    ],
+    "n_points": 58464,
+    "first_seen": "2016-02-17 13:35:51",
+    "last_seen": "2016-07-30 05:02:52",
+    "score": 29.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338218665,
+    "ais_vessel_name": "CHIEF",
+    "vessel_name_norm": "CHIEF",
     "call_sign": null,
     "vessel_type": 37,
-    "length": 14,
+    "length": null,
+    "width": null,
+    "report_boat_names": [
+      "Chief"
+    ],
+    "n_points": 712310,
+    "first_seen": "2018-06-01 08:26:10",
+    "last_seen": "2024-12-31 23:54:55",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338109838,
+    "ais_vessel_name": "PATRIOT",
+    "vessel_name_norm": "PATRIOT",
+    "call_sign": "WDH9087",
+    "vessel_type": 36,
+    "length": 15,
+    "width": 3,
+    "report_boat_names": [
+      "Patriot (Newport)"
+    ],
+    "n_points": 12797,
+    "first_seen": "2018-01-06 19:52:03",
+    "last_seen": "2025-05-04 00:42:38",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 303210000,
+    "ais_vessel_name": "PATRIOT",
+    "vessel_name_norm": "PATRIOT",
+    "call_sign": "WAIU",
+    "vessel_type": 1004,
+    "length": 199,
+    "width": 32,
+    "report_boat_names": [
+      "Patriot (Newport)"
+    ],
+    "n_points": 849,
+    "first_seen": "2016-05-13 19:09:30",
+    "last_seen": "2018-10-01 10:54:30",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338316391,
+    "ais_vessel_name": "PATRIOT",
+    "vessel_name_norm": "PATRIOT",
+    "call_sign": null,
+    "vessel_type": 30,
+    "length": 8,
     "width": 4,
     "report_boat_names": [
-      "El Patron"
+      "Patriot (Newport)"
     ],
-    "n_points": 496,
-    "first_seen": "2025-01-16 23:12:20",
-    "last_seen": "2025-12-15 20:43:34",
+    "n_points": 25796,
+    "first_seen": "2020-12-23 19:10:53",
+    "last_seen": "2025-10-11 19:07:08",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338424198,
+    "ais_vessel_name": "PATRIOT",
+    "vessel_name_norm": "PATRIOT",
+    "call_sign": null,
+    "vessel_type": 36,
+    "length": 12,
+    "width": 6,
+    "report_boat_names": [
+      "Patriot (Newport)"
+    ],
+    "n_points": 220648,
+    "first_seen": "2021-09-18 21:13:57",
+    "last_seen": "2025-12-31 23:59:46",
     "score": -1000000000.0,
     "match_confidence": "rejected_duplicate_name"
   },
   {
-    "mmsi": 368215840,
-    "ais_vessel_name": "EL PATRON",
-    "vessel_name_norm": "ELPATRON",
-    "call_sign": "WDM5427",
+    "mmsi": 367158390,
+    "ais_vessel_name": "FREEDOM",
+    "vessel_name_norm": "FREEDOM",
+    "call_sign": "WDD5438",
+    "vessel_type": 1019,
+    "length": 16,
+    "width": 5,
+    "report_boat_names": [
+      "Freedom"
+    ],
+    "n_points": 2275,
+    "first_seen": "2016-08-12 20:49:41",
+    "last_seen": "2016-09-09 04:00:15",
+    "score": 38.455,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338208033,
+    "ais_vessel_name": "FREEDOM",
+    "vessel_name_norm": "FREEDOM",
+    "call_sign": null,
+    "vessel_type": 1019,
+    "length": 16,
+    "width": 5,
+    "report_boat_names": [
+      "Freedom"
+    ],
+    "n_points": 313811,
+    "first_seen": "2016-04-14 11:26:39",
+    "last_seen": "2024-09-08 14:53:02",
+    "score": 31.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338146516,
+    "ais_vessel_name": "FREEDOM",
+    "vessel_name_norm": "FREEDOM",
+    "call_sign": null,
+    "vessel_type": 1019,
+    "length": 14,
+    "width": null,
+    "report_boat_names": [
+      "Freedom"
+    ],
+    "n_points": 2075,
+    "first_seen": "2015-09-05 20:46:39",
+    "last_seen": "2017-09-08 18:20:44",
+    "score": 30.415,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367416420,
+    "ais_vessel_name": "FREEDOM",
+    "vessel_name_norm": "FREEDOM",
+    "call_sign": "WDE9353",
+    "vessel_type": null,
+    "length": 26,
+    "width": 10,
+    "report_boat_names": [
+      "Freedom"
+    ],
+    "n_points": 154625,
+    "first_seen": "2015-12-02 19:16:06",
+    "last_seen": "2016-08-30 18:53:02",
+    "score": 29.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338506656,
+    "ais_vessel_name": "FREEDOM",
+    "vessel_name_norm": "FREEDOM",
+    "call_sign": null,
     "vessel_type": 37,
-    "length": 10,
+    "length": null,
+    "width": null,
+    "report_boat_names": [
+      "Freedom"
+    ],
+    "n_points": 538,
+    "first_seen": "2024-07-01 22:41:43",
+    "last_seen": "2024-09-16 16:06:03",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338164876,
+    "ais_vessel_name": "FREEDOM",
+    "vessel_name_norm": "FREEDOM",
+    "call_sign": "WBY2980",
+    "vessel_type": 36,
+    "length": 13,
     "width": 4,
     "report_boat_names": [
-      "El Patron"
+      "Freedom"
     ],
-    "n_points": 6325,
-    "first_seen": "2025-02-01 19:00:48",
-    "last_seen": "2025-11-29 19:45:30",
-    "score": -1000000000.0,
+    "n_points": 1925,
+    "first_seen": "2022-08-02 17:23:47",
+    "last_seen": "2022-08-24 18:26:48",
+    "score": -10000000.0,
     "match_confidence": "rejected_duplicate_name"
   },
   {
@@ -55,16 +378,50 @@
     "ais_vessel_name": "FREEDOM",
     "vessel_name_norm": "FREEDOM",
     "call_sign": null,
-    "vessel_type": 36,
-    "length": 13,
+    "vessel_type": 1019,
+    "length": 12,
     "width": 4,
     "report_boat_names": [
       "Freedom"
     ],
-    "n_points": 778,
-    "first_seen": "2025-03-30 15:54:36",
+    "n_points": 6232,
+    "first_seen": "2017-12-31 20:08:07",
     "last_seen": "2025-08-22 21:43:35",
-    "score": -9.8444,
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 369875000,
+    "ais_vessel_name": "FREEDOM",
+    "vessel_name_norm": "FREEDOM",
+    "call_sign": "NFRE",
+    "vessel_type": 90,
+    "length": 107,
+    "width": null,
+    "report_boat_names": [
+      "Freedom"
+    ],
+    "n_points": 397,
+    "first_seen": "2020-04-09 12:36:20",
+    "last_seen": "2021-05-12 16:49:38",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 339449000,
+    "ais_vessel_name": "FREEDOM",
+    "vessel_name_norm": "FREEDOM",
+    "call_sign": "6YSN2",
+    "vessel_type": 37,
+    "length": null,
+    "width": null,
+    "report_boat_names": [
+      "Freedom"
+    ],
+    "n_points": 2131,
+    "first_seen": "2021-08-11 00:59:51",
+    "last_seen": "2021-09-19 22:46:07",
+    "score": -100000000.0,
     "match_confidence": "rejected_duplicate_name"
   },
   {
@@ -78,8 +435,8 @@
     "report_boat_names": [
       "Freedom"
     ],
-    "n_points": 51580,
-    "first_seen": "2025-07-31 18:13:34",
+    "n_points": 126704,
+    "first_seen": "2022-02-23 22:35:27",
     "last_seen": "2025-12-31 23:55:36",
     "score": -1000000000.0,
     "match_confidence": "rejected_duplicate_name"
@@ -95,8 +452,8 @@
     "report_boat_names": [
       "Freedom"
     ],
-    "n_points": 3766,
-    "first_seen": "2025-01-23 18:13:06",
+    "n_points": 10246,
+    "first_seen": "2023-04-13 20:23:52",
     "last_seen": "2025-12-21 01:38:54",
     "score": -1000000000.0,
     "match_confidence": "rejected_duplicate_name"
@@ -112,26 +469,9 @@
     "report_boat_names": [
       "Freedom"
     ],
-    "n_points": 8523,
-    "first_seen": "2025-02-02 20:07:15",
+    "n_points": 17167,
+    "first_seen": "2024-07-18 16:18:07",
     "last_seen": "2025-11-27 20:16:49",
-    "score": -1000000000.0,
-    "match_confidence": "rejected_duplicate_name"
-  },
-  {
-    "mmsi": 338054072,
-    "ais_vessel_name": "FREEDOM",
-    "vessel_name_norm": "FREEDOM",
-    "call_sign": null,
-    "vessel_type": 37,
-    "length": 15,
-    "width": 5,
-    "report_boat_names": [
-      "Freedom"
-    ],
-    "n_points": 304,
-    "first_seen": "2025-03-28 18:03:47",
-    "last_seen": "2025-12-19 21:07:27",
     "score": -1000000000.0,
     "match_confidence": "rejected_duplicate_name"
   },
@@ -153,6 +493,771 @@
     "match_confidence": "rejected_duplicate_name"
   },
   {
+    "mmsi": 338054072,
+    "ais_vessel_name": "FREEDOM",
+    "vessel_name_norm": "FREEDOM",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 15,
+    "width": 5,
+    "report_boat_names": [
+      "Freedom"
+    ],
+    "n_points": 5089,
+    "first_seen": "2020-06-15 18:12:46",
+    "last_seen": "2025-12-19 21:07:27",
+    "score": -1000000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 248349000,
+    "ais_vessel_name": "OUTRIDER",
+    "vessel_name_norm": "OUTRIDER",
+    "call_sign": "9HA4622",
+    "vessel_type": 1004,
+    "length": 180,
+    "width": null,
+    "report_boat_names": [
+      "Outrider"
+    ],
+    "n_points": 3466,
+    "first_seen": "2017-07-25 18:46:02",
+    "last_seen": "2017-08-01 08:33:23",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 636021127,
+    "ais_vessel_name": "OUTRIDER",
+    "vessel_name_norm": "OUTRIDER",
+    "call_sign": "5LCK9",
+    "vessel_type": 70,
+    "length": 179,
+    "width": 28,
+    "report_boat_names": [
+      "Outrider"
+    ],
+    "n_points": 454,
+    "first_seen": "2022-08-08 04:48:57",
+    "last_seen": "2022-08-08 23:43:34",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 338243205,
+    "ais_vessel_name": "TRITON",
+    "vessel_name_norm": "TRITON",
+    "call_sign": null,
+    "vessel_type": 36,
+    "length": 13,
+    "width": 4,
+    "report_boat_names": [
+      "Triton"
+    ],
+    "n_points": 748,
+    "first_seen": "2019-07-15 20:35:23",
+    "last_seen": "2025-05-16 17:16:50",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 368358380,
+    "ais_vessel_name": "TRITON",
+    "vessel_name_norm": "TRITON",
+    "call_sign": "WDP4867",
+    "vessel_type": 37,
+    "length": 18,
+    "width": 5,
+    "report_boat_names": [
+      "Triton"
+    ],
+    "n_points": 1153,
+    "first_seen": "2025-07-20 15:42:11",
+    "last_seen": "2025-07-24 11:24:07",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 538070070,
+    "ais_vessel_name": "TRITON",
+    "vessel_name_norm": "TRITON",
+    "call_sign": "V7GF5",
+    "vessel_type": 1019,
+    "length": 40,
+    "width": 9,
+    "report_boat_names": [
+      "Triton"
+    ],
+    "n_points": 68192,
+    "first_seen": "2015-11-18 05:33:48",
+    "last_seen": "2025-10-13 19:01:31",
+    "score": -1000000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338303763,
+    "ais_vessel_name": "WESTERLY",
+    "vessel_name_norm": "WESTERLY",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 18,
+    "width": 3,
+    "report_boat_names": [
+      "Westerly"
+    ],
+    "n_points": 16790,
+    "first_seen": "2018-12-28 16:32:41",
+    "last_seen": "2024-03-20 22:53:31",
+    "score": -10000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 338160209,
+    "ais_vessel_name": "WESTERLY",
+    "vessel_name_norm": "WESTERLY",
+    "call_sign": null,
+    "vessel_type": 36,
+    "length": 11,
+    "width": 4,
+    "report_boat_names": [
+      "Westerly"
+    ],
+    "n_points": 21813,
+    "first_seen": "2019-07-22 16:59:59",
+    "last_seen": "2024-08-16 18:50:34",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 366837830,
+    "ais_vessel_name": "WESTERLY",
+    "vessel_name_norm": "WESTERLY",
+    "call_sign": "WDA6944",
+    "vessel_type": 37,
+    "length": 11,
+    "width": 4,
+    "report_boat_names": [
+      "Westerly"
+    ],
+    "n_points": 6655,
+    "first_seen": "2015-11-12 13:44:37",
+    "last_seen": "2024-12-02 04:19:32",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 368209080,
+    "ais_vessel_name": "DISCOVERY",
+    "vessel_name_norm": "DISCOVERY",
+    "call_sign": "WDM4718",
+    "vessel_type": 36,
+    "length": 16,
+    "width": 10,
+    "report_boat_names": [
+      "Discovery"
+    ],
+    "n_points": 2322,
+    "first_seen": "2022-05-26 20:19:21",
+    "last_seen": "2022-09-23 18:18:48",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 303284000,
+    "ais_vessel_name": "DISCOVERY",
+    "vessel_name_norm": "DISCOVERY",
+    "call_sign": "WDF8208",
+    "vessel_type": 90,
+    "length": 59,
+    "width": 12,
+    "report_boat_names": [
+      "Discovery"
+    ],
+    "n_points": 274,
+    "first_seen": "2019-11-08 12:46:40",
+    "last_seen": "2020-07-31 10:00:40",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 636015556,
+    "ais_vessel_name": "OCEAN SPIRIT",
+    "vessel_name_norm": "OCEANSPIRIT",
+    "call_sign": "D5BM3",
+    "vessel_type": 80,
+    "length": 183,
+    "width": 32,
+    "report_boat_names": [
+      "Ocean Spirit"
+    ],
+    "n_points": 1577,
+    "first_seen": "2022-07-25 12:30:05",
+    "last_seen": "2022-07-28 05:27:58",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 338193507,
+    "ais_vessel_name": "OCEAN SPIRIT",
+    "vessel_name_norm": "OCEANSPIRIT",
+    "call_sign": null,
+    "vessel_type": 1019,
+    "length": 11,
+    "width": null,
+    "report_boat_names": [
+      "Ocean Spirit"
+    ],
+    "n_points": 72137,
+    "first_seen": "2015-08-11 19:25:10",
+    "last_seen": "2023-09-14 00:19:51",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 366998510,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": "WDC2845",
+    "vessel_type": 31,
+    "length": 29,
+    "width": 9,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 3209,
+    "first_seen": "2023-10-16 09:24:35",
+    "last_seen": "2024-05-21 03:04:34",
+    "score": 58.6418,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367525390,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": "WDG3376",
+    "vessel_type": 1018,
+    "length": 22,
+    "width": null,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 5833,
+    "first_seen": "2017-07-26 14:36:00",
+    "last_seen": "2017-08-01 15:35:25",
+    "score": 29.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367110770,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": "WDD2088",
+    "vessel_type": 37,
+    "length": 21,
+    "width": 5,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 661,
+    "first_seen": "2020-08-25 04:12:12",
+    "last_seen": "2022-10-19 15:40:37",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338144392,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": null,
+    "vessel_type": 1019,
+    "length": 12,
+    "width": null,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 12968,
+    "first_seen": "2015-04-24 20:51:37",
+    "last_seen": "2024-12-19 23:34:31",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338301392,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 12,
+    "width": 5,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 166,
+    "first_seen": "2018-07-12 16:53:31",
+    "last_seen": "2024-11-07 05:39:24",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367054120,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": "WDC6294",
+    "vessel_type": 37,
+    "length": null,
+    "width": null,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 510,
+    "first_seen": "2023-12-15 09:19:06",
+    "last_seen": "2023-12-15 19:01:14",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367701170,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": "WDI4699",
+    "vessel_type": 37,
+    "length": 13,
+    "width": null,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 1755,
+    "first_seen": "2018-07-29 19:04:51",
+    "last_seen": "2021-07-03 17:03:07",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338165048,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": null,
+    "vessel_type": 1019,
+    "length": 12,
+    "width": null,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 164,
+    "first_seen": "2017-02-04 20:07:37",
+    "last_seen": "2021-06-19 22:40:32",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 368356010,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": "WDP4608",
+    "vessel_type": 37,
+    "length": 14,
+    "width": 5,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 9706,
+    "first_seen": "2024-03-12 20:32:56",
+    "last_seen": "2024-10-16 20:19:53",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367125000,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": "KLIG",
+    "vessel_type": 70,
+    "length": 199,
+    "width": 32,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 5583,
+    "first_seen": "2017-03-04 08:38:04",
+    "last_seen": "2023-09-29 17:08:52",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 235090407,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": "2FDV8",
+    "vessel_type": null,
+    "length": null,
+    "width": null,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 2,
+    "first_seen": "2022-01-20 14:39:42",
+    "last_seen": "2022-07-16 14:24:52",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 232094000,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": "MFLM9",
+    "vessel_type": 1024,
+    "length": 183,
+    "width": 32,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 1855,
+    "first_seen": "2015-08-18 10:04:47",
+    "last_seen": "2015-08-21 22:42:55",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338363593,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 10,
+    "width": 3,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 21356,
+    "first_seen": "2021-03-04 18:36:37",
+    "last_seen": "2024-12-31 20:40:37",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367067030,
+    "ais_vessel_name": "LIBERTY",
+    "vessel_name_norm": "LIBERTY",
+    "call_sign": "WYL5177",
+    "vessel_type": 90,
+    "length": 12,
+    "width": 4,
+    "report_boat_names": [
+      "Liberty"
+    ],
+    "n_points": 4927,
+    "first_seen": "2021-11-30 02:05:19",
+    "last_seen": "2021-12-08 02:49:14",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 368098450,
+    "ais_vessel_name": "GHOST",
+    "vessel_name_norm": "GHOST",
+    "call_sign": "WDK8891",
+    "vessel_type": 37,
+    "length": 19,
+    "width": 5,
+    "report_boat_names": [
+      "Ghost"
+    ],
+    "n_points": 17806,
+    "first_seen": "2022-09-27 12:28:06",
+    "last_seen": "2024-04-26 23:17:33",
+    "score": -10000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 367527250,
+    "ais_vessel_name": "ENTERPRISE",
+    "vessel_name_norm": "ENTERPRISE",
+    "call_sign": "WDG3553",
+    "vessel_type": 36,
+    "length": 13,
+    "width": 4,
+    "report_boat_names": [
+      "Enterprise"
+    ],
+    "n_points": 2580,
+    "first_seen": "2024-03-03 08:01:42",
+    "last_seen": "2024-10-14 11:32:28",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 366770510,
+    "ais_vessel_name": "ENTERPRISE",
+    "vessel_name_norm": "ENTERPRISE",
+    "call_sign": "WDK4579",
+    "vessel_type": 36,
+    "length": 12,
+    "width": 4,
+    "report_boat_names": [
+      "Enterprise"
+    ],
+    "n_points": 1033,
+    "first_seen": "2023-09-25 07:29:54",
+    "last_seen": "2023-09-27 00:15:25",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 368003170,
+    "ais_vessel_name": "LEGACY",
+    "vessel_name_norm": "LEGACY",
+    "call_sign": "WDJ7088",
+    "vessel_type": 1019,
+    "length": null,
+    "width": null,
+    "report_boat_names": [
+      "Legacy"
+    ],
+    "n_points": 3404,
+    "first_seen": "2017-08-23 15:40:42",
+    "last_seen": "2020-05-21 21:36:47",
+    "score": 38.6808,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338497665,
+    "ais_vessel_name": "LEGACY",
+    "vessel_name_norm": "LEGACY",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 14,
+    "width": 6,
+    "report_boat_names": [
+      "Legacy"
+    ],
+    "n_points": 12219,
+    "first_seen": "2024-04-02 21:47:54",
+    "last_seen": "2024-09-21 15:01:05",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367640240,
+    "ais_vessel_name": "LEGACY",
+    "vessel_name_norm": "LEGACY",
+    "call_sign": "WDH6651",
+    "vessel_type": 37,
+    "length": 19,
+    "width": 6,
+    "report_boat_names": [
+      "Legacy"
+    ],
+    "n_points": 15070,
+    "first_seen": "2020-02-05 22:06:18",
+    "last_seen": "2024-08-29 23:41:36",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367471240,
+    "ais_vessel_name": "LEGACY",
+    "vessel_name_norm": "LEGACY",
+    "call_sign": "WDF6155",
+    "vessel_type": 37,
+    "length": 13,
+    "width": 4,
+    "report_boat_names": [
+      "Legacy"
+    ],
+    "n_points": 25971,
+    "first_seen": "2019-03-06 18:10:05",
+    "last_seen": "2024-10-06 19:34:28",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338364281,
+    "ais_vessel_name": "LEGACY",
+    "vessel_name_norm": "LEGACY",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 8,
+    "width": 2,
+    "report_boat_names": [
+      "Legacy"
+    ],
+    "n_points": 9148,
+    "first_seen": "2020-05-21 22:02:12",
+    "last_seen": "2024-10-20 20:00:23",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338353139,
+    "ais_vessel_name": "LEGACY",
+    "vessel_name_norm": "LEGACY",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 6,
+    "width": 4,
+    "report_boat_names": [
+      "Legacy"
+    ],
+    "n_points": 933,
+    "first_seen": "2021-07-27 17:42:31",
+    "last_seen": "2024-12-29 02:20:56",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338036481,
+    "ais_vessel_name": "LEGACY",
+    "vessel_name_norm": "LEGACY",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 8,
+    "width": 2,
+    "report_boat_names": [
+      "Legacy"
+    ],
+    "n_points": 4,
+    "first_seen": "2020-05-21 21:47:20",
+    "last_seen": "2020-05-21 21:55:19",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 368369170,
+    "ais_vessel_name": "PHANTOM",
+    "vessel_name_norm": "PHANTOM",
+    "call_sign": "WDP6070",
+    "vessel_type": 37,
+    "length": 27,
+    "width": 7,
+    "report_boat_names": [
+      "Phantom"
+    ],
+    "n_points": 83587,
+    "first_seen": "2024-05-23 19:38:59",
+    "last_seen": "2024-12-31 23:59:16",
+    "score": -10000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 368192270,
+    "ais_vessel_name": "PHANTOM",
+    "vessel_name_norm": "PHANTOM",
+    "call_sign": "WDM2893",
+    "vessel_type": 37,
+    "length": 27,
+    "width": 7,
+    "report_boat_names": [
+      "Phantom"
+    ],
+    "n_points": 248902,
+    "first_seen": "2021-05-19 20:12:00",
+    "last_seen": "2024-05-23 19:36:00",
+    "score": -10000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 338419736,
+    "ais_vessel_name": "PHANTOM",
+    "vessel_name_norm": "PHANTOM",
+    "call_sign": null,
+    "vessel_type": 36,
+    "length": 10,
+    "width": 3,
+    "report_boat_names": [
+      "Phantom"
+    ],
+    "n_points": 18188,
+    "first_seen": "2021-07-11 21:38:48",
+    "last_seen": "2024-12-29 04:13:33",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 368444000,
+    "ais_vessel_name": "LIMITLESS",
+    "vessel_name_norm": "LIMITLESS",
+    "call_sign": "WCX3409",
+    "vessel_type": 37,
+    "length": 96,
+    "width": 12,
+    "report_boat_names": [
+      "Limitless"
+    ],
+    "n_points": 483,
+    "first_seen": "2022-04-27 06:04:30",
+    "last_seen": "2024-10-11 06:04:46",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 367699790,
+    "ais_vessel_name": "LIMITLESS",
+    "vessel_name_norm": "LIMITLESS",
+    "call_sign": "WDI4547",
+    "vessel_type": 1019,
+    "length": 11,
+    "width": 4,
+    "report_boat_names": [
+      "Limitless"
+    ],
+    "n_points": 40325,
+    "first_seen": "2016-09-03 01:45:40",
+    "last_seen": "2024-09-03 20:28:31",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 367708610,
+    "ais_vessel_name": "EL PATRON",
+    "vessel_name_norm": "ELPATRON",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 15,
+    "width": 14,
+    "report_boat_names": [
+      "El Patron"
+    ],
+    "n_points": 1,
+    "first_seen": "2020-03-12 18:05:19",
+    "last_seen": "2020-03-12 18:05:19",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338360469,
+    "ais_vessel_name": "EL PATRON",
+    "vessel_name_norm": "ELPATRON",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 15,
+    "width": 14,
+    "report_boat_names": [
+      "El Patron"
+    ],
+    "n_points": 51131,
+    "first_seen": "2019-11-15 23:00:11",
+    "last_seen": "2025-12-15 20:43:34",
+    "score": -1000000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 368215840,
+    "ais_vessel_name": "EL PATRON",
+    "vessel_name_norm": "ELPATRON",
+    "call_sign": "WDM5427",
+    "vessel_type": 37,
+    "length": 10,
+    "width": 4,
+    "report_boat_names": [
+      "El Patron"
+    ],
+    "n_points": 76789,
+    "first_seen": "2021-08-26 23:11:30",
+    "last_seen": "2025-11-29 19:45:30",
+    "score": -1000000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
     "mmsi": 338477409,
     "ais_vessel_name": "FURY",
     "vessel_name_norm": "FURY",
@@ -170,105 +1275,258 @@
     "match_confidence": "rejected"
   },
   {
-    "mmsi": 368358380,
-    "ais_vessel_name": "TRITON",
-    "vessel_name_norm": "TRITON",
-    "call_sign": "WDP4867",
+    "mmsi": 367669870,
+    "ais_vessel_name": "JAW BREAKER",
+    "vessel_name_norm": "JAWBREAKER",
+    "call_sign": "WDH9618",
+    "vessel_type": 37,
+    "length": 7,
+    "width": 2,
+    "report_boat_names": [
+      "Jawbreaker"
+    ],
+    "n_points": 1050,
+    "first_seen": "2022-08-25 22:59:46",
+    "last_seen": "2024-10-07 17:08:11",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 235115000,
+    "ais_vessel_name": "PRIDE",
+    "vessel_name_norm": "PRIDE",
+    "call_sign": "ZQTP2",
+    "vessel_type": 81,
+    "length": 334,
+    "width": 58,
+    "report_boat_names": [
+      "Pride"
+    ],
+    "n_points": 6409,
+    "first_seen": "2015-07-04 07:44:38",
+    "last_seen": "2015-07-14 13:03:15",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338513765,
+    "ais_vessel_name": "TORTUGA",
+    "vessel_name_norm": "TORTUGA",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 19,
+    "width": 6,
+    "report_boat_names": [
+      "Tortuga"
+    ],
+    "n_points": 7547,
+    "first_seen": "2024-11-14 18:57:00",
+    "last_seen": "2024-12-31 23:59:41",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 538002510,
+    "ais_vessel_name": "APOLLO",
+    "vessel_name_norm": "APOLLO",
+    "call_sign": "V7JF8",
+    "vessel_type": 1004,
+    "length": 225,
+    "width": 32,
+    "report_boat_names": [
+      "Apollo"
+    ],
+    "n_points": 11276,
+    "first_seen": "2015-11-24 22:42:12",
+    "last_seen": "2020-01-31 02:51:56",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338795000,
+    "ais_vessel_name": "INDEPENDENCE",
+    "vessel_name_norm": "INDEPENDENCE",
+    "call_sign": "WDB8489",
+    "vessel_type": 1012,
+    "length": 31,
+    "width": 10,
+    "report_boat_names": [
+      "Independence"
+    ],
+    "n_points": 108015,
+    "first_seen": "2016-05-16 17:39:53",
+    "last_seen": "2024-03-28 01:26:02",
+    "score": 56.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367585570,
+    "ais_vessel_name": "INDEPENDENCE",
+    "vessel_name_norm": "INDEPENDENCE",
+    "call_sign": "WDG9219",
+    "vessel_type": 1019,
+    "length": 17,
+    "width": null,
+    "report_boat_names": [
+      "Independence"
+    ],
+    "n_points": 38924,
+    "first_seen": "2016-01-27 15:41:22",
+    "last_seen": "2020-08-24 17:51:55",
+    "score": 39.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 368126610,
+    "ais_vessel_name": "INDEPENDENCE",
+    "vessel_name_norm": "INDEPENDENCE",
+    "call_sign": "WDL3946",
     "vessel_type": 37,
     "length": 18,
     "width": 5,
     "report_boat_names": [
-      "Triton"
+      "Independence"
     ],
-    "n_points": 1153,
-    "first_seen": "2025-07-20 15:42:11",
-    "last_seen": "2025-07-24 11:24:07",
-    "score": 18.2306,
+    "n_points": 1606,
+    "first_seen": "2022-06-02 18:55:33",
+    "last_seen": "2022-06-18 22:05:08",
+    "score": -10000000.0,
     "match_confidence": "rejected_duplicate_name"
   },
   {
-    "mmsi": 338243205,
-    "ais_vessel_name": "TRITON",
-    "vessel_name_norm": "TRITON",
+    "mmsi": 338345514,
+    "ais_vessel_name": "INDEPENDENCE",
+    "vessel_name_norm": "INDEPENDENCE",
     "call_sign": null,
-    "vessel_type": 36,
-    "length": 13,
+    "vessel_type": 37,
+    "length": 11,
     "width": 4,
     "report_boat_names": [
-      "Triton"
+      "Independence"
     ],
-    "n_points": 332,
-    "first_seen": "2025-05-10 15:04:25",
-    "last_seen": "2025-05-16 17:16:50",
-    "score": -9.9336,
+    "n_points": 542,
+    "first_seen": "2021-12-03 23:53:28",
+    "last_seen": "2024-10-11 17:33:01",
+    "score": -100000000.0,
     "match_confidence": "rejected_duplicate_name"
   },
   {
-    "mmsi": 538070070,
-    "ais_vessel_name": "TRITON",
-    "vessel_name_norm": "TRITON",
-    "call_sign": "V7GF5",
-    "vessel_type": 37,
-    "length": 50,
-    "width": 10,
+    "mmsi": 338955000,
+    "ais_vessel_name": "INDEPENDENCE",
+    "vessel_name_norm": "INDEPENDENCE",
+    "call_sign": "KBGR",
+    "vessel_type": 1004,
+    "length": 56,
+    "width": 12,
     "report_boat_names": [
-      "Triton"
+      "Independence"
     ],
-    "n_points": 40685,
-    "first_seen": "2025-06-13 21:27:06",
-    "last_seen": "2025-10-13 19:01:31",
-    "score": -1000000000.0,
+    "n_points": 80091,
+    "first_seen": "2015-05-27 20:53:04",
+    "last_seen": "2024-10-26 22:39:49",
+    "score": -100000000.0,
     "match_confidence": "rejected_duplicate_name"
   },
   {
-    "mmsi": 338109838,
-    "ais_vessel_name": "PATRIOT",
-    "vessel_name_norm": "PATRIOT",
-    "call_sign": "WDH9087",
-    "vessel_type": 36,
-    "length": 15,
-    "width": 3,
+    "mmsi": 306029000,
+    "ais_vessel_name": "TERN",
+    "vessel_name_norm": "TERN",
+    "call_sign": "PJXY",
+    "vessel_type": 1004,
+    "length": 181,
+    "width": 32,
     "report_boat_names": [
-      "Patriot (Newport)"
+      "Tern"
     ],
-    "n_points": 377,
-    "first_seen": "2025-05-02 18:23:54",
-    "last_seen": "2025-05-04 00:42:38",
-    "score": -4.9246,
+    "n_points": 10266,
+    "first_seen": "2016-04-02 04:38:14",
+    "last_seen": "2016-05-04 20:28:53",
+    "score": -100000000.0,
     "match_confidence": "rejected"
   },
   {
-    "mmsi": 338316391,
-    "ais_vessel_name": "PATRIOT",
-    "vessel_name_norm": "PATRIOT",
-    "call_sign": null,
-    "vessel_type": 37,
-    "length": 10,
-    "width": 4,
+    "mmsi": 367176990,
+    "ais_vessel_name": "MONTE CARLO",
+    "vessel_name_norm": "MONTECARLO",
+    "call_sign": "WDD6745",
+    "vessel_type": 1012,
+    "length": 22,
+    "width": 7,
     "report_boat_names": [
-      "Patriot (Newport)"
+      "Monte Carlo"
     ],
-    "n_points": 396,
-    "first_seen": "2025-01-03 01:00:56",
-    "last_seen": "2025-10-11 19:07:08",
-    "score": -24.9208,
-    "match_confidence": "rejected"
+    "n_points": 122847,
+    "first_seen": "2016-03-06 20:06:32",
+    "last_seen": "2017-12-06 01:02:59",
+    "score": 59.0,
+    "match_confidence": "rejected_duplicate_name"
   },
   {
-    "mmsi": 338424198,
-    "ais_vessel_name": "PATRIOT",
-    "vessel_name_norm": "PATRIOT",
-    "call_sign": null,
+    "mmsi": 368200480,
+    "ais_vessel_name": "SUNRISE",
+    "vessel_name_norm": "SUNRISE",
+    "call_sign": "WDM3789",
     "vessel_type": 36,
     "length": 12,
     "width": 6,
     "report_boat_names": [
-      "Patriot (Newport)"
+      "Sun Rise"
     ],
-    "n_points": 101175,
-    "first_seen": "2025-01-01 00:02:58",
-    "last_seen": "2025-12-31 23:59:46",
-    "score": -1000000000.0,
+    "n_points": 140,
+    "first_seen": "2022-01-19 03:31:43",
+    "last_seen": "2022-01-19 15:34:46",
+    "score": -10000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 338239093,
+    "ais_vessel_name": "SUNRISE",
+    "vessel_name_norm": "SUNRISE",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 8,
+    "width": 2,
+    "report_boat_names": [
+      "Sun Rise"
+    ],
+    "n_points": 3183,
+    "first_seen": "2018-04-17 22:28:41",
+    "last_seen": "2024-11-26 02:14:48",
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 338411878,
+    "ais_vessel_name": "PARAGON",
+    "vessel_name_norm": "PARAGON",
+    "call_sign": null,
+    "vessel_type": 36,
+    "length": 8,
+    "width": 3,
+    "report_boat_names": [
+      "Paragon"
+    ],
+    "n_points": 441,
+    "first_seen": "2023-08-01 20:25:23",
+    "last_seen": "2023-08-02 18:14:51",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338098065,
+    "ais_vessel_name": "HUSTLER",
+    "vessel_name_norm": "HUSTLER",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 12,
+    "width": 4,
+    "report_boat_names": [
+      "Hustler"
+    ],
+    "n_points": 636,
+    "first_seen": "2020-05-05 17:17:37",
+    "last_seen": "2020-12-30 16:26:56",
+    "score": -10000000.0,
     "match_confidence": "rejected"
   },
   {
@@ -282,27 +1540,146 @@
     "report_boat_names": [
       "Current"
     ],
-    "n_points": 2140,
-    "first_seen": "2025-05-25 21:54:54",
+    "n_points": 10881,
+    "first_seen": "2022-04-14 17:32:13",
     "last_seen": "2025-06-28 00:23:33",
     "score": -1000000000.0,
     "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 367563590,
+    "ais_vessel_name": "PACIFIC STAR",
+    "vessel_name_norm": "PACIFICSTAR",
+    "call_sign": "WDG7068",
+    "vessel_type": 31,
+    "length": 30,
+    "width": 12,
+    "report_boat_names": [
+      "Pacific Star"
+    ],
+    "n_points": 508019,
+    "first_seen": "2016-01-13 16:12:47",
+    "last_seen": "2018-11-22 07:13:48",
+    "score": 59.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367655170,
+    "ais_vessel_name": "PACIFIC STAR",
+    "vessel_name_norm": "PACIFICSTAR",
+    "call_sign": "WDH8150",
+    "vessel_type": 34,
+    "length": 22,
+    "width": 8,
+    "report_boat_names": [
+      "Pacific Star"
+    ],
+    "n_points": 703521,
+    "first_seen": "2019-10-24 17:16:55",
+    "last_seen": "2024-12-31 23:57:26",
+    "score": 29.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367635520,
+    "ais_vessel_name": "PACIFIC STAR",
+    "vessel_name_norm": "PACIFICSTAR",
+    "call_sign": "WDH6198",
+    "vessel_type": 37,
+    "length": 14,
+    "width": 4,
+    "report_boat_names": [
+      "Pacific Star"
+    ],
+    "n_points": 34,
+    "first_seen": "2019-02-19 13:27:24",
+    "last_seen": "2019-02-19 14:27:52",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 366881480,
+    "ais_vessel_name": "PACIFIC STAR",
+    "vessel_name_norm": "PACIFICSTAR",
+    "call_sign": "WDB2928",
+    "vessel_type": 1019,
+    "length": 11,
+    "width": 4,
+    "report_boat_names": [
+      "Pacific Star"
+    ],
+    "n_points": 1092,
+    "first_seen": "2015-10-15 20:37:05",
+    "last_seen": "2016-04-29 11:02:03",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
   },
   {
     "mmsi": 338146692,
     "ais_vessel_name": "DREAMER",
     "vessel_name_norm": "DREAMER",
     "call_sign": null,
-    "vessel_type": 37,
+    "vessel_type": 1019,
     "length": 12,
     "width": 2,
     "report_boat_names": [
       "Dreamer"
     ],
-    "n_points": 105290,
-    "first_seen": "2025-01-01 00:05:46",
+    "n_points": 1371694,
+    "first_seen": "2015-01-01 00:02:47",
     "last_seen": "2025-12-31 23:57:52",
     "score": -1000000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367775920,
+    "ais_vessel_name": "BLUE HORIZON",
+    "vessel_name_norm": "BLUEHORIZON",
+    "call_sign": "WDJ4254",
+    "vessel_type": 37,
+    "length": 14,
+    "width": 4,
+    "report_boat_names": [
+      "Blue Horizon"
+    ],
+    "n_points": 2341,
+    "first_seen": "2018-10-18 15:50:49",
+    "last_seen": "2024-06-24 17:38:20",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 368019610,
+    "ais_vessel_name": "BLUE HORIZON",
+    "vessel_name_norm": "BLUEHORIZON",
+    "call_sign": null,
+    "vessel_type": 36,
+    "length": 11,
+    "width": 2,
+    "report_boat_names": [
+      "Blue Horizon"
+    ],
+    "n_points": 746,
+    "first_seen": "2022-10-11 15:59:33",
+    "last_seen": "2022-10-26 22:58:11",
+    "score": -100000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 367404740,
+    "ais_vessel_name": "ELDORADO",
+    "vessel_name_norm": "ELDORADO",
+    "call_sign": "WDE8374",
+    "vessel_type": 1012,
+    "length": 24,
+    "width": 6,
+    "report_boat_names": [
+      "Eldorado"
+    ],
+    "n_points": 469157,
+    "first_seen": "2016-02-26 00:26:55",
+    "last_seen": "2022-06-24 13:51:38",
+    "score": 59.0,
     "match_confidence": "rejected_duplicate_name"
   },
   {
@@ -310,16 +1687,16 @@
     "ais_vessel_name": "ELDORADO",
     "vessel_name_norm": "ELDORADO",
     "call_sign": "WDJ7591",
-    "vessel_type": 30,
-    "length": 24,
+    "vessel_type": 1001,
+    "length": 16,
     "width": 7,
     "report_boat_names": [
       "Eldorado"
     ],
-    "n_points": 147,
-    "first_seen": "2025-11-11 13:56:35",
+    "n_points": 4530,
+    "first_seen": "2017-10-23 22:28:30",
     "last_seen": "2025-11-11 20:40:24",
-    "score": 58.0294,
+    "score": 38.906,
     "match_confidence": "rejected_duplicate_name"
   },
   {
@@ -350,10 +1727,44 @@
     "report_boat_names": [
       "Pursuit"
     ],
-    "n_points": 10,
-    "first_seen": "2025-04-15 01:21:22",
+    "n_points": 3487,
+    "first_seen": "2021-03-14 03:45:24",
     "last_seen": "2025-11-03 21:31:26",
-    "score": -24.998,
+    "score": -100000000.0,
+    "match_confidence": "rejected"
+  },
+  {
+    "mmsi": 338388385,
+    "ais_vessel_name": "SPITFIRE",
+    "vessel_name_norm": "SPITFIRE",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": null,
+    "width": null,
+    "report_boat_names": [
+      "Spitfire"
+    ],
+    "n_points": 843,
+    "first_seen": "2021-07-27 15:01:52",
+    "last_seen": "2021-08-10 22:00:14",
+    "score": -10000000.0,
+    "match_confidence": "rejected_duplicate_name"
+  },
+  {
+    "mmsi": 338423575,
+    "ais_vessel_name": "BOARD ROOM",
+    "vessel_name_norm": "BOARDROOM",
+    "call_sign": null,
+    "vessel_type": 37,
+    "length": 15,
+    "width": 8,
+    "report_boat_names": [
+      "Boardroom"
+    ],
+    "n_points": 3303,
+    "first_seen": "2021-08-13 06:14:46",
+    "last_seen": "2024-11-20 23:20:38",
+    "score": -10000000.0,
     "match_confidence": "rejected"
   }
 ]
