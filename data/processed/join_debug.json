@@ -92,9 +92,10 @@
   },
   "registry_non_high": [],
   "ais_status_counts": {
-    "matched_stops": 1724,
+    "matched_stops": 1728,
     "no_offshore_stop": 941,
-    "no_mmsi": 2121
+    "no_mmsi": 3404,
+    "outside_ais_window": 1695
   },
   "notes": [
     "Edit FEEDBACK.md / scripts/config.py VESSEL_ALIASES to correct MMSI/boat matches.",
