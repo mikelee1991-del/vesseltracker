@@ -156,11 +156,38 @@ Checked 2026-08-03. Goal: free historical AIS points for SoCal stop detection.
 | **Global Fishing Watch API** | Free token | Events/presence to ~96h ago; **not raw 1‑min tracks** | Useful for fishing-event centroids / identity, not a Marine Cadastre substitute for sportfishing dwells. |
 | MarineTraffic / Spire / Kpler | Paid | Yes | Only option for true 2026 YTD backfill today. |
 
+### Where to host the aisstream collector
+
+The collector is a **long-lived outbound WebSocket** that appends fleet-filtered daily parquet. Missed hours are gone forever (no backfill API).
+
+| Host | Free? | Always-on? | Fit | Notes |
+|------|-------|------------|-----|-------|
+| **Cloudflare Workers / workers.dev** | Free tier | No (request-driven) | Poor | Wrong shape for a 24/7 Python logger. Durable Objects can hold outbound sockets but free **duration (GB·s)** burns on a chatty AIS stream; not a drop-in for `collect_aisstream.py`. |
+| **GitHub Actions** | Free minutes | No (job ≤ ~6h) | Poor | Cron’d short runs leave gaps; minutes add up if you fake continuity. Fine for one-off tests only. |
+| **GitHub Pages / static hosting** | Free | N/A | No | Cannot run a background process. |
+| **Home always-on** (Pi / old PC / NAS) | Free (power) | Yes | **Best free** | `systemd` + `AISSTREAM_API_KEY` + local `data/processed/ais_daily/`. Optional nightly sync to object storage. |
+| **Oracle / GCP free-tier VM** | Free (quota limits) | Yes if kept running | Good | Small Linux VM + `deploy/aisstream/install.sh`. Watch idle-reclaim / egress quotas. |
+| **Cheap VPS** (~$4–6/mo) | Paid | Yes | Good | Least fuss for continuous archive. |
+| **Fly / Render / Railway free** | “Free” tiers | Often sleeps | Weak | Sleep/throttle gaps break a live AIS archive unless you pay for always-on. |
+
+### How much data is this?
+
+Fleet-filtered SoCal AIS already on disk (`data/processed/ais_daily/`, Cadastre 1‑min sample, allowlisted / name-matched boats only):
+
+| Metric | Size |
+|--------|------|
+| Full Cadastre extract (2015-01-01 → 2025-12-31) | **~640 MB** parquet (~4,004 days) |
+| Average per day | **~0.16 MB** (~100–350 KB typical; busier summer days higher) |
+| Rough per year | **~40–90 MB** (recent years ~55–65 MB) |
+| Rows / day (fleet only) | ~4k–13k position rows, ~12–23 MMSIs |
+
+aisstream live capture for the **same fleet + bbox** should be in a similar ballpark after parquet + dedupe, possibly a bit denser than Cadastre’s 1‑minute sample (more frequent Class B updates). Expect on the order of **tens of MB per year**, not GB — easy for a Pi SD card or free-tier disk. Raw websocket traffic before filtering is larger (all vessels in the bbox) but the collector only keeps matched boats.
+
 **Practical plan**
 
 1. Pull **all published Marine Cadastre daily CSV years** (`2015-01-01` → `2025-12-31`) for the SoCal fleet bbox (see `PILOT_AIS_*` in `scripts/config.py`).
 2. Scrape **all available** socalfishreports dock totals for target cities (`2005-01-01` → report end) and join where AIS overlaps.
-3. Start archiving live SoCal with **aisstream** (`AISSTREAM_API_KEY`) so 2026+ gaps close going forward.
+3. Start archiving live SoCal with **aisstream** (`AISSTREAM_API_KEY`) on a **home box or free-tier VM** so 2026+ gaps close going forward — see **`deploy/aisstream/README.md`**. Not Workers/GitHub Actions.
 4. When NOAA drops `csv2026`, pull it and prefer it over aisstream for those days.
 5. 2026-01-01 → today backfill is **not freely available** as bulk points; paid AIS or waiting on NOAA.
 
