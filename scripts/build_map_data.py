@@ -36,6 +36,7 @@ from config import (  # noqa: E402
 )
 from extract_ais import build_accepted_names, normalize_name  # noqa: E402
 from feature_cluster import assign_feature_ids, haversine_m  # noqa: E402
+from trip_duration import fish_per_person_hour, nominal_trip_hours  # noqa: E402
 from trips_io import load_trips  # noqa: E402
 
 
@@ -176,6 +177,11 @@ def main():
             for s in t.get("species", [])
             if not s.get("released")
         ]
+        trip_hours = nominal_trip_hours(t.get("trip_type"))
+        fpp = t.get("fish_per_person")
+        fph = fish_per_person_hour(fpp, t.get("trip_type"))
+        # AIS dwell is secondary context only (not the trip-rate denominator).
+        ais_dwell_min = sum(float(s.get("duration_min") or 0) for s in trip_stops)
         by_date[t["date"]].append(
             {
                 "date": t["date"],
@@ -184,11 +190,14 @@ def main():
                 "landing_name": t["landing_name"],
                 "anglers": t["anglers"],
                 "trip_type": t["trip_type"],
+                "trip_hours_nominal": trip_hours,
                 "total_fish_kept": t["total_fish_kept"],
-                "fish_per_person": t["fish_per_person"],
+                "fish_per_person": fpp,
+                "fish_per_person_hour": fph,
                 "species": kept_species,
                 "mmsis": sorted(mmsis),
                 "offshore_stops": trip_stops,
+                "ais_offshore_dwell_min": round(ais_dwell_min, 1) if trip_stops else None,
                 "ais_status": ais_status,
                 "ais_status_detail": ais_status_detail,
                 "catch_attribution": "trip_total_not_split_across_stops",
@@ -201,11 +210,19 @@ def main():
     for d in dates:
         trips_d = by_date[d]
         fpp_vals = [x["fish_per_person"] for x in trips_d if x["fish_per_person"] is not None]
+        fph_vals = [
+            x["fish_per_person_hour"]
+            for x in trips_d
+            if x.get("fish_per_person_hour") is not None
+        ]
         days_out.append(
             {
                 "date": d,
                 "n_trips": len(trips_d),
                 "mean_fish_per_person": (sum(fpp_vals) / len(fpp_vals)) if fpp_vals else None,
+                "mean_fish_per_person_hour": (
+                    (sum(fph_vals) / len(fph_vals)) if fph_vals else None
+                ),
                 "trips": trips_d,
             }
         )
@@ -237,6 +254,7 @@ def main():
                         "dates": set(),
                         "visits": [],
                         "fpp_values": [],
+                        "fph_values": [],
                         "species_totals": defaultdict(float),
                         "stop_points": [],
                     },
@@ -254,7 +272,9 @@ def main():
                     "city": t["city"],
                     "anglers": t["anglers"],
                     "trip_type": t["trip_type"],
+                    "trip_hours_nominal": t.get("trip_hours_nominal"),
                     "fish_per_person": t["fish_per_person"],
+                    "fish_per_person_hour": t.get("fish_per_person_hour"),
                     "total_fish_kept": t["total_fish_kept"],
                     "duration_min": s.get("duration_min"),
                     "species": t.get("species") or [],
@@ -262,6 +282,8 @@ def main():
                 loc["visits"].append(visit)
                 if t["fish_per_person"] is not None:
                     loc["fpp_values"].append(t["fish_per_person"])
+                if t.get("fish_per_person_hour") is not None:
+                    loc["fph_values"].append(t["fish_per_person_hour"])
                 for sp in t.get("species") or []:
                     loc["species_totals"][sp["species"]] += float(sp.get("count") or 0)
 
@@ -275,6 +297,7 @@ def main():
         for plat, plon in loc["stop_points"]:
             spread_m = max(spread_m, haversine_m(lat, lon, plat, plon))
         fpp_vals = loc["fpp_values"]
+        fph_vals = loc["fph_values"]
         species_top = sorted(
             ({"species": k, "count": round(v, 1)} for k, v in loc["species_totals"].items()),
             key=lambda x: -x["count"],
@@ -297,6 +320,10 @@ def main():
                 "median_trip_fpp": (
                     sorted(fpp_vals)[len(fpp_vals) // 2] if fpp_vals else None
                 ),
+                "mean_trip_fph": (sum(fph_vals) / len(fph_vals)) if fph_vals else None,
+                "median_trip_fph": (
+                    sorted(fph_vals)[len(fph_vals) // 2] if fph_vals else None
+                ),
                 "boats": sorted(loc["boats"]),
                 "species_top": species_top,
                 # Cap visit payload for multi-year archives (UI still has day files).
@@ -305,8 +332,11 @@ def main():
                 )[-80:],
                 "visits_total": len(loc["visits"]),
                 "fpp_note": (
-                    "mean_trip_fpp is the average fish/person of dock totals for "
-                    "boat-days that stopped here — not catch attributed to this spot"
+                    "mean_trip_fpp / mean_trip_fph are averages of dock-total "
+                    "fish/person (and per nominal trip hour) for boat-days that "
+                    "stopped here — not catch attributed to this spot. "
+                    "Nominal hours come from trip_type (1/2≈5h, 3/4≈8h, full≈11h, "
+                    "overnight≈18h)."
                 ),
             }
         )
@@ -354,6 +384,12 @@ def main():
         ),
         "methods": {
             "fish_per_person": "total kept fish / anglers from the dock total (direct)",
+            "fish_per_person_hour": (
+                "fish_per_person ÷ nominal trip hours from trip_type "
+                "(1/2 day≈5h, 3/4≈8h, full≈11h, overnight≈18h, N-day≈N×12h). "
+                "Primary productivity rate for comparing unequal trip lengths. "
+                "Not AIS dwell — that misses trolling and unmatched boats."
+            ),
             "species_per_person": "species kept count / anglers (direct)",
             "offshore_stops": (
                 "SOG <= configured max, duration >= configured min, outside home-dock "
@@ -367,7 +403,7 @@ def main():
             ),
             "catch_location_attribution": (
                 "NOT applied. Trip totals remain at voyage level. Location "
-                "productivity will be estimated later by cross-vessel statistics."
+                "productivity uses visiting trips' fish/person/hour as context only."
             ),
             "day_join": (
                 "Stops dated in America/Los_Angeles; multi-day/overnight trips also "

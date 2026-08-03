@@ -25,10 +25,11 @@
   "ais_availability_note": "Fish reports cover 2005 \u2192 2026 YTD for target LA-basin landings. Marine Cadastre bulk AIS daily CSV (SoCal bbox + fleet filter) covers 2015-01-01 \u2192 2025-12-31 (no csv2026 yet; 2009\u20132014 are FileGDB and not ingested). Live free archive via aisstream.io (scripts/collect_aisstream.py). Stops dated America/Los_Angeles.",
   "methods": {
     "fish_per_person": "total kept fish / anglers from the dock total (direct)",
+    "fish_per_person_hour": "fish_per_person \u00f7 nominal trip hours from trip_type (1/2 day\u22485h, 3/4\u22488h, full\u224811h, overnight\u224818h, N-day\u2248N\u00d712h). Primary productivity rate for comparing unequal trip lengths. Not AIS dwell \u2014 that misses trolling and unmatched boats.",
     "species_per_person": "species kept count / anglers (direct)",
     "offshore_stops": "SOG <= configured max, duration >= configured min, outside home-dock radii; see scripts/config.py",
     "feature_clustering": "Centroid-bounded cluster of stop positions within 150 ft (45.72 m) of a shared centroid; absorbs AIS/GPS scatter for revisits to the same place without chaining along a reef.",
-    "catch_location_attribution": "NOT applied. Trip totals remain at voyage level. Location productivity will be estimated later by cross-vessel statistics.",
+    "catch_location_attribution": "NOT applied. Trip totals remain at voyage level. Location productivity uses visiting trips' fish/person/hour as context only.",
     "day_join": "Stops dated in America/Los_Angeles; multi-day/overnight trips also pull prior local days."
   },
   "feature_cluster_radius_m": 45.72,

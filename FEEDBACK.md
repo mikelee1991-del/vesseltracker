@@ -131,9 +131,14 @@ Further suggested changes:
 
 Preferred approach when we resume this (do not implement until confirmed):
 
-- [ ] Cross-vessel co-occurrence / residual model
-- [ ] Presence-weighted priors without hard splitting single-trip counts
+- [x] **Primary trip rate:** `fish_per_person_hour` = fish/person ÷ nominal hours from `trip_type`
+  (½≈5h, ¾≈8h, full≈11h, overnight≈18h, N-day≈N×12h). See `scripts/trip_duration.py`.
+- [ ] Cross-vessel co-occurrence / residual model for *spot* catch (still not splitting trip totals)
+- [ ] Optional AIS offshore-dwell rate as a secondary experimental metric only
 - [ ] Other: ________
+
+Do **not** use AIS stop dwell as the primary trip catch denominator: it misses trolling,
+only exists for matched MMSIs, and is threshold-sensitive.
 
 ## AIS source options (2026)
 
