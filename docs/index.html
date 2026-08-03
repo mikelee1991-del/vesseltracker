@@ -605,8 +605,13 @@
         <div class="detail">
           <h3>${loc.lat.toFixed(4)}°, ${loc.lon.toFixed(4)}°</h3>
           <div class="meta">${loc.n_stops} stops · ${fmt(loc.total_dwell_min, 0)} min total dwell · ${loc.n_boats} boats · ${spread}</div>
-          <div><span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell-attributed fish/person/hour</span>
-            <span class="meta"> · unweighted trip ${fmt(loc.mean_trip_fph, 2)} FPH</span></div>
+          <div>
+            <span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell-attributed fish/person/hour</span>
+          </div>
+          <div class="meta">
+            Mean trip fish/person/hour ${fmt(loc.mean_trip_fph, 2)}
+            · mean trip fish/person ${fmt(loc.mean_trip_fpp, 2)}
+          </div>
           <p class="note">Trip catch is split across spots by AIS offshore dwell share; angler-hours use nominal trip hours × that share. Stops within ~150 ft are the same feature.</p>
           ${visits.slice(0, 40).map((v) => {
             const species = (v.species || []).slice(0, 5).map((s) => `<li>${fmt(s.count, 1)} ${s.species}</li>`).join("");
@@ -748,10 +753,12 @@
         (meta.boats || []).map((b) => `<option value="${b}">${b}</option>`).join("");
       const ft = meta.feature_cluster_radius_ft || 50;
       el("methodNote").textContent =
-        `Spots = AIS offshore stops clustered within ${ft} ft (AIS/GPS scatter; ${meta.ais_window.start}→${meta.ais_window.end}). ` +
-        `Mean FPP is trip dock-total fish/person of visiting boat-days — catch is not attributed to spots. ` +
+        `Spots = AIS offshore stops clustered within ${ft} ft (${meta.ais_window.start}→${meta.ais_window.end}). ` +
+        `Sort by dwell-attributed fish/person/hour (catch × dwell share ÷ nominal trip hours), ` +
+        `mean trip fish/person/hour, or mean trip fish/person. ` +
         `${meta.stats.n_features || meta.stats.n_locations || "?"} spots · ${meta.stats.n_offshore_stops} stops.`;
-      const locData = await (await fetch("data/locations.json")).json();
+      const cacheBust = encodeURIComponent(meta.ais_window?.end || "") + "-" + (meta.stats?.n_trips || "");
+      const locData = await (await fetch(`data/locations.json?v=${cacheBust}`)).json();
       state.locations = locData.locations || [];
       setMode("all");
     })().catch((err) => {
