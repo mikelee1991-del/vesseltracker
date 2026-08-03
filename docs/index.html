@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LA Sportfishing Take — Spots</title>
+  <title>LA Sportfishing Take</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -41,10 +41,17 @@
       font-weight: 700; letter-spacing: -0.02em; color: var(--sea);
       margin: 0; line-height: 1.1;
     }
-    header p { margin: 0.25rem 0 0; max-width: 70ch; font-size: 0.92rem; color: rgba(19,32,43,0.78); }
+    header p { margin: 0.25rem 0 0; max-width: 72ch; font-size: 0.92rem; color: rgba(19,32,43,0.78); }
+    .tabs {
+      display: flex; gap: 0.35rem; margin-top: 0.7rem;
+    }
+    .tabs button {
+      width: auto; min-width: 7.5rem; padding: 0.42rem 0.9rem;
+      border-radius: 999px; font-weight: 700; font-size: 0.88rem;
+    }
     .layout {
       display: grid;
-      grid-template-columns: minmax(300px, 380px) 1fr;
+      grid-template-columns: minmax(300px, 400px) 1fr;
       min-height: 0;
     }
     @media (max-width: 900px) {
@@ -56,7 +63,6 @@
     }
     #map { min-height: 420px; height: 100%; background: #0a2a33; }
     .map-wrap { position: relative; min-height: 0; }
-    /* Keep overzoomed DEM/BAG pixels crisp instead of soft-blurred. */
     #map.crisp-bathy .leaflet-tile-pane img.leaflet-tile {
       image-rendering: pixelated;
       image-rendering: crisp-edges;
@@ -89,11 +95,13 @@
       margin: 0 0 0.8rem; padding: 0.55rem 0.65rem;
       border-left: 3px solid var(--sand); background: rgba(196,165,116,0.12);
     }
-    .loc, .visit {
+    .loc, .visit, .course {
       padding: 0.7rem 0; border-bottom: 1px solid var(--line); cursor: pointer;
     }
-    .loc:hover, .loc.selected { background: rgba(23,104,122,0.08); margin: 0 -0.4rem; padding-left: 0.4rem; padding-right: 0.4rem; border-radius: 8px; }
-    .loc h3, .detail h3 {
+    .loc:hover, .loc.selected, .course:hover, .course.selected {
+      background: rgba(23,104,122,0.08); margin: 0 -0.4rem; padding-left: 0.4rem; padding-right: 0.4rem; border-radius: 8px;
+    }
+    .loc h3, .detail h3, .course h3 {
       margin: 0; font-size: 1rem; font-family: Fraunces, Georgia, serif;
     }
     .meta { font-size: 0.82rem; color: rgba(19,32,43,0.7); margin: 0.15rem 0 0.3rem; }
@@ -103,7 +111,7 @@
     .legend {
       position: absolute; z-index: 500; right: 12px; bottom: 18px;
       background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
-      padding: 0.65rem 0.75rem; font-size: 0.76rem; max-width: 260px;
+      padding: 0.65rem 0.75rem; font-size: 0.76rem; max-width: 270px;
       box-shadow: 0 8px 24px rgba(11,40,48,0.12);
       line-height: 1.35;
     }
@@ -121,6 +129,9 @@
       width: 14px; height: 14px; border-radius: 50%;
       border: 1px solid rgba(19,32,43,0.2);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+    }
+    .legend .swatch.line {
+      border-radius: 2px; height: 4px; width: 16px;
     }
     .legend .size-hint {
       display: flex; align-items: baseline; gap: 0.55rem;
@@ -146,76 +157,177 @@
     .status { font-size: 0.8rem; color: rgba(19,32,43,0.65); min-height: 1.1em; }
     .species { margin: 0.2rem 0 0; padding-left: 1.05rem; font-size: 0.84rem; }
     .leaflet-popup-content { font-family: "Source Sans 3", sans-serif; font-size: 0.88rem; line-height: 1.35; }
+    .date-range {
+      display: grid; gap: 0.35rem;
+    }
+    .date-range .range-labels {
+      display: flex; justify-content: space-between; gap: 0.5rem;
+      font-size: 0.84rem; font-weight: 600; color: var(--sea);
+      font-variant-numeric: tabular-nums;
+    }
+    .dual-range {
+      position: relative; height: 28px; display: flex; align-items: center;
+    }
+    .dual-range .track {
+      position: absolute; left: 0; right: 0; height: 6px; border-radius: 999px;
+      background: rgba(11,61,74,0.14); pointer-events: none;
+    }
+    .dual-range .track-fill {
+      position: absolute; height: 6px; border-radius: 999px;
+      background: rgba(23,104,122,0.55); pointer-events: none;
+    }
+    .dual-range input[type="range"] {
+      position: absolute; left: 0; width: 100%; margin: 0; padding: 0;
+      appearance: none; background: transparent; pointer-events: none; height: 28px;
+      border: none; border-radius: 0;
+    }
+    .dual-range input[type="range"]::-webkit-slider-thumb {
+      appearance: none; pointer-events: auto; width: 18px; height: 18px;
+      border-radius: 50%; background: var(--sea); border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(11,40,48,0.35); cursor: pointer;
+    }
+    .dual-range input[type="range"]::-moz-range-thumb {
+      pointer-events: auto; width: 18px; height: 18px;
+      border-radius: 50%; background: var(--sea); border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(11,40,48,0.35); cursor: pointer;
+    }
+    .dual-range input[type="range"]::-webkit-slider-runnable-track { height: 6px; background: transparent; }
+    .dual-range input[type="range"]::-moz-range-track { height: 6px; background: transparent; }
+    .panel[hidden] { display: none !important; }
   </style>
 </head>
 <body>
   <div class="app">
     <header>
       <h1 class="brand">LA Sportfishing Take</h1>
-      <p>
-        Fishing spots grouped from AIS offshore stops within ~150 ft (revisit scatter).
-        Circle size is dwell time; color tracks dwell-attributed fish/person/hour
-        (trip catch split by % of AIS offshore dwell at each spot, using nominal trip hours).
+      <p id="headerBlurb">
+        Fishing spots grouped from AIS offshore stops within ~150 ft.
+        Circle size is dwell; color tracks dwell-attributed fish/person/hour.
         Many LA charters still lack identifiable AIS —
-        <a href="./verify-mmsi.html" style="color:var(--sea-mid);font-weight:600">help match MMSIs</a>
-        or see FEEDBACK.md.
+        <a href="./verify-mmsi.html" style="color:var(--sea-mid);font-weight:600">help match MMSIs</a>.
       </p>
+      <div class="tabs" role="tablist" aria-label="Map views">
+        <button type="button" id="tabSpots" class="active" role="tab" aria-selected="true">Spots</button>
+        <button type="button" id="tabCourses" class="secondary" role="tab" aria-selected="false">Courses</button>
+      </div>
     </header>
     <div class="layout">
       <aside class="sidebar">
-        <div class="controls">
-          <div class="row2">
-            <button type="button" id="modeAll" class="active">All days</button>
-            <button type="button" id="modeDay" class="secondary">One day</button>
-          </div>
-          <div id="dayControls" hidden>
-            <label for="day">Day</label>
-            <input id="day" type="date" />
-            <div class="row2" style="margin-top:0.45rem">
-              <button type="button" class="secondary" id="prevDay">Previous</button>
-              <button type="button" class="secondary" id="nextDay">Next</button>
+        <div id="panelSpots" class="panel">
+          <div class="controls">
+            <div class="date-range" id="spotsDateRange">
+              <label>Date range</label>
+              <div class="range-labels">
+                <span id="spotsDateStartLabel">—</span>
+                <span id="spotsDateEndLabel">—</span>
+              </div>
+              <div class="dual-range">
+                <div class="track"></div>
+                <div class="track-fill" id="spotsTrackFill"></div>
+                <input id="spotsDateStart" type="range" min="0" max="0" value="0" aria-label="Start date" />
+                <input id="spotsDateEnd" type="range" min="0" max="0" value="0" aria-label="End date" />
+              </div>
             </div>
-          </div>
-          <div>
-            <label for="boatFilter">Boat</label>
-            <select id="boatFilter"><option value="">All boats</option></select>
-          </div>
-          <div>
-            <label for="sortBy">Sort spots</label>
-            <select id="sortBy">
-              <option value="dwell_fph">Dwell-attributed fish/person/hour</option>
-              <option value="fph">Mean trip fish/person/hour</option>
-              <option value="fpp">Mean trip fish/person</option>
-              <option value="dwell">Total dwell</option>
-              <option value="visits">Boat-days</option>
-            </select>
-          </div>
-          <div>
-            <label>Bathymetry stack</label>
-            <div class="basemap-toggles">
-              <label class="chk"><input type="checkbox" id="toggleNcei" checked /> NCEI DEM (⅓″→CRM, zoomable)</label>
-              <label class="chk"><input type="checkbox" id="toggleBag" checked /> BAG surveys (≤2 m, high-zoom)</label>
-              <label class="chk"><input type="checkbox" id="toggleBlueTopo" checked /> BlueTopo WMTS</label>
-              <label class="chk"><input type="checkbox" id="toggleBlueTopoHill" checked /> BlueTopo hillshade</label>
-              <label class="chk"><input type="checkbox" id="toggleOsm" checked /> Coast reference</label>
+            <div class="row2">
+              <button type="button" id="modeAll" class="active">All days</button>
+              <button type="button" id="modeDay" class="secondary">One day</button>
             </div>
+            <div id="dayControls" hidden>
+              <label for="day">Day</label>
+              <input id="day" type="date" />
+              <div class="row2" style="margin-top:0.45rem">
+                <button type="button" class="secondary" id="prevDay">Previous</button>
+                <button type="button" class="secondary" id="nextDay">Next</button>
+              </div>
+            </div>
+            <div>
+              <label for="boatFilter">Boat</label>
+              <select id="boatFilter"><option value="">All boats</option></select>
+            </div>
+            <div>
+              <label for="sortBy">Sort spots</label>
+              <select id="sortBy">
+                <option value="dwell_fph">Dwell-attributed fish/person/hour</option>
+                <option value="fph">Mean trip fish/person/hour</option>
+                <option value="fpp">Mean trip fish/person</option>
+                <option value="dwell">Total dwell</option>
+                <option value="visits">Boat-days</option>
+              </select>
+            </div>
+            <div>
+              <label>Bathymetry stack</label>
+              <div class="basemap-toggles">
+                <label class="chk"><input type="checkbox" id="toggleNcei" checked /> NCEI DEM (⅓″→CRM, zoomable)</label>
+                <label class="chk"><input type="checkbox" id="toggleBag" checked /> BAG surveys (≤2 m, high-zoom)</label>
+                <label class="chk"><input type="checkbox" id="toggleBlueTopo" checked /> BlueTopo WMTS</label>
+                <label class="chk"><input type="checkbox" id="toggleBlueTopoHill" checked /> BlueTopo hillshade</label>
+                <label class="chk"><input type="checkbox" id="toggleOsm" checked /> Coast reference</label>
+              </div>
+            </div>
+            <p class="status" id="status">Loading…</p>
           </div>
-          <p class="status" id="status">Loading…</p>
+          <div class="stat-row">
+            <div class="stat"><div class="k">Spots</div><div class="v" id="statLocs">—</div></div>
+            <div class="stat"><div class="k">Stops</div><div class="v" id="statStops">—</div></div>
+            <div class="stat"><div class="k">Mean FPH*</div><div class="v" id="statFph">—</div></div>
+          </div>
+          <p class="note" id="methodNote">
+            *Spot FPH = trip catch split by AIS dwell share ÷ (anglers × nominal trip hours × share).
+            ½≈5h, ¾≈8h, full≈11h, overnight≈18h.
+          </p>
+          <div id="list"></div>
         </div>
-        <div class="stat-row">
-          <div class="stat"><div class="k">Spots</div><div class="v" id="statLocs">—</div></div>
-          <div class="stat"><div class="k">Stops</div><div class="v" id="statStops">—</div></div>
-          <div class="stat"><div class="k">Mean FPH*</div><div class="v" id="statFph">—</div></div>
+
+        <div id="panelCourses" class="panel" hidden>
+          <div class="controls">
+            <div class="date-range" id="coursesDateRange">
+              <label>Date range</label>
+              <div class="range-labels">
+                <span id="coursesDateStartLabel">—</span>
+                <span id="coursesDateEndLabel">—</span>
+              </div>
+              <div class="dual-range">
+                <div class="track"></div>
+                <div class="track-fill" id="coursesTrackFill"></div>
+                <input id="coursesDateStart" type="range" min="0" max="0" value="0" aria-label="Courses start date" />
+                <input id="coursesDateEnd" type="range" min="0" max="0" value="0" aria-label="Courses end date" />
+              </div>
+            </div>
+            <div>
+              <label for="courseBoatFilter">Boat</label>
+              <select id="courseBoatFilter"><option value="">All boats</option></select>
+            </div>
+            <div>
+              <label for="courseOpacity">Path opacity</label>
+              <input id="courseOpacity" type="range" min="8" max="70" value="22" />
+            </div>
+            <div>
+              <label>Bathymetry stack</label>
+              <div class="basemap-toggles">
+                <label class="chk"><input type="checkbox" id="toggleNceiC" checked /> NCEI DEM (⅓″→CRM, zoomable)</label>
+                <label class="chk"><input type="checkbox" id="toggleBagC" checked /> BAG surveys (≤2 m, high-zoom)</label>
+                <label class="chk"><input type="checkbox" id="toggleBlueTopoC" checked /> BlueTopo WMTS</label>
+                <label class="chk"><input type="checkbox" id="toggleBlueTopoHillC" checked /> BlueTopo hillshade</label>
+                <label class="chk"><input type="checkbox" id="toggleOsmC" checked /> Coast reference</label>
+              </div>
+            </div>
+            <p class="status" id="courseStatus">Loading courses…</p>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><div class="k">Courses</div><div class="v" id="statCourses">—</div></div>
+            <div class="stat"><div class="k">Drawn</div><div class="v" id="statDrawn">—</div></div>
+            <div class="stat"><div class="k">Boats</div><div class="v" id="statCourseBoats">—</div></div>
+          </div>
+          <p class="note">
+            Schematic day courses: home dock → offshore AIS stops (time order) → home.
+            Not raw AIS tracks. Overlay many fishing days; narrow the date range if the map feels busy.
+          </p>
+          <div id="courseList"></div>
         </div>
-        <p class="note" id="methodNote">
-          *Spot FPH = trip catch split by AIS dwell share ÷ (anglers × nominal trip hours × share).
-          ½≈5h, ¾≈8h, full≈11h, overnight≈18h.
-        </p>
-        <div id="list"></div>
       </aside>
       <div class="map-wrap">
         <div id="map"></div>
-        <div class="legend">
+        <div class="legend" id="legendSpots">
           <strong>High-res bathymetry</strong>
           <div class="sub">NCEI + BAG surveys + BlueTopo<br />Zoom in — tiles sharpen with scale<br />Spots ≤150 ft AIS cluster</div>
           <div class="scale-title">Dwell-attributed fish/person/hour</div>
@@ -235,33 +347,56 @@
             <span>Size ∝ total dwell</span>
           </div>
         </div>
+        <div class="legend" id="legendCourses" hidden>
+          <strong>Vessel courses</strong>
+          <div class="sub">Home dock → stops → home<br />One line per fishing day with AIS stops</div>
+          <div class="scale-title">Path color</div>
+          <div class="swatches">
+            <div class="swatch-row"><span class="swatch line" style="background:#17687a"></span><span>By boat (stable hue)</span></div>
+            <div class="swatch-row"><span class="swatch line" style="background:#b54a2a"></span><span>Selected course</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    const MAX_COURSES_DRAWN = 2500;
+    const COURSE_PALETTE = [
+      "#0b3d4a", "#17687a", "#2a8f78", "#c47a3a", "#b54a2a",
+      "#4a6fa5", "#6b4c7a", "#8a6a3a", "#2f6b5a", "#a35a4a",
+    ];
+
     const state = {
       meta: null,
       locations: [],
+      courses: [],
+      courseDates: [],
+      spotsDates: [],
       dayPayload: null,
+      tab: "spots", // spots | courses
       mode: "all", // all | day
       selectedId: null,
+      selectedCourseKey: null,
       markers: [],
       dockMarkers: [],
       layer: null,
+      courseLayer: null,
       hasFittedBounds: false,
+      coursesLoaded: false,
+      coursesLoading: false,
+      renderTimer: null,
     };
 
     const map = L.map("map", {
       zoomControl: true,
       maxZoom: 18,
       minZoom: 7,
-      // Prefer crisp zoom; bathymetry tiles are re-fetched per z.
       zoomAnimation: true,
+      preferCanvas: true,
     }).setView([33.72, -118.35], 9);
 
-    // Web-mercator tile bbox helper for ArcGIS ImageServer XYZ tiling.
     function webMercatorTileBbox(x, y, z) {
       const n = 2 ** z;
       const res = 40075016.68557849 / n;
@@ -271,7 +406,6 @@
     }
 
     const NCEI_RENDER = encodeURIComponent(JSON.stringify({ rasterFunction: "ColorHillshade" }));
-    // Prefer finest available DEM (⅓″ CUDEM → 1″/3″ CRM → ETOPO) without blanking deep water.
     const NCEI_MOSAIC = encodeURIComponent(JSON.stringify({
       mosaicMethod: "ByAttribute",
       sortField: "CellsizeArcseconds",
@@ -279,16 +413,12 @@
       ascending: true,
     }));
     const BAG_RENDER = encodeURIComponent(JSON.stringify({ rasterFunction: "ColorHillshadeBAG" }));
-
-    // 512px export for each Leaflet 256-grid tile (= 2× density, sharp when zooming).
     const HIRES_PX = 512;
 
     const NceiDemTiles = L.TileLayer.extend({
       getTileUrl(coords) {
         const [minx, miny, maxx, maxy] = webMercatorTileBbox(coords.x, coords.y, coords.z);
-        const interp = coords.z >= 15
-          ? "RSP_NearestNeighbor"
-          : "RSP_BilinearInterpolation";
+        const interp = coords.z >= 15 ? "RSP_NearestNeighbor" : "RSP_BilinearInterpolation";
         return (
           "https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_all/ImageServer/exportImage?" +
           `bbox=${minx},${miny},${maxx},${maxy}&bboxSR=3857&imageSR=3857&size=${HIRES_PX},${HIRES_PX}` +
@@ -301,10 +431,7 @@
     const BagSurveyTiles = L.TileLayer.extend({
       getTileUrl(coords) {
         const [minx, miny, maxx, maxy] = webMercatorTileBbox(coords.x, coords.y, coords.z);
-        // Default mosaic already blends surveys; attribute-sort on LowPS picks sparse/coarse tiles.
-        const interp = coords.z >= 15
-          ? "RSP_NearestNeighbor"
-          : "RSP_BilinearInterpolation";
+        const interp = coords.z >= 15 ? "RSP_NearestNeighbor" : "RSP_BilinearInterpolation";
         return (
           "https://gis.ngdc.noaa.gov/arcgis/rest/services/bag_bathymetry/ImageServer/exportImage?" +
           `bbox=${minx},${miny},${maxx},${maxy}&bboxSR=3857&imageSR=3857&size=${HIRES_PX},${HIRES_PX}` +
@@ -315,59 +442,33 @@
     });
 
     const nceiDem = new NceiDemTiles("", {
-      maxZoom: 18,
-      maxNativeZoom: 18,
-      minZoom: 7,
-      opacity: 1,
-      keepBuffer: 2,
-      updateWhenIdle: false,
-      attribution: "NCEI DEM ColorHillshade (finest-first) © NOAA NCEI",
-      crossOrigin: true,
+      maxZoom: 18, maxNativeZoom: 18, minZoom: 7, opacity: 1, keepBuffer: 2,
+      updateWhenIdle: false, attribution: "NCEI DEM ColorHillshade © NOAA NCEI", crossOrigin: true,
     }).addTo(map);
 
-    // nowCOAST BlueTopo WMTS REST — 512px native tiles on the EPSG:3857 2^z grid.
     const blueTopoBathy = L.tileLayer(
       "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts/rest/bluetopo:bathymetry/nbs_elevation/EPSG:3857/EPSG:3857:{z}/{y}/{x}?format=image/png8",
       {
-        maxZoom: 18,
-        maxNativeZoom: 18,
-        minZoom: 7,
-        opacity: 0.42,
-        keepBuffer: 2,
-        attribution: "BlueTopo © NOAA OCS / nowCOAST",
-        crossOrigin: true,
+        maxZoom: 18, maxNativeZoom: 18, minZoom: 7, opacity: 0.42, keepBuffer: 2,
+        attribution: "BlueTopo © NOAA OCS / nowCOAST", crossOrigin: true,
       }
     ).addTo(map);
 
     const blueTopoHill = L.tileLayer(
       "https://nowcoast.noaa.gov/geoserver/gwc/service/wmts/rest/bluetopo:hillshade/nbs_hillshade/EPSG:3857/EPSG:3857:{z}/{y}/{x}?format=image/png8",
       {
-        maxZoom: 18,
-        maxNativeZoom: 18,
-        minZoom: 7,
-        opacity: 0.35,
-        keepBuffer: 2,
-        attribution: "BlueTopo relief © NOAA OCS / nowCOAST",
-        crossOrigin: true,
+        maxZoom: 18, maxNativeZoom: 18, minZoom: 7, opacity: 0.35, keepBuffer: 2,
+        attribution: "BlueTopo relief © NOAA OCS / nowCOAST", crossOrigin: true,
       }
     ).addTo(map);
 
-    // BAG hydro surveys (0.5–2 m) — the high-zoom detail layer for surveyed grounds.
     const bagSurvey = new BagSurveyTiles("", {
-      maxZoom: 18,
-      maxNativeZoom: 18,
-      minZoom: 8,
-      opacity: 0.62,
-      keepBuffer: 2,
-      updateWhenIdle: false,
-      attribution: "BAG survey hillshade © NOAA NCEI",
-      crossOrigin: true,
+      maxZoom: 18, maxNativeZoom: 18, minZoom: 8, opacity: 0.62, keepBuffer: 2,
+      updateWhenIdle: false, attribution: "BAG survey hillshade © NOAA NCEI", crossOrigin: true,
     }).addTo(map);
 
     const osmRef = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 18,
-      opacity: 0.16,
-      attribution: "&copy; OpenStreetMap",
+      maxZoom: 18, opacity: 0.16, attribution: "&copy; OpenStreetMap",
     }).addTo(map);
 
     const el = (id) => document.getElementById(id);
@@ -375,14 +476,26 @@
 
     function bindLayerToggle(checkboxId, layer) {
       el(checkboxId).addEventListener("change", (ev) => {
-        if (ev.target.checked) {
+        const checked = ev.target.checked;
+        // Keep paired checkboxes in sync across tabs.
+        const pairs = {
+          toggleNcei: "toggleNceiC", toggleNceiC: "toggleNcei",
+          toggleBag: "toggleBagC", toggleBagC: "toggleBag",
+          toggleBlueTopo: "toggleBlueTopoC", toggleBlueTopoC: "toggleBlueTopo",
+          toggleBlueTopoHill: "toggleBlueTopoHillC", toggleBlueTopoHillC: "toggleBlueTopoHill",
+          toggleOsm: "toggleOsmC", toggleOsmC: "toggleOsm",
+        };
+        const other = pairs[checkboxId];
+        if (other && el(other).checked !== checked) el(other).checked = checked;
+        if (checked) {
           if (!map.hasLayer(layer)) layer.addTo(map);
         } else if (map.hasLayer(layer)) {
           map.removeLayer(layer);
         }
-        // Keep BAG above BlueTopo / NCEI when re-enabled.
         if (map.hasLayer(bagSurvey)) bagSurvey.bringToFront();
         if (map.hasLayer(osmRef)) osmRef.bringToFront();
+        if (state.courseLayer) state.courseLayer.bringToFront();
+        if (state.layer) state.layer.bringToFront();
       });
     }
     bindLayerToggle("toggleNcei", nceiDem);
@@ -390,41 +503,53 @@
     bindLayerToggle("toggleBlueTopoHill", blueTopoHill);
     bindLayerToggle("toggleBag", bagSurvey);
     bindLayerToggle("toggleOsm", osmRef);
+    bindLayerToggle("toggleNceiC", nceiDem);
+    bindLayerToggle("toggleBlueTopoC", blueTopoBathy);
+    bindLayerToggle("toggleBlueTopoHillC", blueTopoHill);
+    bindLayerToggle("toggleBagC", bagSurvey);
+    bindLayerToggle("toggleOsmC", osmRef);
 
-    // Emphasize survey-grade layers as the user zooms in; keep DEM as regional base.
     function syncBathyForZoom() {
       const z = map.getZoom();
       document.getElementById("map").classList.toggle("crisp-bathy", z >= 14);
-      if (el("toggleNcei").checked) {
-        nceiDem.setOpacity(z >= 14 ? 0.78 : 1);
-      }
-      if (el("toggleBag").checked) {
-        bagSurvey.setOpacity(z >= 13 ? 0.78 : z >= 10 ? 0.62 : 0.45);
-      }
-      if (el("toggleBlueTopo").checked) {
-        blueTopoBathy.setOpacity(z >= 13 ? 0.5 : 0.38);
-      }
-      if (el("toggleBlueTopoHill").checked) {
-        blueTopoHill.setOpacity(z >= 13 ? 0.42 : 0.3);
-      }
+      if (el("toggleNcei").checked) nceiDem.setOpacity(z >= 14 ? 0.78 : 1);
+      if (el("toggleBag").checked) bagSurvey.setOpacity(z >= 13 ? 0.78 : z >= 10 ? 0.62 : 0.45);
+      if (el("toggleBlueTopo").checked) blueTopoBathy.setOpacity(z >= 13 ? 0.5 : 0.38);
+      if (el("toggleBlueTopoHill").checked) blueTopoHill.setOpacity(z >= 13 ? 0.42 : 0.3);
       if (map.hasLayer(bagSurvey)) bagSurvey.bringToFront();
       if (map.hasLayer(osmRef)) osmRef.bringToFront();
+      if (state.courseLayer) state.courseLayer.bringToFront();
+      if (state.layer) state.layer.bringToFront();
     }
     map.on("zoomend", syncBathyForZoom);
     syncBathyForZoom();
 
     function fphColor(fph) {
       if (fph == null) return "#7a8790";
-      // low -> sand, mid -> sea, high -> alert/warm (fish/person/hour)
       if (fph < 0.5) return "#8aa3ad";
       if (fph < 1.0) return "#17687a";
       if (fph < 1.5) return "#c47a3a";
       return "#b54a2a";
     }
 
+    function boatColor(name) {
+      let h = 0;
+      const s = name || "";
+      for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+      return COURSE_PALETTE[Math.abs(h) % COURSE_PALETTE.length];
+    }
+
+    function courseKey(c) {
+      return `${c.date}|${c.boat_name}|${c.mmsi || ""}|${c.n_stops}`;
+    }
+
     function clearMarkers() {
       if (state.layer) { map.removeLayer(state.layer); state.layer = null; }
       state.markers = [];
+    }
+
+    function clearCourses() {
+      if (state.courseLayer) { map.removeLayer(state.courseLayer); state.courseLayer = null; }
     }
 
     function renderDocks(docks) {
@@ -443,11 +568,89 @@
       return loc.feature_id || loc.grid_id;
     }
 
+    function dateAt(dates, idx) {
+      if (!dates.length) return null;
+      return dates[Math.max(0, Math.min(dates.length - 1, idx))];
+    }
+
+    function syncDualRange(prefix) {
+      const startEl = el(`${prefix}DateStart`);
+      const endEl = el(`${prefix}DateEnd`);
+      let a = Number(startEl.value);
+      let b = Number(endEl.value);
+      if (a > b) {
+        if (startEl === document.activeElement) b = a;
+        else a = b;
+        startEl.value = a;
+        endEl.value = b;
+      }
+      const max = Number(startEl.max) || 1;
+      const fill = el(`${prefix}TrackFill`);
+      fill.style.left = `${(a / max) * 100}%`;
+      fill.style.width = `${((b - a) / max) * 100}%`;
+      const dates = prefix === "spots" ? state.spotsDates : state.courseDates;
+      el(`${prefix}DateStartLabel`).textContent = dateAt(dates, a) || "—";
+      el(`${prefix}DateEndLabel`).textContent = dateAt(dates, b) || "—";
+      return { start: dateAt(dates, a), end: dateAt(dates, b) };
+    }
+
+    function setupDualRange(prefix, dates, onChange) {
+      const startEl = el(`${prefix}DateStart`);
+      const endEl = el(`${prefix}DateEnd`);
+      const max = Math.max(0, dates.length - 1);
+      startEl.min = 0; endEl.min = 0;
+      startEl.max = max; endEl.max = max;
+      startEl.value = 0;
+      endEl.value = max;
+      syncDualRange(prefix);
+      const handler = () => {
+        syncDualRange(prefix);
+        onChange();
+      };
+      startEl.oninput = handler;
+      endEl.oninput = handler;
+    }
+
+    function scheduleRender(fn, delay = 80) {
+      if (state.renderTimer) clearTimeout(state.renderTimer);
+      state.renderTimer = setTimeout(fn, delay);
+    }
+
+    function aggregateFromVisits(base, visits) {
+      const fpp = visits.map((v) => v.fish_per_person).filter((x) => x != null);
+      const fph = visits.map((v) => v.fish_per_person_hour).filter((x) => x != null);
+      const fishSum = visits.reduce((a, v) => a + (v.attributed_fish || 0), 0);
+      const hoursSum = visits.reduce((a, v) => a + (v.attributed_angler_hours || 0), 0);
+      const boats = [...new Set(visits.map((v) => v.boat_name))].sort();
+      return {
+        ...base,
+        visits,
+        n_stops: visits.length,
+        n_boat_days: visits.length,
+        n_boats: boats.length,
+        n_days: new Set(visits.map((v) => v.date)).size,
+        boats,
+        total_dwell_min: visits.reduce((a, v) => a + (v.duration_min || 0), 0),
+        mean_trip_fpp: fpp.length ? fpp.reduce((a, b) => a + b, 0) / fpp.length : null,
+        mean_trip_fph: fph.length ? fph.reduce((a, b) => a + b, 0) / fph.length : null,
+        dwell_attributed_fph: hoursSum > 0 ? fishSum / hoursSum : null,
+      };
+    }
+
+    function spotsDateBounds() {
+      return syncDualRange("spots");
+    }
+
+    function coursesDateBounds() {
+      return syncDualRange("courses");
+    }
+
     function currentLocations() {
       const boat = el("boatFilter").value;
+      const { start, end } = spotsDateBounds();
       let locs = state.locations;
+
       if (state.mode === "day" && state.dayPayload) {
-        // Rebuild spots from feature_attributions (dwell-share split) when present.
         const mapLoc = new Map();
         for (const t of state.dayPayload.trips) {
           if (boat && t.boat_name !== boat) continue;
@@ -491,7 +694,6 @@
             }
             continue;
           }
-          // Fallback: raw stops without attribution payload.
           for (const s of t.offshore_stops || []) {
             const fid = s.feature_id || s.grid_id || `pt_${s.lat.toFixed(3)}_${s.lon.toFixed(3)}`;
             let loc = mapLoc.get(fid);
@@ -541,31 +743,23 @@
             : null,
           species_top: [],
         }));
-      } else if (boat) {
+      } else {
         locs = state.locations
           .map((loc) => {
-            const visits = loc.visits.filter((v) => v.boat_name === boat);
+            // Fast reject using patched first/last visit dates when present.
+            if (start && loc.last_visit_date && loc.last_visit_date < start) return null;
+            if (end && loc.first_visit_date && loc.first_visit_date > end) return null;
+            let visits = loc.visits || [];
+            if (start || end) {
+              visits = visits.filter((v) => (!start || v.date >= start) && (!end || v.date <= end));
+            }
+            if (boat) visits = visits.filter((v) => v.boat_name === boat);
             if (!visits.length) return null;
-            const fpp = visits.map((v) => v.fish_per_person).filter((x) => x != null);
-            const fph = visits.map((v) => v.fish_per_person_hour).filter((x) => x != null);
-            const fishSum = visits.reduce((a, v) => a + (v.attributed_fish || 0), 0);
-            const hoursSum = visits.reduce((a, v) => a + (v.attributed_angler_hours || 0), 0);
-            return {
-              ...loc,
-              visits,
-              n_stops: visits.reduce((a, v) => a + 1, 0),
-              n_boat_days: visits.length,
-              n_boats: 1,
-              n_days: new Set(visits.map((v) => v.date)).size,
-              boats: [boat],
-              total_dwell_min: visits.reduce((a, v) => a + (v.duration_min || 0), 0),
-              mean_trip_fpp: fpp.length ? fpp.reduce((a, b) => a + b, 0) / fpp.length : null,
-              mean_trip_fph: fph.length ? fph.reduce((a, b) => a + b, 0) / fph.length : null,
-              dwell_attributed_fph: hoursSum > 0 ? fishSum / hoursSum : null,
-            };
+            return aggregateFromVisits(loc, visits);
           })
           .filter(Boolean);
       }
+
       const sortBy = el("sortBy").value;
       locs = [...locs].sort((a, b) => {
         if (sortBy === "visits") return (b.n_boat_days || 0) - (a.n_boat_days || 0);
@@ -577,6 +771,17 @@
         return (b.total_dwell_min || 0) - (a.total_dwell_min || 0);
       });
       return locs;
+    }
+
+    function currentCourses() {
+      const boat = el("courseBoatFilter").value;
+      const { start, end } = coursesDateBounds();
+      return state.courses.filter((c) => {
+        if (boat && c.boat_name !== boat) return false;
+        if (start && c.date < start) return false;
+        if (end && c.date > end) return false;
+        return true;
+      });
     }
 
     function showLocationList(locs) {
@@ -627,7 +832,7 @@
         </div>`;
       el("backBtn").addEventListener("click", () => {
         state.selectedId = null;
-        render();
+        renderSpots();
       });
     }
 
@@ -668,14 +873,107 @@
         state.markers.push(marker);
         bounds.push([loc.lat, loc.lon]);
       });
-      // Only auto-fit on first load / mode switch — never yank the user out of a zoomed bathy view.
       if (bounds.length && (fit || !state.hasFittedBounds)) {
         map.fitBounds(bounds, { padding: [36, 36], maxZoom: 12 });
         state.hasFittedBounds = true;
       }
     }
 
-    function render() {
+    function showCourseList(courses, drawn) {
+      const rows = courses.slice().reverse().slice(0, 60);
+      el("courseList").innerHTML = rows.map((c) => {
+        const key = courseKey(c);
+        return `<article class="course ${state.selectedCourseKey === key ? "selected" : ""}" data-key="${key}">
+          <h3>${c.boat_name}</h3>
+          <div class="meta">${c.date} · ${c.home_name || c.city || "—"} · ${c.n_stops} stop(s)</div>
+          <div>
+            <span class="fpp">${fmt(c.fish_per_person_hour, 2)} FPH</span>
+            <span class="meta"> · ${fmt(c.fish_per_person, 2)} fish/person · ${c.trip_type || "—"}</span>
+          </div>
+        </article>`;
+      }).join("") || "<p class='status'>No courses for this filter.</p>";
+
+      if (courses.length > drawn.length) {
+        el("courseList").insertAdjacentHTML(
+          "afterbegin",
+          `<p class="note">Showing ${drawn.length.toLocaleString()} of ${courses.length.toLocaleString()} matching courses (cap ${MAX_COURSES_DRAWN.toLocaleString()} for map performance). Narrow the date range or pick a boat to see more of the set.</p>`
+        );
+      }
+
+      el("courseList").querySelectorAll(".course").forEach((node) => {
+        node.addEventListener("click", () => selectCourse(node.dataset.key, courses));
+      });
+    }
+
+    function selectCourse(key, courses) {
+      const list = courses || currentCourses();
+      const c = list.find((x) => courseKey(x) === key);
+      if (!c) return;
+      state.selectedCourseKey = key;
+      showCourseList(list, list.slice(-MAX_COURSES_DRAWN));
+      renderCourseMap(list, { fit: false, highlight: key });
+      if (c.line && c.line.length) {
+        map.fitBounds(c.line, { padding: [40, 40], maxZoom: 12 });
+      }
+    }
+
+    function renderCourseMap(courses, { fit = false, highlight = null } = {}) {
+      clearCourses();
+      clearMarkers();
+      const opacity = Number(el("courseOpacity").value) / 100;
+      const drawn = courses.length > MAX_COURSES_DRAWN
+        ? courses.slice(-MAX_COURSES_DRAWN)
+        : courses;
+      state.courseLayer = L.layerGroup().addTo(map);
+      const bounds = [];
+      const selectedKey = highlight || state.selectedCourseKey;
+
+      // Home docks as small anchors.
+      const homes = new Map();
+      drawn.forEach((c) => {
+        if (!c.home || !c.home_name) return;
+        homes.set(c.home_name, c.home);
+      });
+      homes.forEach((ll, name) => {
+        L.circleMarker(ll, {
+          radius: 5, color: "#0b3d4a", weight: 1.5, fillColor: "#e8f1f4", fillOpacity: 0.9,
+        }).bindPopup(`<strong>${name}</strong><br>Home dock`).addTo(state.courseLayer);
+        bounds.push(ll);
+      });
+
+      drawn.forEach((c) => {
+        if (!c.line || c.line.length < 2) return;
+        const key = courseKey(c);
+        const selected = key === selectedKey;
+        const line = L.polyline(c.line, {
+          color: selected ? "#b54a2a" : boatColor(c.boat_name),
+          weight: selected ? 3.5 : 1.4,
+          opacity: selected ? Math.max(opacity, 0.85) : opacity,
+          lineJoin: "round",
+          lineCap: "round",
+        }).bindPopup(
+          `<strong>${c.boat_name}</strong><br>
+           ${c.date} · ${c.home_name || c.city || "—"}<br>
+           ${c.n_stops} offshore stop(s)<br>
+           ${fmt(c.fish_per_person_hour, 2)} FPH · ${fmt(c.fish_per_person, 2)} fish/person`
+        );
+        line.on("click", () => selectCourse(key, courses));
+        line.addTo(state.courseLayer);
+        c.line.forEach((pt) => bounds.push(pt));
+      });
+
+      el("statCourses").textContent = String(courses.length);
+      el("statDrawn").textContent = String(drawn.length);
+      el("statCourseBoats").textContent = String(new Set(courses.map((c) => c.boat_name)).size);
+      showCourseList(courses, drawn);
+
+      if (bounds.length && (fit || !state.hasFittedBounds)) {
+        map.fitBounds(bounds, { padding: [36, 36], maxZoom: 11 });
+        state.hasFittedBounds = true;
+      }
+    }
+
+    function renderSpots() {
       const locs = currentLocations();
       const fphs = locs.map((l) => l.dwell_attributed_fph).filter((x) => x != null);
       el("statLocs").textContent = String(locs.length);
@@ -688,11 +986,84 @@
         showLocationList(locs);
       }
       renderMap(locs);
+      const { start, end } = spotsDateBounds();
       const modeLabel = state.mode === "day" && el("day").value
         ? el("day").value
-        : `${state.meta.ais_window.start} → ${state.meta.ais_window.end}`;
+        : `${start || "?"} → ${end || "?"}`;
       const ft = state.meta.feature_cluster_radius_ft || 50;
       el("status").textContent = `${modeLabel} · ${locs.length} spot(s) · ≤${ft} ft clusters`;
+    }
+
+    function renderCoursesView() {
+      if (!state.coursesLoaded) {
+        el("courseStatus").textContent = state.coursesLoading ? "Loading courses…" : "Courses not loaded";
+        return;
+      }
+      const courses = currentCourses();
+      const { start, end } = coursesDateBounds();
+      el("courseStatus").textContent =
+        `${start || "?"} → ${end || "?"} · ${courses.length.toLocaleString()} course(s)` +
+        (courses.length > MAX_COURSES_DRAWN
+          ? ` · drawing last ${MAX_COURSES_DRAWN.toLocaleString()}`
+          : "");
+      renderCourseMap(courses);
+    }
+
+    function setTab(tab) {
+      state.tab = tab;
+      const spots = tab === "spots";
+      el("tabSpots").classList.toggle("active", spots);
+      el("tabSpots").classList.toggle("secondary", !spots);
+      el("tabSpots").setAttribute("aria-selected", spots ? "true" : "false");
+      el("tabCourses").classList.toggle("active", !spots);
+      el("tabCourses").classList.toggle("secondary", spots);
+      el("tabCourses").setAttribute("aria-selected", spots ? "false" : "true");
+      el("panelSpots").hidden = !spots;
+      el("panelCourses").hidden = spots;
+      el("legendSpots").hidden = !spots;
+      el("legendCourses").hidden = spots;
+      el("headerBlurb").innerHTML = spots
+        ? `Fishing spots grouped from AIS offshore stops within ~150 ft.
+           Circle size is dwell; color tracks dwell-attributed fish/person/hour.
+           Many LA charters still lack identifiable AIS —
+           <a href="./verify-mmsi.html" style="color:var(--sea-mid);font-weight:600">help match MMSIs</a>.`
+        : `Overlay every fishing day’s schematic course: home dock → offshore AIS stops (time order) → home.
+           Paths are stop-to-stop polylines (not full AIS tracks). Use the date slider to thin the overlay.`;
+      state.hasFittedBounds = false;
+      state.selectedId = null;
+      state.selectedCourseKey = null;
+      clearMarkers();
+      clearCourses();
+      if (spots) {
+        renderSpots();
+      } else {
+        ensureCourses().then(() => renderCoursesView());
+      }
+      setTimeout(() => map.invalidateSize(), 50);
+    }
+
+    async function ensureCourses() {
+      if (state.coursesLoaded || state.coursesLoading) return;
+      state.coursesLoading = true;
+      el("courseStatus").textContent = "Loading courses…";
+      try {
+        const cacheBust = encodeURIComponent(state.meta.ais_window?.end || "") + "-" + (state.meta.stats?.n_trips_with_stops || "");
+        const data = await (await fetch(`data/courses.json?v=${cacheBust}`)).json();
+        state.courses = data.courses || [];
+        state.courseDates = data.dates && data.dates.length
+          ? data.dates
+          : [...new Set(state.courses.map((c) => c.date))].sort();
+        const boats = [...new Set(state.courses.map((c) => c.boat_name))].sort();
+        el("courseBoatFilter").innerHTML = '<option value="">All boats</option>' +
+          boats.map((b) => `<option value="${b}">${b}</option>`).join("");
+        setupDualRange("courses", state.courseDates, () => scheduleRender(renderCoursesView, 100));
+        state.coursesLoaded = true;
+        el("courseStatus").textContent = `${state.courses.length.toLocaleString()} courses ready`;
+      } catch (err) {
+        el("courseStatus").textContent = `Failed to load courses: ${err.message}`;
+      } finally {
+        state.coursesLoading = false;
+      }
     }
 
     async function loadDay(dateStr) {
@@ -706,7 +1077,7 @@
         el("day").value = dateStr;
       }
       state.selectedId = null;
-      render();
+      renderSpots();
     }
 
     function setMode(mode) {
@@ -716,20 +1087,29 @@
       el("modeDay").classList.toggle("active", mode === "day");
       el("modeDay").classList.toggle("secondary", mode !== "day");
       el("dayControls").hidden = mode !== "day";
+      el("spotsDateRange").style.opacity = mode === "day" ? "0.45" : "1";
+      el("spotsDateRange").style.pointerEvents = mode === "day" ? "none" : "auto";
       state.selectedId = null;
-      state.hasFittedBounds = false; // re-frame when switching all/day
+      state.hasFittedBounds = false;
       if (mode === "day") {
         loadDay(el("day").value || state.meta.default_date);
       } else {
         state.dayPayload = null;
-        render();
+        renderSpots();
       }
     }
 
+    el("tabSpots").addEventListener("click", () => setTab("spots"));
+    el("tabCourses").addEventListener("click", () => setTab("courses"));
     el("modeAll").addEventListener("click", () => setMode("all"));
     el("modeDay").addEventListener("click", () => setMode("day"));
-    el("boatFilter").addEventListener("change", () => { state.selectedId = null; render(); });
-    el("sortBy").addEventListener("change", () => { state.selectedId = null; render(); });
+    el("boatFilter").addEventListener("change", () => { state.selectedId = null; renderSpots(); });
+    el("sortBy").addEventListener("change", () => { state.selectedId = null; renderSpots(); });
+    el("courseBoatFilter").addEventListener("change", () => {
+      state.selectedCourseKey = null;
+      renderCoursesView();
+    });
+    el("courseOpacity").addEventListener("input", () => scheduleRender(renderCoursesView, 60));
     el("day").addEventListener("change", () => loadDay(el("day").value));
     el("prevDay").addEventListener("click", () => {
       const dates = state.meta.dates || [];
@@ -760,6 +1140,19 @@
       const cacheBust = encodeURIComponent(meta.ais_window?.end || "") + "-" + (meta.stats?.n_trips || "");
       const locData = await (await fetch(`data/locations.json?v=${cacheBust}`)).json();
       state.locations = locData.locations || [];
+
+      // Dense day list for the spots slider: report dates inside the AIS window.
+      const aisStart = meta.ais_window?.start || "2015-01-01";
+      const aisEnd = meta.ais_window?.end || "2025-12-31";
+      state.spotsDates = (meta.dates || []).filter((d) => d >= aisStart && d <= aisEnd);
+      if (state.spotsDates.length < 2) {
+        state.spotsDates = [aisStart, aisEnd];
+      }
+
+      setupDualRange("spots", state.spotsDates, () => {
+        state.selectedId = null;
+        scheduleRender(renderSpots, 100);
+      });
       setMode("all");
     })().catch((err) => {
       el("status").textContent = `Failed to load: ${err.message}`;
