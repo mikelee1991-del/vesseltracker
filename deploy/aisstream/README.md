@@ -74,6 +74,15 @@ On the VM (after SSH):
 
 ```bash
 sudo apt-get update -y && sudo apt-get install -y git
+# Until PR #8 is merged to main, clone the deploy branch:
+git clone -b cursor/aisstream-vm-deploy-6672 https://github.com/mikelee1991-del/vesseltracker.git
+cd vesseltracker
+sudo bash deploy/aisstream/install.sh
+```
+
+After merge, you can use `main` instead:
+
+```bash
 git clone https://github.com/mikelee1991-del/vesseltracker.git
 cd vesseltracker
 sudo bash deploy/aisstream/install.sh
