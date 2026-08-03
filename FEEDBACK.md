@@ -11,7 +11,11 @@ Only include **verified** corrections — do not invent MMSIs or catches.
    through **2026-08-02**.
 2. **Day join timezone:** AIS timestamps are UTC; fish reports are calendar days (likely Pacific). Near-midnight trips may join to the wrong local day.
 3. **Name ↔ MMSI matching:** Automated from AIS `vessel_name` vs report boat names. Ambiguous names need manual confirmation below.
-4. **Catch attribution:** Per your decision, trip totals are **not** split across stops yet.
+4. **Catch attribution:** Trip dock totals are split across AIS offshore features by
+   **dwell share** (feature dwell ÷ trip offshore dwell). Angler-hours =
+   anglers × nominal trip hours × share. Spot rate =
+   sum(attributed fish) / sum(attributed angler-hours). Trips without offshore
+   stops are not attributed to spots.
 5. **Fleet coverage:** Expanded dock totals to Dana Point (2026-08-02). Most high-volume LA boats
    without AIS (Betty-O, Pursuit, Patriot, Ghost, …) still cannot be added without a known MMSI.
 
@@ -127,18 +131,17 @@ Further suggested changes:
 |--------|--------|
 | | |
 
-## Location productivity (future)
+## Location productivity
 
-Preferred approach when we resume this (do not implement until confirmed):
-
-- [x] **Primary trip rate:** `fish_per_person_hour` = fish/person ÷ nominal hours from `trip_type`
+- [x] **Trip rate:** `fish_per_person_hour` = fish/person ÷ nominal hours from `trip_type`
   (½≈5h, ¾≈8h, full≈11h, overnight≈18h, N-day≈N×12h). See `scripts/trip_duration.py`.
-- [ ] Cross-vessel co-occurrence / residual model for *spot* catch (still not splitting trip totals)
-- [ ] Optional AIS offshore-dwell rate as a secondary experimental metric only
+- [x] **Spot rate:** dwell-share split — `dwell_attributed_fph` in `scripts/catch_attribution.py`
+- [ ] Cross-vessel residual / co-occurrence model on top of dwell attribution
 - [ ] Other: ________
 
-Do **not** use AIS stop dwell as the primary trip catch denominator: it misses trolling,
-only exists for matched MMSIs, and is threshold-sensitive.
+AIS stop dwell is the **intensity / split** signal across spots on a trip.
+Nominal trip hours remain the trip-length denominator (not raw AIS dwell alone,
+which misses trolling and unmatched boats).
 
 ## AIS source options (2026)
 

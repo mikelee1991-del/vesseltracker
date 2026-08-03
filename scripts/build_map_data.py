@@ -2,9 +2,9 @@
 """
 Join fish-report trip stats with AIS offshore stops and export GitHub Pages JSON.
 
-Catch attribution rule (per product decision): do NOT split day totals across
-stops. Trip-level fish/person is authoritative; stops are location/time context
-only. Location productivity estimates are deferred / clearly labeled later.
+Catch attribution: trip dock totals are split across AIS offshore features by
+dwell share; angler-hours use nominal trip_type hours × that share. See
+scripts/catch_attribution.py.
 """
 
 from __future__ import annotations
@@ -35,6 +35,10 @@ from config import (  # noqa: E402
     VESSEL_ALIASES,
 )
 from extract_ais import build_accepted_names, normalize_name  # noqa: E402
+from catch_attribution import (  # noqa: E402
+    annotate_stops_with_dwell_share,
+    attribute_trip_to_features,
+)
 from feature_cluster import assign_feature_ids, haversine_m  # noqa: E402
 from trip_duration import fish_per_person_hour, nominal_trip_hours  # noqa: E402
 from trips_io import load_trips  # noqa: E402
@@ -148,7 +152,9 @@ def main():
         in_ais_window = ais_start <= t["date"] <= ais_end
         if trip_stops:
             ais_status = "matched_stops"
-            ais_status_detail = f"{len(trip_stops)} offshore AIS stop(s) (catch not split)"
+            ais_status_detail = (
+                f"{len(trip_stops)} offshore AIS stop(s); catch split by dwell share"
+            )
             matched_with_stops += 1
         elif not mmsis:
             ais_status = "no_mmsi"
@@ -180,30 +186,36 @@ def main():
         trip_hours = nominal_trip_hours(t.get("trip_type"))
         fpp = t.get("fish_per_person")
         fph = fish_per_person_hour(fpp, t.get("trip_type"))
-        # AIS dwell is secondary context only (not the trip-rate denominator).
-        ais_dwell_min = sum(float(s.get("duration_min") or 0) for s in trip_stops)
-        by_date[t["date"]].append(
-            {
-                "date": t["date"],
-                "boat_name": t["boat_name"],
-                "city": t["city"],
-                "landing_name": t["landing_name"],
-                "anglers": t["anglers"],
-                "trip_type": t["trip_type"],
-                "trip_hours_nominal": trip_hours,
-                "total_fish_kept": t["total_fish_kept"],
-                "fish_per_person": fpp,
-                "fish_per_person_hour": fph,
-                "species": kept_species,
-                "mmsis": sorted(mmsis),
-                "offshore_stops": trip_stops,
-                "ais_offshore_dwell_min": round(ais_dwell_min, 1) if trip_stops else None,
-                "ais_status": ais_status,
-                "ais_status_detail": ais_status_detail,
-                "catch_attribution": "trip_total_not_split_across_stops",
-                "source": t.get("source"),
-            }
+        ais_dwell_min = annotate_stops_with_dwell_share(trip_stops)
+        trip_row = {
+            "date": t["date"],
+            "boat_name": t["boat_name"],
+            "city": t["city"],
+            "landing_name": t["landing_name"],
+            "anglers": t["anglers"],
+            "trip_type": t["trip_type"],
+            "trip_hours_nominal": trip_hours,
+            "total_fish_kept": t["total_fish_kept"],
+            "fish_per_person": fpp,
+            "fish_per_person_hour": fph,
+            "species": kept_species,
+            "mmsis": sorted(mmsis),
+            "offshore_stops": trip_stops,
+            "ais_offshore_dwell_min": round(ais_dwell_min, 1) if trip_stops else None,
+            "ais_status": ais_status,
+            "ais_status_detail": ais_status_detail,
+            "catch_attribution": (
+                "dwell_share_of_trip_total"
+                if trip_stops and ais_dwell_min > 0
+                else "trip_total_not_split_across_stops"
+            ),
+            "source": t.get("source"),
+        }
+        # Feature-level dwell shares for this trip (used in location aggregate).
+        trip_row["feature_attributions"] = attribute_trip_to_features(
+            trip_row, trip_stops
         )
+        by_date[t["date"]].append(trip_row)
 
     dates = sorted(by_date.keys())
     days_out = []
@@ -215,6 +227,16 @@ def main():
             for x in trips_d
             if x.get("fish_per_person_hour") is not None
         ]
+        # Slim attributions for day JSON (drop stop_points used only in loc build).
+        trips_slim = []
+        for tr in trips_d:
+            row = dict(tr)
+            attrs = []
+            for a in tr.get("feature_attributions") or []:
+                a2 = {k: v for k, v in a.items() if k != "stop_points"}
+                attrs.append(a2)
+            row["feature_attributions"] = attrs
+            trips_slim.append(row)
         days_out.append(
             {
                 "date": d,
@@ -223,7 +245,7 @@ def main():
                 "mean_fish_per_person_hour": (
                     (sum(fph_vals) / len(fph_vals)) if fph_vals else None
                 ),
-                "trips": trips_d,
+                "trips": trips_slim,
             }
         )
 
@@ -233,21 +255,24 @@ def main():
     for day in days_out:
         (days_dir / f"{day['date']}.json").write_text(json.dumps(day))
 
-    # Feature-centric aggregate: stops within FEATURE_CLUSTER_RADIUS_M are one
-    # underwater spot. Trip FPP is visit context only — not a location catch rate.
+    # Feature-centric aggregate with dwell-share catch attribution.
+    # Trip catch is split across features by each feature's share of that trip's
+    # total AIS offshore dwell; nominal trip hours scale angler-hours.
     loc_map: dict[str, dict] = {}
     for d, trips_d in by_date.items():
         for t in trips_d:
-            for s in t.get("offshore_stops") or []:
-                fid = s.get("feature_id") or s.get("grid_id") or (
-                    f"pt_{round(s['lat'], 3)}_{round(s['lon'], 3)}"
-                )
+            attrs = t.get("feature_attributions") or []
+            if not attrs:
+                continue
+            for a in attrs:
+                fid = a["feature_id"]
                 loc = loc_map.setdefault(
                     fid,
                     {
                         "feature_id": fid,
                         "lat_sum": 0.0,
                         "lon_sum": 0.0,
+                        "n_coord": 0,
                         "n_stops": 0,
                         "total_dwell_min": 0.0,
                         "boats": set(),
@@ -255,17 +280,24 @@ def main():
                         "visits": [],
                         "fpp_values": [],
                         "fph_values": [],
+                        "attributed_fish_sum": 0.0,
+                        "attributed_angler_hours_sum": 0.0,
+                        "attributed_fpp_sum": 0.0,
                         "species_totals": defaultdict(float),
+                        "species_attributed": defaultdict(float),
                         "stop_points": [],
                     },
                 )
-                loc["lat_sum"] += s["lat"]
-                loc["lon_sum"] += s["lon"]
-                loc["n_stops"] += 1
-                loc["total_dwell_min"] += float(s.get("duration_min") or 0)
+                loc["lat_sum"] += float(a["lat"])
+                loc["lon_sum"] += float(a["lon"])
+                loc["n_coord"] += 1
+                loc["n_stops"] += int(a.get("n_stops") or 0)
+                loc["total_dwell_min"] += float(a.get("dwell_min") or 0)
                 loc["boats"].add(t["boat_name"])
                 loc["dates"].add(d)
-                loc["stop_points"].append((s["lat"], s["lon"]))
+                for plat, plon in a.get("stop_points") or [(a["lat"], a["lon"])]:
+                    loc["stop_points"].append((plat, plon))
+
                 visit = {
                     "date": d,
                     "boat_name": t["boat_name"],
@@ -276,46 +308,67 @@ def main():
                     "fish_per_person": t["fish_per_person"],
                     "fish_per_person_hour": t.get("fish_per_person_hour"),
                     "total_fish_kept": t["total_fish_kept"],
-                    "duration_min": s.get("duration_min"),
-                    "species": t.get("species") or [],
+                    "duration_min": a.get("dwell_min"),
+                    "dwell_share": a.get("dwell_share"),
+                    "attributed_fish": a.get("attributed_fish"),
+                    "attributed_fish_per_person": a.get("attributed_fish_per_person"),
+                    "attributed_angler_hours": a.get("attributed_angler_hours"),
+                    "species": a.get("attributed_species") or t.get("species") or [],
                 }
                 loc["visits"].append(visit)
+
                 if t["fish_per_person"] is not None:
                     loc["fpp_values"].append(t["fish_per_person"])
                 if t.get("fish_per_person_hour") is not None:
                     loc["fph_values"].append(t["fish_per_person_hour"])
+                if a.get("attributed_fish") is not None:
+                    loc["attributed_fish_sum"] += float(a["attributed_fish"])
+                if a.get("attributed_angler_hours") is not None:
+                    loc["attributed_angler_hours_sum"] += float(
+                        a["attributed_angler_hours"]
+                    )
+                if a.get("attributed_fish_per_person") is not None:
+                    loc["attributed_fpp_sum"] += float(a["attributed_fish_per_person"])
+                for sp in a.get("attributed_species") or []:
+                    loc["species_attributed"][sp["species"]] += float(sp.get("count") or 0)
+                # Raw species totals (unsplit) kept for reference.
                 for sp in t.get("species") or []:
                     loc["species_totals"][sp["species"]] += float(sp.get("count") or 0)
 
     locations = []
     for fid, loc in loc_map.items():
-        n = loc["n_stops"]
+        n = loc["n_coord"] or 1
         lat = loc["lat_sum"] / n
         lon = loc["lon_sum"] / n
-        # Max distance from centroid to a member stop (cluster footprint).
         spread_m = 0.0
         for plat, plon in loc["stop_points"]:
             spread_m = max(spread_m, haversine_m(lat, lon, plat, plon))
         fpp_vals = loc["fpp_values"]
         fph_vals = loc["fph_values"]
+        hours_sum = loc["attributed_angler_hours_sum"]
+        fish_sum = loc["attributed_fish_sum"]
+        dwell_fph = (fish_sum / hours_sum) if hours_sum > 0 else None
         species_top = sorted(
-            ({"species": k, "count": round(v, 1)} for k, v in loc["species_totals"].items()),
+            (
+                {"species": k, "count": round(v, 1)}
+                for k, v in loc["species_attributed"].items()
+            ),
             key=lambda x: -x["count"],
         )[:8]
         locations.append(
             {
                 "feature_id": fid,
-                # Keep grid_id alias so older UI bits still key correctly.
                 "grid_id": fid,
                 "lat": lat,
                 "lon": lon,
-                "n_stops": n,
+                "n_stops": loc["n_stops"],
                 "n_boat_days": len(loc["visits"]),
                 "n_boats": len(loc["boats"]),
                 "n_days": len(loc["dates"]),
                 "total_dwell_min": round(loc["total_dwell_min"], 1),
                 "cluster_spread_m": round(spread_m, 1),
                 "cluster_radius_m": FEATURE_CLUSTER_RADIUS_M,
+                # Unweighted trip rates (context / prior metric).
                 "mean_trip_fpp": (sum(fpp_vals) / len(fpp_vals)) if fpp_vals else None,
                 "median_trip_fpp": (
                     sorted(fpp_vals)[len(fpp_vals) // 2] if fpp_vals else None
@@ -324,23 +377,34 @@ def main():
                 "median_trip_fph": (
                     sorted(fph_vals)[len(fph_vals) // 2] if fph_vals else None
                 ),
+                # Primary spot productivity: dwell-share attributed catch / angler-hours.
+                "dwell_attributed_fph": dwell_fph,
+                "attributed_fish_total": round(fish_sum, 2),
+                "attributed_angler_hours_total": round(hours_sum, 2),
+                "attributed_fish_per_person_total": round(loc["attributed_fpp_sum"], 3),
                 "boats": sorted(loc["boats"]),
                 "species_top": species_top,
-                # Cap visit payload for multi-year archives (UI still has day files).
                 "visits": sorted(
                     loc["visits"], key=lambda v: (v["date"], v["boat_name"])
                 )[-80:],
                 "visits_total": len(loc["visits"]),
                 "fpp_note": (
-                    "mean_trip_fpp / mean_trip_fph are averages of dock-total "
-                    "fish/person (and per nominal trip hour) for boat-days that "
-                    "stopped here — not catch attributed to this spot. "
-                    "Nominal hours come from trip_type (1/2≈5h, 3/4≈8h, full≈11h, "
-                    "overnight≈18h)."
+                    "dwell_attributed_fph = sum(trip catch × dwell_share) / "
+                    "sum(anglers × nominal_trip_hours × dwell_share). "
+                    "dwell_share is this feature's fraction of the trip's AIS "
+                    "offshore stop time. mean_trip_fph is the unweighted average "
+                    "of visiting trips' rates (ignores dwell split)."
                 ),
             }
         )
-    locations.sort(key=lambda x: (-x["total_dwell_min"], -x["n_stops"]))
+    # Sort by attributed productivity when available, else dwell.
+    locations.sort(
+        key=lambda x: (
+            -(x["dwell_attributed_fph"] if x["dwell_attributed_fph"] is not None else -1),
+            -x["total_dwell_min"],
+            -x["n_stops"],
+        )
+    )
     (args.out_dir / "locations.json").write_text(
         json.dumps(
             {
@@ -350,6 +414,10 @@ def main():
                     "centroid-bounded cluster of AIS stop positions within "
                     f"{FEATURE_CLUSTER_RADIUS_FT} ft / {FEATURE_CLUSTER_RADIUS_M:.2f} m "
                     "of a shared centroid (AIS positional noise; same underwater feature)"
+                ),
+                "catch_attribution": (
+                    "Trip dock totals split across features by AIS offshore dwell "
+                    "share; angler-hours use nominal trip_type hours × dwell share"
                 ),
                 "locations": locations,
             }
@@ -361,8 +429,8 @@ def main():
         "description": (
             "Feature-centric view of AIS offshore stops clustered by proximity "
             f"({FEATURE_CLUSTER_RADIUS_FT} ft) and joined to socalfishreports.com "
-            "dock totals. Catch counts are NOT split across stop locations; "
-            "trip fish/person is shown as visit context."
+            "dock totals. Trip catch is split across stops by AIS dwell share; "
+            "angler-hours use nominal trip_type duration × that share."
         ),
         "sources": {
             "fish_reports": FISH_REPORT_SOURCE,
@@ -386,9 +454,14 @@ def main():
             "fish_per_person": "total kept fish / anglers from the dock total (direct)",
             "fish_per_person_hour": (
                 "fish_per_person ÷ nominal trip hours from trip_type "
-                "(1/2 day≈5h, 3/4≈8h, full≈11h, overnight≈18h, N-day≈N×12h). "
-                "Primary productivity rate for comparing unequal trip lengths. "
-                "Not AIS dwell — that misses trolling and unmatched boats."
+                "(1/2 day≈5h, 3/4≈8h, full≈11h, overnight≈18h, N-day≈N×12h)."
+            ),
+            "dwell_share_catch_attribution": (
+                "For trips with offshore AIS stops: each feature gets "
+                "dwell_share = feature_dwell / trip_offshore_dwell. "
+                "Attributed fish = trip kept fish × share; attributed angler-hours "
+                "= anglers × nominal_trip_hours × share. Spot dwell_attributed_fph "
+                "= sum(attributed fish) / sum(attributed angler-hours)."
             ),
             "species_per_person": "species kept count / anglers (direct)",
             "offshore_stops": (
@@ -402,8 +475,9 @@ def main():
                 "same place without chaining along a reef."
             ),
             "catch_location_attribution": (
-                "NOT applied. Trip totals remain at voyage level. Location "
-                "productivity uses visiting trips' fish/person/hour as context only."
+                "Dwell-share split of trip dock totals across AIS offshore features "
+                "(see dwell_share_catch_attribution). Trips without offshore stops "
+                "are not attributed to spots."
             ),
             "day_join": (
                 "Stops dated in America/Los_Angeles; multi-day/overnight trips also "

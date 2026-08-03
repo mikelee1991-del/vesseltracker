@@ -1,6 +1,6 @@
 {
   "title": "LA-area sportfishing take (pilot)",
-  "description": "Feature-centric view of AIS offshore stops clustered by proximity (150 ft) and joined to socalfishreports.com dock totals. Catch counts are NOT split across stop locations; trip fish/person is shown as visit context.",
+  "description": "Feature-centric view of AIS offshore stops clustered by proximity (150 ft) and joined to socalfishreports.com dock totals. Trip catch is split across stops by AIS dwell share; angler-hours use nominal trip_type duration \u00d7 that share.",
   "sources": {
     "fish_reports": "https://www.socalfishreports.com/",
     "ais": "NOAA Marine Cadastre / U.S. Coast Guard NAIS daily CSV (1-minute sample)",
@@ -25,11 +25,12 @@
   "ais_availability_note": "Fish reports cover 2005 \u2192 2026 YTD for target LA-basin landings. Marine Cadastre bulk AIS daily CSV (SoCal bbox + fleet filter) covers 2015-01-01 \u2192 2025-12-31 (no csv2026 yet; 2009\u20132014 are FileGDB and not ingested). Live free archive via aisstream.io (scripts/collect_aisstream.py). Stops dated America/Los_Angeles.",
   "methods": {
     "fish_per_person": "total kept fish / anglers from the dock total (direct)",
-    "fish_per_person_hour": "fish_per_person \u00f7 nominal trip hours from trip_type (1/2 day\u22485h, 3/4\u22488h, full\u224811h, overnight\u224818h, N-day\u2248N\u00d712h). Primary productivity rate for comparing unequal trip lengths. Not AIS dwell \u2014 that misses trolling and unmatched boats.",
+    "fish_per_person_hour": "fish_per_person \u00f7 nominal trip hours from trip_type (1/2 day\u22485h, 3/4\u22488h, full\u224811h, overnight\u224818h, N-day\u2248N\u00d712h).",
+    "dwell_share_catch_attribution": "For trips with offshore AIS stops: each feature gets dwell_share = feature_dwell / trip_offshore_dwell. Attributed fish = trip kept fish \u00d7 share; attributed angler-hours = anglers \u00d7 nominal_trip_hours \u00d7 share. Spot dwell_attributed_fph = sum(attributed fish) / sum(attributed angler-hours).",
     "species_per_person": "species kept count / anglers (direct)",
     "offshore_stops": "SOG <= configured max, duration >= configured min, outside home-dock radii; see scripts/config.py",
     "feature_clustering": "Centroid-bounded cluster of stop positions within 150 ft (45.72 m) of a shared centroid; absorbs AIS/GPS scatter for revisits to the same place without chaining along a reef.",
-    "catch_location_attribution": "NOT applied. Trip totals remain at voyage level. Location productivity uses visiting trips' fish/person/hour as context only.",
+    "catch_location_attribution": "Dwell-share split of trip dock totals across AIS offshore features (see dwell_share_catch_attribution). Trips without offshore stops are not attributed to spots.",
     "day_join": "Stops dated in America/Los_Angeles; multi-day/overnight trips also pull prior local days."
   },
   "feature_cluster_radius_m": 45.72,

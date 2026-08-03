@@ -154,8 +154,8 @@
       <h1 class="brand">LA Sportfishing Take</h1>
       <p>
         Fishing spots grouped from AIS offshore stops within ~150 ft (revisit scatter).
-        Circle size is dwell time; color tracks mean fish/person/hour of boats
-        that stopped there (trip totals ÷ nominal trip hours — not catch attributed to the spot).
+        Circle size is dwell time; color tracks dwell-attributed fish/person/hour
+        (trip catch split by % of AIS offshore dwell at each spot, using nominal trip hours).
         Many LA charters still lack identifiable AIS —
         <a href="./verify-mmsi.html" style="color:var(--sea-mid);font-weight:600">help match MMSIs</a>
         or see FEEDBACK.md.
@@ -183,9 +183,10 @@
           <div>
             <label for="sortBy">Sort spots</label>
             <select id="sortBy">
-              <option value="fph">Mean fish/person/hour</option>
+              <option value="dwell_fph">Dwell-attributed fish/person/hour</option>
               <option value="dwell">Total dwell</option>
               <option value="visits">Boat-days</option>
+              <option value="fph">Mean trip fish/person/hour</option>
               <option value="fpp">Mean trip fish/person</option>
             </select>
           </div>
@@ -207,8 +208,8 @@
           <div class="stat"><div class="k">Mean FPH*</div><div class="v" id="statFph">—</div></div>
         </div>
         <p class="note" id="methodNote">
-          *Fish/person/hour = dock fish/person ÷ nominal trip hours from trip type
-          (½≈5h, ¾≈8h, full≈11h, overnight≈18h). Catch is not split across spots.
+          *Spot FPH = trip catch split by AIS dwell share ÷ (anglers × nominal trip hours × share).
+          ½≈5h, ¾≈8h, full≈11h, overnight≈18h.
         </p>
         <div id="list"></div>
       </aside>
@@ -217,7 +218,7 @@
         <div class="legend">
           <strong>High-res bathymetry</strong>
           <div class="sub">NCEI + BAG surveys + BlueTopo<br />Zoom in — tiles sharpen with scale<br />Spots ≤150 ft AIS cluster</div>
-          <div class="scale-title">Mean fish/person/hour</div>
+          <div class="scale-title">Dwell-attributed fish/person/hour</div>
           <div class="swatches" aria-label="Fish per person per hour color scale">
             <div class="swatch-row"><span class="swatch" style="background:#8aa3ad"></span><span>&lt; 0.5</span></div>
             <div class="swatch-row"><span class="swatch" style="background:#17687a"></span><span>0.5 – 1.0</span></div>
@@ -446,22 +447,65 @@
       const boat = el("boatFilter").value;
       let locs = state.locations;
       if (state.mode === "day" && state.dayPayload) {
-        // Rebuild lightweight spots from selected day's trip stops (pre-assigned feature_id)
+        // Rebuild spots from feature_attributions (dwell-share split) when present.
         const mapLoc = new Map();
         for (const t of state.dayPayload.trips) {
           if (boat && t.boat_name !== boat) continue;
+          const attrs = t.feature_attributions || [];
+          if (attrs.length) {
+            for (const a of attrs) {
+              const fid = a.feature_id;
+              let loc = mapLoc.get(fid);
+              if (!loc) {
+                loc = {
+                  feature_id: fid, grid_id: fid, lat: 0, lon: 0, lat_sum: 0, lon_sum: 0,
+                  n_stops: 0, total_dwell_min: 0, n_coord: 0,
+                  boats: new Set(), visits: [], fpp_values: [], fph_values: [],
+                  attributed_fish_sum: 0, attributed_hours_sum: 0, species_top: [],
+                };
+                mapLoc.set(fid, loc);
+              }
+              loc.n_stops += a.n_stops || 1;
+              loc.n_coord += 1;
+              loc.lat_sum += a.lat;
+              loc.lon_sum += a.lon;
+              loc.total_dwell_min += a.dwell_min || 0;
+              loc.boats.add(t.boat_name);
+              if (a.attributed_fish != null) loc.attributed_fish_sum += a.attributed_fish;
+              if (a.attributed_angler_hours != null) loc.attributed_hours_sum += a.attributed_angler_hours;
+              loc.visits.push({
+                date: t.date, boat_name: t.boat_name, city: t.city, anglers: t.anglers,
+                trip_type: t.trip_type, trip_hours_nominal: t.trip_hours_nominal,
+                fish_per_person: t.fish_per_person,
+                fish_per_person_hour: t.fish_per_person_hour,
+                total_fish_kept: t.total_fish_kept,
+                duration_min: a.dwell_min,
+                dwell_share: a.dwell_share,
+                attributed_fish: a.attributed_fish,
+                attributed_fish_per_person: a.attributed_fish_per_person,
+                attributed_angler_hours: a.attributed_angler_hours,
+                species: a.attributed_species || t.species || [],
+              });
+              if (t.fish_per_person != null) loc.fpp_values.push(t.fish_per_person);
+              if (t.fish_per_person_hour != null) loc.fph_values.push(t.fish_per_person_hour);
+            }
+            continue;
+          }
+          // Fallback: raw stops without attribution payload.
           for (const s of t.offshore_stops || []) {
             const fid = s.feature_id || s.grid_id || `pt_${s.lat.toFixed(3)}_${s.lon.toFixed(3)}`;
             let loc = mapLoc.get(fid);
             if (!loc) {
               loc = {
                 feature_id: fid, grid_id: fid, lat: 0, lon: 0, lat_sum: 0, lon_sum: 0,
-                n_stops: 0, total_dwell_min: 0,
-                boats: new Set(), visits: [], fpp_values: [], fph_values: [], species_top: [],
+                n_stops: 0, total_dwell_min: 0, n_coord: 0,
+                boats: new Set(), visits: [], fpp_values: [], fph_values: [],
+                attributed_fish_sum: 0, attributed_hours_sum: 0, species_top: [],
               };
               mapLoc.set(fid, loc);
             }
             loc.n_stops += 1;
+            loc.n_coord += 1;
             loc.lat_sum += s.lat;
             loc.lon_sum += s.lon;
             loc.total_dwell_min += s.duration_min || 0;
@@ -472,7 +516,7 @@
               fish_per_person: t.fish_per_person,
               fish_per_person_hour: t.fish_per_person_hour,
               total_fish_kept: t.total_fish_kept, duration_min: s.duration_min,
-              species: t.species || [],
+              dwell_share: s.dwell_share, species: t.species || [],
             });
             if (t.fish_per_person != null) loc.fpp_values.push(t.fish_per_person);
             if (t.fish_per_person_hour != null) loc.fph_values.push(t.fish_per_person_hour);
@@ -480,8 +524,8 @@
         }
         locs = [...mapLoc.values()].map((loc) => ({
           ...loc,
-          lat: loc.lat_sum / loc.n_stops,
-          lon: loc.lon_sum / loc.n_stops,
+          lat: loc.lat_sum / loc.n_coord,
+          lon: loc.lon_sum / loc.n_coord,
           n_boats: loc.boats.size,
           n_boat_days: loc.visits.length,
           n_days: 1,
@@ -492,6 +536,9 @@
           mean_trip_fph: loc.fph_values.length
             ? loc.fph_values.reduce((a, b) => a + b, 0) / loc.fph_values.length
             : null,
+          dwell_attributed_fph: loc.attributed_hours_sum > 0
+            ? loc.attributed_fish_sum / loc.attributed_hours_sum
+            : null,
           species_top: [],
         }));
       } else if (boat) {
@@ -501,10 +548,12 @@
             if (!visits.length) return null;
             const fpp = visits.map((v) => v.fish_per_person).filter((x) => x != null);
             const fph = visits.map((v) => v.fish_per_person_hour).filter((x) => x != null);
+            const fishSum = visits.reduce((a, v) => a + (v.attributed_fish || 0), 0);
+            const hoursSum = visits.reduce((a, v) => a + (v.attributed_angler_hours || 0), 0);
             return {
               ...loc,
               visits,
-              n_stops: visits.length,
+              n_stops: visits.reduce((a, v) => a + 1, 0),
               n_boat_days: visits.length,
               n_boats: 1,
               n_days: new Set(visits.map((v) => v.date)).size,
@@ -512,6 +561,7 @@
               total_dwell_min: visits.reduce((a, v) => a + (v.duration_min || 0), 0),
               mean_trip_fpp: fpp.length ? fpp.reduce((a, b) => a + b, 0) / fpp.length : null,
               mean_trip_fph: fph.length ? fph.reduce((a, b) => a + b, 0) / fph.length : null,
+              dwell_attributed_fph: hoursSum > 0 ? fishSum / hoursSum : null,
             };
           })
           .filter(Boolean);
@@ -521,6 +571,9 @@
         if (sortBy === "visits") return (b.n_boat_days || 0) - (a.n_boat_days || 0);
         if (sortBy === "fpp") return (b.mean_trip_fpp || -1) - (a.mean_trip_fpp || -1);
         if (sortBy === "fph") return (b.mean_trip_fph || -1) - (a.mean_trip_fph || -1);
+        if (sortBy === "dwell_fph") {
+          return (b.dwell_attributed_fph || -1) - (a.dwell_attributed_fph || -1);
+        }
         return (b.total_dwell_min || 0) - (a.total_dwell_min || 0);
       });
       return locs;
@@ -531,8 +584,8 @@
         <article class="loc ${state.selectedId === locId(loc) ? "selected" : ""}" data-id="${locId(loc)}">
           <h3>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</h3>
           <div class="meta">${loc.n_stops} stops · ${loc.n_boats} boat(s) · ${fmt(loc.total_dwell_min, 0)} min dwell</div>
-          <div><span class="fpp">${fmt(loc.mean_trip_fph, 2)} fish/person/hour</span>
-            <span class="meta"> · ${fmt(loc.mean_trip_fpp, 2)} fish/person</span></div>
+          <div><span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell-attributed FPH</span>
+            <span class="meta"> · trip ${fmt(loc.mean_trip_fph, 2)} FPH</span></div>
           <div class="meta">${(loc.boats || []).slice(0, 4).join(", ")}${(loc.boats || []).length > 4 ? "…" : ""}</div>
         </article>
       `).join("") || "<p class='status'>No spots for this filter.</p>";
@@ -550,16 +603,17 @@
         <div class="detail">
           <h3>${loc.lat.toFixed(4)}°, ${loc.lon.toFixed(4)}°</h3>
           <div class="meta">${loc.n_stops} stops · ${fmt(loc.total_dwell_min, 0)} min total dwell · ${loc.n_boats} boats · ${spread}</div>
-          <div><span class="fpp">${fmt(loc.mean_trip_fph, 2)} fish/person/hour</span>
-            <span class="meta"> · ${fmt(loc.mean_trip_fpp, 2)} fish/person</span> of visiting boat-days</div>
-          <p class="note">Stops within ~150 ft are treated as the same feature (revisit scatter). Trip catch totals are not attributed to this spot. Rate uses nominal trip hours from trip type, not AIS dwell.</p>
+          <div><span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell-attributed fish/person/hour</span>
+            <span class="meta"> · unweighted trip ${fmt(loc.mean_trip_fph, 2)} FPH</span></div>
+          <p class="note">Trip catch is split across spots by AIS offshore dwell share; angler-hours use nominal trip hours × that share. Stops within ~150 ft are the same feature.</p>
           ${visits.slice(0, 40).map((v) => {
-            const species = (v.species || []).slice(0, 5).map((s) => `<li>${s.count} ${s.species}</li>`).join("");
+            const species = (v.species || []).slice(0, 5).map((s) => `<li>${fmt(s.count, 1)} ${s.species}</li>`).join("");
+            const sharePct = v.dwell_share != null ? `${fmt(100 * v.dwell_share, 0)}% dwell` : "—";
             return `<article class="visit">
               <h3>${v.boat_name}</h3>
-              <div class="meta">${v.date} · ${v.city} · ${v.trip_type || "—"} (${fmt(v.trip_hours_nominal, 0)}h) · ${v.anglers ?? "?"} anglers · ${fmt(v.duration_min, 0)} min here</div>
-              <div><span class="fpp">${fmt(v.fish_per_person_hour, 2)} fish/person/hour</span>
-                · ${fmt(v.fish_per_person, 2)} fish/person · ${v.total_fish_kept ?? 0} kept</div>
+              <div class="meta">${v.date} · ${v.city} · ${v.trip_type || "—"} (${fmt(v.trip_hours_nominal, 0)}h) · ${v.anglers ?? "?"} anglers · ${fmt(v.duration_min, 0)} min here (${sharePct})</div>
+              <div><span class="fpp">${fmt(v.attributed_fish_per_person != null && v.trip_hours_nominal ? v.attributed_fish_per_person / v.trip_hours_nominal : null, 2)} attributed FPH</span>
+                · ${fmt(v.attributed_fish, 1)} fish · trip ${fmt(v.fish_per_person_hour, 2)} FPH</div>
               <ul class="species">${species || "<li>No species list</li>"}</ul>
             </article>`;
           }).join("")}
@@ -590,15 +644,15 @@
         const radius = 6 + 14 * Math.sqrt((loc.total_dwell_min || 0) / maxDwell);
         const marker = L.circleMarker([loc.lat, loc.lon], {
           radius,
-          color: fphColor(loc.mean_trip_fph),
+          color: fphColor(loc.dwell_attributed_fph ?? loc.mean_trip_fph),
           weight: state.selectedId === id ? 3 : 1.5,
-          fillColor: fphColor(loc.mean_trip_fph),
+          fillColor: fphColor(loc.dwell_attributed_fph ?? loc.mean_trip_fph),
           fillOpacity: 0.7,
         }).bindPopup(
           `<strong>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</strong><br>
            ${loc.n_stops} stops · ${fmt(loc.total_dwell_min, 0)} min dwell<br>
-           <strong>${fmt(loc.mean_trip_fph, 2)} fish/person/hour</strong>
-           (${fmt(loc.mean_trip_fpp, 2)} fish/person)<br>
+           <strong>${fmt(loc.dwell_attributed_fph, 2)} dwell-attributed FPH</strong>
+           (trip ${fmt(loc.mean_trip_fph, 2)})<br>
            ${(loc.boats || []).slice(0, 5).join(", ")}`
         );
         marker._featureId = id;
@@ -616,7 +670,7 @@
 
     function render() {
       const locs = currentLocations();
-      const fphs = locs.map((l) => l.mean_trip_fph).filter((x) => x != null);
+      const fphs = locs.map((l) => l.dwell_attributed_fph).filter((x) => x != null);
       el("statLocs").textContent = String(locs.length);
       el("statStops").textContent = String(locs.reduce((a, l) => a + (l.n_stops || 0), 0));
       el("statFph").textContent = fphs.length ? fmt(fphs.reduce((a, b) => a + b, 0) / fphs.length, 2) : "—";
