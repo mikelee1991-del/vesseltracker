@@ -245,10 +245,15 @@
               <select id="boatFilter"><option value="">All boats</option></select>
             </div>
             <div>
+              <label for="speciesFilter">Species</label>
+              <select id="speciesFilter"><option value="">All species</option></select>
+            </div>
+            <div>
               <label for="sortBy">Sort spots</label>
               <select id="sortBy">
                 <option value="dwell_fph">Dwell-attributed fish/person/hour</option>
                 <option value="dwell_share">Mean dwell share</option>
+                <option value="species_fish">Species fish count</option>
                 <option value="fph">Mean trip fish/person/hour</option>
                 <option value="fpp">Mean trip fish/person</option>
                 <option value="dwell">Total dwell</option>
@@ -271,7 +276,7 @@
           <div class="stat-row">
             <div class="stat"><div class="k">Spots</div><div class="v" id="statLocs">—</div></div>
             <div class="stat"><div class="k">Stops</div><div class="v" id="statStops">—</div></div>
-            <div class="stat"><div class="k">Mean FPH*</div><div class="v" id="statFph">—</div></div>
+            <div class="stat"><div class="k" id="statThirdLabel">Mean FPH*</div><div class="v" id="statFph">—</div></div>
           </div>
           <p class="note" id="methodNote">
             *Spot FPH = trip catch split by AIS dwell share ÷ (anglers × nominal trip hours × share).
@@ -626,6 +631,62 @@
       state.renderTimer = setTimeout(fn, delay);
     }
 
+    const UNKNOWN_FISH = "Unknown fish";
+    const SPECIES_ALIASES = {
+      "Vermillion Rockfish": "Vermilion Rockfish",
+    };
+
+    function normalizeSpecies(name) {
+      const raw = (name || "").trim();
+      if (!raw) return UNKNOWN_FISH;
+      return SPECIES_ALIASES[raw] || raw;
+    }
+
+    function visitHasSpeciesBreakdown(v) {
+      return Array.isArray(v.species) && v.species.length > 0;
+    }
+
+    function visitSpeciesCounts(v) {
+      const counts = {};
+      if (!visitHasSpeciesBreakdown(v)) {
+        const n = Number(v.attributed_fish ?? v.total_fish_kept ?? 0) || 0;
+        counts[UNKNOWN_FISH] = n;
+        return counts;
+      }
+      for (const s of v.species) {
+        const name = normalizeSpecies(s.species);
+        counts[name] = (counts[name] || 0) + (Number(s.count) || 0);
+      }
+      return counts;
+    }
+
+    function mergeSpeciesCounts(into, from) {
+      for (const [k, v] of Object.entries(from || {})) {
+        into[k] = (into[k] || 0) + v;
+      }
+      return into;
+    }
+
+    function speciesFishForLoc(loc, speciesKey) {
+      const counts = loc.species_counts || {};
+      if (!speciesKey) {
+        return Object.values(counts).reduce((a, b) => a + b, 0);
+      }
+      return counts[speciesKey] || 0;
+    }
+
+    function topSpeciesLabel(loc, limit = 3) {
+      const entries = Object.entries(loc.species_counts || {})
+        .filter(([, n]) => n > 0)
+        .sort((a, b) => b[1] - a[1]);
+      if (!entries.length) {
+        return loc.has_unknown_fish ? UNKNOWN_FISH : "No species listed";
+      }
+      return entries.slice(0, limit)
+        .map(([name, n]) => `${fmt(n, 0)} ${name}`)
+        .join(" · ");
+    }
+
     function meanDwellShare(visits) {
       const shares = (visits || []).map((v) => v.dwell_share).filter((x) => x != null);
       return shares.length ? shares.reduce((a, b) => a + b, 0) / shares.length : null;
@@ -637,6 +698,12 @@
       const fishSum = visits.reduce((a, v) => a + (v.attributed_fish || 0), 0);
       const hoursSum = visits.reduce((a, v) => a + (v.attributed_angler_hours || 0), 0);
       const boats = [...new Set(visits.map((v) => v.boat_name))].sort();
+      const species_counts = {};
+      let has_unknown_fish = false;
+      for (const v of visits) {
+        if (!visitHasSpeciesBreakdown(v)) has_unknown_fish = true;
+        mergeSpeciesCounts(species_counts, visitSpeciesCounts(v));
+      }
       return {
         ...base,
         visits,
@@ -650,6 +717,8 @@
         mean_trip_fph: fph.length ? fph.reduce((a, b) => a + b, 0) / fph.length : null,
         mean_dwell_share: meanDwellShare(visits),
         dwell_attributed_fph: hoursSum > 0 ? fishSum / hoursSum : null,
+        species_counts,
+        has_unknown_fish,
       };
     }
 
@@ -663,8 +732,16 @@
 
     function currentLocations() {
       const boat = el("boatFilter").value;
+      const speciesKey = el("speciesFilter").value;
       const { start, end } = spotsDateBounds();
       let locs = state.locations;
+
+      function visitMatchesSpecies(v) {
+        if (!speciesKey) return true;
+        if (speciesKey === UNKNOWN_FISH) return !visitHasSpeciesBreakdown(v);
+        const counts = visitSpeciesCounts(v);
+        return (counts[speciesKey] || 0) > 0 || Object.prototype.hasOwnProperty.call(counts, speciesKey);
+      }
 
       if (state.mode === "day" && state.dayPayload) {
         const mapLoc = new Map();
@@ -673,13 +750,27 @@
           const attrs = t.feature_attributions || [];
           if (attrs.length) {
             for (const a of attrs) {
+              const visit = {
+                date: t.date, boat_name: t.boat_name, city: t.city, anglers: t.anglers,
+                trip_type: t.trip_type, trip_hours_nominal: t.trip_hours_nominal,
+                fish_per_person: t.fish_per_person,
+                fish_per_person_hour: t.fish_per_person_hour,
+                total_fish_kept: t.total_fish_kept,
+                duration_min: a.dwell_min,
+                dwell_share: a.dwell_share,
+                attributed_fish: a.attributed_fish,
+                attributed_fish_per_person: a.attributed_fish_per_person,
+                attributed_angler_hours: a.attributed_angler_hours,
+                species: a.attributed_species || t.species || [],
+              };
+              if (!visitMatchesSpecies(visit)) continue;
               const fid = a.feature_id;
               let loc = mapLoc.get(fid);
               if (!loc) {
                 loc = {
                   feature_id: fid, grid_id: fid, lat: 0, lon: 0, lat_sum: 0, lon_sum: 0,
                   n_stops: 0, total_dwell_min: 0, n_coord: 0,
-                  boats: new Set(), visits: [], fpp_values: [], fph_values: [],
+                  boats: new Set(), visits: [],
                   attributed_fish_sum: 0, attributed_hours_sum: 0, species_top: [],
                 };
                 mapLoc.set(fid, loc);
@@ -692,32 +783,27 @@
               loc.boats.add(t.boat_name);
               if (a.attributed_fish != null) loc.attributed_fish_sum += a.attributed_fish;
               if (a.attributed_angler_hours != null) loc.attributed_hours_sum += a.attributed_angler_hours;
-              loc.visits.push({
-                date: t.date, boat_name: t.boat_name, city: t.city, anglers: t.anglers,
-                trip_type: t.trip_type, trip_hours_nominal: t.trip_hours_nominal,
-                fish_per_person: t.fish_per_person,
-                fish_per_person_hour: t.fish_per_person_hour,
-                total_fish_kept: t.total_fish_kept,
-                duration_min: a.dwell_min,
-                dwell_share: a.dwell_share,
-                attributed_fish: a.attributed_fish,
-                attributed_fish_per_person: a.attributed_fish_per_person,
-                attributed_angler_hours: a.attributed_angler_hours,
-                species: a.attributed_species || t.species || [],
-              });
-              if (t.fish_per_person != null) loc.fpp_values.push(t.fish_per_person);
-              if (t.fish_per_person_hour != null) loc.fph_values.push(t.fish_per_person_hour);
+              loc.visits.push(visit);
             }
             continue;
           }
           for (const s of t.offshore_stops || []) {
+            const visit = {
+              date: t.date, boat_name: t.boat_name, city: t.city, anglers: t.anglers,
+              trip_type: t.trip_type, trip_hours_nominal: t.trip_hours_nominal,
+              fish_per_person: t.fish_per_person,
+              fish_per_person_hour: t.fish_per_person_hour,
+              total_fish_kept: t.total_fish_kept, duration_min: s.duration_min,
+              dwell_share: s.dwell_share, species: t.species || [],
+            };
+            if (!visitMatchesSpecies(visit)) continue;
             const fid = s.feature_id || s.grid_id || `pt_${s.lat.toFixed(3)}_${s.lon.toFixed(3)}`;
             let loc = mapLoc.get(fid);
             if (!loc) {
               loc = {
                 feature_id: fid, grid_id: fid, lat: 0, lon: 0, lat_sum: 0, lon_sum: 0,
                 n_stops: 0, total_dwell_min: 0, n_coord: 0,
-                boats: new Set(), visits: [], fpp_values: [], fph_values: [],
+                boats: new Set(), visits: [],
                 attributed_fish_sum: 0, attributed_hours_sum: 0, species_top: [],
               };
               mapLoc.set(fid, loc);
@@ -728,38 +814,23 @@
             loc.lon_sum += s.lon;
             loc.total_dwell_min += s.duration_min || 0;
             loc.boats.add(t.boat_name);
-            loc.visits.push({
-              date: t.date, boat_name: t.boat_name, city: t.city, anglers: t.anglers,
-              trip_type: t.trip_type, trip_hours_nominal: t.trip_hours_nominal,
-              fish_per_person: t.fish_per_person,
-              fish_per_person_hour: t.fish_per_person_hour,
-              total_fish_kept: t.total_fish_kept, duration_min: s.duration_min,
-              dwell_share: s.dwell_share, species: t.species || [],
-            });
-            if (t.fish_per_person != null) loc.fpp_values.push(t.fish_per_person);
-            if (t.fish_per_person_hour != null) loc.fph_values.push(t.fish_per_person_hour);
+            loc.visits.push(visit);
           }
         }
-        locs = [...mapLoc.values()].map((loc) => ({
-          ...loc,
-          lat: loc.lat_sum / loc.n_coord,
-          lon: loc.lon_sum / loc.n_coord,
-          n_boats: loc.boats.size,
-          n_boat_days: loc.visits.length,
-          n_days: 1,
-          boats: [...loc.boats].sort(),
-          mean_trip_fpp: loc.fpp_values.length
-            ? loc.fpp_values.reduce((a, b) => a + b, 0) / loc.fpp_values.length
-            : null,
-          mean_trip_fph: loc.fph_values.length
-            ? loc.fph_values.reduce((a, b) => a + b, 0) / loc.fph_values.length
-            : null,
-          mean_dwell_share: meanDwellShare(loc.visits),
-          dwell_attributed_fph: loc.attributed_hours_sum > 0
-            ? loc.attributed_fish_sum / loc.attributed_hours_sum
-            : null,
-          species_top: [],
-        }));
+        locs = [...mapLoc.values()].map((loc) => {
+          const agg = aggregateFromVisits({
+            feature_id: loc.feature_id,
+            grid_id: loc.grid_id,
+            lat: loc.lat_sum / loc.n_coord,
+            lon: loc.lon_sum / loc.n_coord,
+          }, loc.visits);
+          return {
+            ...agg,
+            n_stops: loc.n_stops,
+            total_dwell_min: loc.total_dwell_min,
+            species_top: [],
+          };
+        });
       } else {
         locs = state.locations
           .map((loc) => {
@@ -771,6 +842,7 @@
               visits = visits.filter((v) => (!start || v.date >= start) && (!end || v.date <= end));
             }
             if (boat) visits = visits.filter((v) => v.boat_name === boat);
+            if (speciesKey) visits = visits.filter(visitMatchesSpecies);
             if (!visits.length) return null;
             return aggregateFromVisits(loc, visits);
           })
@@ -784,6 +856,9 @@
         if (sortBy === "fph") return (b.mean_trip_fph || -1) - (a.mean_trip_fph || -1);
         if (sortBy === "dwell_share") {
           return (b.mean_dwell_share || -1) - (a.mean_dwell_share || -1);
+        }
+        if (sortBy === "species_fish") {
+          return speciesFishForLoc(b, speciesKey) - speciesFishForLoc(a, speciesKey);
         }
         if (sortBy === "dwell_fph") {
           return (b.dwell_attributed_fph || -1) - (a.dwell_attributed_fph || -1);
@@ -800,6 +875,9 @@
       dwell_share:
         "Mean of dwell_share = spot_dwell / total_offshore_dwell for each visit. " +
         "High values mean boats spent a large fraction of that trip’s offshore time here.",
+      species_fish:
+        "Ranks spots by fish count for the Species filter (All = all reported fish; " +
+        "Unknown fish = trips with no species breakdown). Counts use dwell-attributed species when available.",
       fph:
         "Average of each visit’s dock-total fish/person ÷ nominal trip hours. " +
         "Whole-trip rate — not split across stops.",
@@ -828,17 +906,24 @@
     }
 
     function showLocationList(locs) {
-      el("list").innerHTML = locs.slice(0, 80).map((loc) => `
+      const speciesKey = el("speciesFilter").value;
+      el("list").innerHTML = locs.slice(0, 80).map((loc) => {
+        const speciesCount = speciesFishForLoc(loc, speciesKey);
+        const speciesLine = speciesKey
+          ? `<span class="fpp">${fmt(speciesCount, 0)} ${speciesKey}</span>`
+          : `<span class="meta">${topSpeciesLabel(loc)}</span>`;
+        return `
         <article class="loc ${state.selectedId === locId(loc) ? "selected" : ""}" data-id="${locId(loc)}">
           <h3>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</h3>
           <div class="meta">${loc.n_stops} stops · ${loc.n_boats} boat(s) · ${fmt(loc.total_dwell_min, 0)} min dwell · ${loc.mean_dwell_share != null ? `${fmt(100 * loc.mean_dwell_share, 0)}%` : "—"} mean dwell share</div>
+          <div>${speciesLine}</div>
           <div>
             <span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell FPH</span>
             <span class="meta"> · ${fmt(loc.mean_trip_fph, 2)} trip FPH · ${fmt(loc.mean_trip_fpp, 2)} fish/person</span>
           </div>
           <div class="meta">${(loc.boats || []).slice(0, 4).join(", ")}${(loc.boats || []).length > 4 ? "…" : ""}</div>
-        </article>
-      `).join("") || "<p class='status'>No spots for this filter.</p>";
+        </article>`;
+      }).join("") || "<p class='status'>No spots for this filter.</p>";
 
       el("list").querySelectorAll(".loc").forEach((node) => {
         node.addEventListener("click", () => selectLocation(node.dataset.id, locs));
@@ -862,16 +947,19 @@
             · mean trip fish/person/hour ${fmt(loc.mean_trip_fph, 2)}
             · mean trip fish/person ${fmt(loc.mean_trip_fpp, 2)}
           </div>
-          <p class="note">Trip catch is split across spots by AIS offshore dwell share; angler-hours use nominal trip hours × that share. Stops within ~150 ft are the same feature.</p>
+          <div class="meta">Species: ${topSpeciesLabel(loc, 8)}</div>
+          <p class="note">Trip catch is split across spots by AIS offshore dwell share; angler-hours use nominal trip hours × that share. Stops within ~150 ft are the same feature. Trips without a species breakdown are labeled ${UNKNOWN_FISH}.</p>
           ${visits.slice(0, 40).map((v) => {
-            const species = (v.species || []).slice(0, 5).map((s) => `<li>${fmt(s.count, 1)} ${s.species}</li>`).join("");
+            const speciesRows = visitHasSpeciesBreakdown(v)
+              ? (v.species || []).slice(0, 5).map((s) => `<li>${fmt(s.count, 1)} ${normalizeSpecies(s.species)}</li>`).join("")
+              : `<li>${fmt(v.attributed_fish ?? v.total_fish_kept, 1)} ${UNKNOWN_FISH}</li>`;
             const sharePct = v.dwell_share != null ? `${fmt(100 * v.dwell_share, 0)}% dwell` : "—";
             return `<article class="visit">
               <h3>${v.boat_name}</h3>
               <div class="meta">${v.date} · ${v.city} · ${v.trip_type || "—"} (${fmt(v.trip_hours_nominal, 0)}h) · ${v.anglers ?? "?"} anglers · ${fmt(v.duration_min, 0)} min here (${sharePct})</div>
               <div><span class="fpp">${fmt(v.attributed_fish_per_person != null && v.trip_hours_nominal ? v.attributed_fish_per_person / v.trip_hours_nominal : null, 2)} attributed FPH</span>
                 · ${fmt(v.attributed_fish, 1)} fish · trip ${fmt(v.fish_per_person_hour, 2)} FPH</div>
-              <ul class="species">${species || "<li>No species list</li>"}</ul>
+              <ul class="species">${speciesRows || "<li>No species list</li>"}</ul>
             </article>`;
           }).join("")}
         </div>`;
@@ -1020,10 +1108,19 @@
 
     function renderSpots() {
       const locs = currentLocations();
+      const speciesKey = el("speciesFilter").value;
+      const sortBy = el("sortBy").value;
       const fphs = locs.map((l) => l.dwell_attributed_fph).filter((x) => x != null);
       el("statLocs").textContent = String(locs.length);
       el("statStops").textContent = String(locs.reduce((a, l) => a + (l.n_stops || 0), 0));
-      el("statFph").textContent = fphs.length ? fmt(fphs.reduce((a, b) => a + b, 0) / fphs.length, 2) : "—";
+      if (sortBy === "species_fish" || speciesKey) {
+        const total = locs.reduce((a, l) => a + speciesFishForLoc(l, speciesKey), 0);
+        el("statThirdLabel").textContent = speciesKey ? speciesKey : "Fish*";
+        el("statFph").textContent = fmt(total, 0);
+      } else {
+        el("statThirdLabel").textContent = "Mean FPH*";
+        el("statFph").textContent = fphs.length ? fmt(fphs.reduce((a, b) => a + b, 0) / fphs.length, 2) : "—";
+      }
       if (state.selectedId && locs.some((l) => locId(l) === state.selectedId)) {
         showLocationDetail(locs.find((l) => locId(l) === state.selectedId));
       } else {
@@ -1036,7 +1133,8 @@
         ? el("day").value
         : `${start || "?"} → ${end || "?"}`;
       const ft = state.meta.feature_cluster_radius_ft || 50;
-      el("status").textContent = `${modeLabel} · ${locs.length} spot(s) · ≤${ft} ft clusters`;
+      const speciesLabel = speciesKey ? ` · ${speciesKey}` : "";
+      el("status").textContent = `${modeLabel}${speciesLabel} · ${locs.length} spot(s) · ≤${ft} ft clusters`;
     }
 
     function renderCoursesView() {
@@ -1149,6 +1247,11 @@
     el("modeAll").addEventListener("click", () => setMode("all"));
     el("modeDay").addEventListener("click", () => setMode("day"));
     el("boatFilter").addEventListener("change", () => { state.selectedId = null; renderSpots(); });
+    el("speciesFilter").addEventListener("change", () => {
+      state.selectedId = null;
+      updateSortNote();
+      renderSpots();
+    });
     el("sortBy").addEventListener("change", () => {
       state.selectedId = null;
       updateSortNote();
@@ -1183,12 +1286,30 @@
       const ft = meta.feature_cluster_radius_ft || 50;
       el("methodNote").textContent =
         `Spots = AIS offshore stops clustered within ${ft} ft (${meta.ais_window.start}→${meta.ais_window.end}). ` +
-        `Sort by dwell-attributed fish/person/hour (catch × dwell share ÷ nominal trip hours), ` +
-        `mean trip fish/person/hour, or mean trip fish/person. ` +
+        `Filter by species from dock totals (trips with no breakdown = ${UNKNOWN_FISH}). ` +
+        `Sort by dwell-attributed FPH, mean dwell share, species fish count, trip FPH/FPP, dwell, or boat-days. ` +
         `${meta.stats.n_features || meta.stats.n_locations || "?"} spots · ${meta.stats.n_offshore_stops} stops.`;
       const cacheBust = encodeURIComponent(meta.ais_window?.end || "") + "-" + (meta.stats?.n_trips || "");
       const locData = await (await fetch(`data/locations.json?v=${cacheBust}`)).json();
       state.locations = locData.locations || [];
+
+      // Build species dropdown from reported catch (plus Unknown fish).
+      const speciesSet = new Set();
+      let unknownVisits = 0;
+      for (const loc of state.locations) {
+        for (const v of loc.visits || []) {
+          if (!visitHasSpeciesBreakdown(v)) {
+            unknownVisits += 1;
+            continue;
+          }
+          for (const s of v.species) speciesSet.add(normalizeSpecies(s.species));
+        }
+      }
+      const speciesNames = [...speciesSet].sort((a, b) => a.localeCompare(b));
+      el("speciesFilter").innerHTML =
+        '<option value="">All species</option>' +
+        `<option value="${UNKNOWN_FISH}">${UNKNOWN_FISH}${unknownVisits ? ` (${unknownVisits} visits)` : ""}</option>` +
+        speciesNames.map((s) => `<option value="${s}">${s}</option>`).join("");
 
       // Dense day list for the spots slider: report dates inside the AIS window.
       const aisStart = meta.ais_window?.start || "2015-01-01";
