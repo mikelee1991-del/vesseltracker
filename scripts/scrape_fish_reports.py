@@ -8,8 +8,10 @@ import json
 import re
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime, timedelta
 from pathlib import Path
+from threading import Lock
 
 import requests
 from bs4 import BeautifulSoup
@@ -138,14 +140,17 @@ def main():
     ap.add_argument("--start", default=PILOT_REPORT_START)
     ap.add_argument("--end", default=PILOT_REPORT_END)
     ap.add_argument("--out", type=Path, default=DATA_RAW / "fish_reports" / "trips.jsonl")
+    ap.add_argument(
+        "--workers",
+        type=int,
+        default=4,
+        help="Parallel day scrapes (be polite to socalfishreports.com)",
+    )
     args = ap.parse_args()
 
     start = datetime.strptime(args.start, "%Y-%m-%d").date()
     end = datetime.strptime(args.end, "%Y-%m-%d").date()
     args.out.parent.mkdir(parents=True, exist_ok=True)
-
-    session = requests.Session()
-    session.headers.update({"User-Agent": USER_AGENT, "Accept": "text/html"})
 
     # Resume support: skip dates already present.
     seen_dates: set[str] = set()
@@ -157,25 +162,56 @@ def main():
                 except Exception:
                     continue
 
-    total_rows = 0
-    with args.out.open("a") as out:
-        for day in daterange(start, end):
-            if day.isoformat() in seen_dates:
-                continue
-            try:
-                rows = fetch_day(session, day)
-            except Exception as e:
-                print(f"[warn] {day}: {e}", file=sys.stderr)
-                time.sleep(REQUEST_SLEEP_SEC * 3)
-                continue
-            for row in rows:
-                out.write(json.dumps(row, ensure_ascii=False) + "\n")
-                total_rows += 1
-            out.flush()
-            print(f"{day.isoformat()}: {len(rows)} trips")
-            time.sleep(REQUEST_SLEEP_SEC)
+    days = [d for d in daterange(start, end) if d.isoformat() not in seen_dates]
+    print(f"Days to scrape: {len(days)} (already have {len(seen_dates)}; workers={args.workers})")
 
-    print(f"Wrote/updated {args.out} (+{total_rows} new rows)")
+    write_lock = Lock()
+    total_rows = 0
+    workers = max(1, int(args.workers))
+
+    def _job(day: date) -> tuple[str, int, str | None]:
+        session = requests.Session()
+        session.headers.update({"User-Agent": USER_AGENT, "Accept": "text/html"})
+        try:
+            rows = fetch_day(session, day)
+        except Exception as e:
+            time.sleep(REQUEST_SLEEP_SEC * 3)
+            return day.isoformat(), 0, str(e)
+        with write_lock:
+            with args.out.open("a") as out:
+                for row in rows:
+                    out.write(json.dumps(row, ensure_ascii=False) + "\n")
+                out.flush()
+        time.sleep(REQUEST_SLEEP_SEC)
+        return day.isoformat(), len(rows), None
+
+    # Avoid Python nonlocal complexity for counter across threads.
+    row_counter = {"n": 0}
+    err_counter = {"n": 0}
+
+    def _run(day: date) -> None:
+        d, n, err = _job(day)
+        if err:
+            err_counter["n"] += 1
+            print(f"[warn] {d}: {err}", file=sys.stderr, flush=True)
+        else:
+            row_counter["n"] += n
+            print(f"{d}: {n} trips", flush=True)
+
+    if workers == 1:
+        for day in days:
+            _run(day)
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futs = [pool.submit(_run, day) for day in days]
+            for fut in as_completed(futs):
+                fut.result()
+
+    total_rows = row_counter["n"]
+    print(
+        f"Wrote/updated {args.out} (+{total_rows} new rows; "
+        f"{err_counter['n']} day errors)"
+    )
 
 
 if __name__ == "__main__":

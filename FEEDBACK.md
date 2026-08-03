@@ -150,10 +150,11 @@ Checked 2026-08-03. Goal: free historical AIS points for SoCal stop detection.
 
 **Practical plan**
 
-1. Keep using Marine Cadastre for all of **2025**.
-2. Start archiving live SoCal with **aisstream** (`AISSTREAM_API_KEY`) so 2026+ gaps close going forward.
-3. When NOAA drops `csv2026`, pull it and prefer it over aisstream for those days.
-4. 2026-01-01 → today backfill is **not freely available** as bulk points; paid AIS or waiting on NOAA.
+1. Pull **all published Marine Cadastre daily CSV years** (`2015-01-01` → `2025-12-31`) for the SoCal fleet bbox (see `PILOT_AIS_*` in `scripts/config.py`).
+2. Scrape **all available** socalfishreports dock totals for target cities (`2005-01-01` → report end) and join where AIS overlaps.
+3. Start archiving live SoCal with **aisstream** (`AISSTREAM_API_KEY`) so 2026+ gaps close going forward.
+4. When NOAA drops `csv2026`, pull it and prefer it over aisstream for those days.
+5. 2026-01-01 → today backfill is **not freely available** as bulk points; paid AIS or waiting on NOAA.
 
 ## Free-form notes
 

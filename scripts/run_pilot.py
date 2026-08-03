@@ -24,11 +24,13 @@ def main():
     ap.add_argument("--ais-end", default=None)
     ap.add_argument("--skip-scrape", action="store_true")
     ap.add_argument("--skip-ais", action="store_true")
+    ap.add_argument("--scrape-workers", type=int, default=4)
+    ap.add_argument("--ais-workers", type=int, default=6)
     args = ap.parse_args()
 
     py = sys.executable
     if not args.skip_scrape:
-        cmd = [py, "scripts/scrape_fish_reports.py"]
+        cmd = [py, "scripts/scrape_fish_reports.py", "--workers", str(args.scrape_workers)]
         if args.report_start:
             cmd += ["--start", args.report_start]
         if args.report_end:
@@ -36,7 +38,7 @@ def main():
         run(cmd)
 
     if not args.skip_ais:
-        cmd = [py, "scripts/extract_ais.py"]
+        cmd = [py, "scripts/extract_ais.py", "--workers", str(args.ais_workers)]
         if args.ais_start:
             cmd += ["--start", args.ais_start]
         if args.ais_end:

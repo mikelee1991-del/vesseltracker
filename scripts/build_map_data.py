@@ -349,10 +349,11 @@ def main():
         "report_window": {"start": PILOT_REPORT_START, "end": PILOT_REPORT_END},
         "ais_window": {"start": ais_start, "end": ais_end},
         "ais_availability_note": (
-            "Fish reports include 2026 YTD. Free Marine Cadastre bulk AIS ends "
-            "2025-12-31 (no csv2026 yet). Live free archive via aisstream.io "
-            "(scripts/collect_aisstream.py) — no free 2026 historical backfill "
-            "found. Stops dated America/Los_Angeles."
+            "Fish reports cover 2005 → 2026 YTD for target LA-basin landings. "
+            "Marine Cadastre bulk AIS daily CSV (SoCal bbox + fleet filter) covers "
+            "2015-01-01 → 2025-12-31 (no csv2026 yet; 2009–2014 are FileGDB and "
+            "not ingested). Live free archive via aisstream.io "
+            "(scripts/collect_aisstream.py). Stops dated America/Los_Angeles."
         ),
         "methods": {
             "fish_per_person": "total kept fish / anglers from the dock total (direct)",

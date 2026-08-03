@@ -59,6 +59,7 @@ FEATURE_CLUSTER_RADIUS_M = FEATURE_CLUSTER_RADIUS_FT * 0.3048
 
 # Marine Cadastre daily AIS (1-minute sample of NAIS broadcasts).
 # URL is year-aware: .../csv{YYYY}/ais-YYYY-MM-DD.csv.zst
+# Bulk CSV era is 2015–present; 2009–2014 are monthly FileGDB (not used here).
 # As of 2026-08-03, bulk files are published through 2025-12-31 only
 # (no csv2026 yet; AccessAIS also unavailable for 2026 orders).
 AIS_BASE_URL_TMPL = "https://noaaocm.blob.core.windows.net/ais/csv2/csv{year}"
@@ -69,13 +70,13 @@ AIS_BASE_URL = AIS_BASE_URL_TMPL.format(year=2025)
 FISH_REPORT_URL = "https://www.socalfishreports.com/dock_totals/boats.php"
 FISH_REPORT_SOURCE = "https://www.socalfishreports.com/"
 
-# Pilot date windows (real data only; no fabrication).
-# Fish reports: 2025 + 2026 YTD (dock totals are live).
-PILOT_REPORT_START = "2025-01-01"
+# Full archive windows (real data only; no fabrication).
+# Fish reports: socalfishreports.com dock totals are available back through 2005+.
+PILOT_REPORT_START = "2005-01-01"
 PILOT_REPORT_END = "2026-08-02"
-# AIS extract window — bulk Marine Cadastre currently ends 2025-12-31.
+# AIS extract window — all published Marine Cadastre daily CSV years.
 # When csv2026 appears, raise PILOT_AIS_END (extract_ais resolves year folders).
-PILOT_AIS_START = "2025-01-01"
+PILOT_AIS_START = "2015-01-01"
 PILOT_AIS_END = "2025-12-31"
 
 USER_AGENT = "vesseltracker-research/0.1 (+https://github.com/mikelee1991-del/vesseltracker; educational research)"

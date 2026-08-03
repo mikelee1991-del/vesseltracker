@@ -35,30 +35,31 @@ re-run the `Deploy GitHub Pages` workflow (or push any commit to `main`).
 
 - Source: NOAA Marine Cadastre bulk daily CSV (`.csv.zst`), 1-minute sample of USCG NAIS.
 - Free, no API key required for this feed.
-- As of **2026-08-02**, the bulk daily feed used here is available through **2025-12-31**. 2026 days are not in that feed yet.
-- Pilot AIS extract defaults to **2025-08** (scalable scripts accept any range within available files).
-- No API keys needed for this path. If you later want denser-than-1-minute AIS from another free source, we can evaluate it.
+- As of **2026-08-03**, bulk daily CSV years **2015–2025** are published (`csv2015`…`csv2025`). **`csv2026` is not out yet.**
+- Default extract window: **2015-01-01 → 2025-12-31** (all CSV years), filtered to the SoCal bbox + fleet names/MMSIs.
+- Fish-report scrape default: **2005-01-01 → latest** (site archive); join/crosscheck is strongest where AIS overlaps (2015+).
+- No API keys needed for this path. Optional live forward archive: `scripts/collect_aisstream.py`.
 
 ### Pilot data currently in-repo
 
-| Dataset | Coverage | Count |
-|---------|----------|------:|
-| Fish-report trips | 2025-01-01 → 2025-12-31 | 3,615 |
-| Matched charter MMSIs | allowlisted | 17 |
-| Offshore AIS stops | 2025-08 | 416 |
-| Report boats with no AIS name match in Aug extract | — | see `FEEDBACK.md` |
+| Dataset | Coverage | Notes |
+|---------|----------|------|
+| Fish-report trips | 2005 → 2026 YTD (target cities) | Growing as scrape completes |
+| Marine Cadastre AIS extract | 2015 → 2025 | Fleet-filtered parquet under `data/processed/ais_daily/` |
+| Matched charter MMSIs | allowlisted | see `scripts/config.py` / `FEEDBACK.md` |
 
 ## Pipeline
 
 ```bash
 python3 -m pip install -r requirements.txt
 
-# Full pilot (year of reports + August 2025 AIS)
+# Full archive crosscheck (all Cadastre CSV years + all fish reports)
 python3 scripts/run_pilot.py
 
 # Or stepwise:
-python3 scripts/scrape_fish_reports.py --start 2025-01-01 --end 2025-12-31
-python3 scripts/extract_ais.py --start 2025-08-01 --end 2025-08-31
+python3 scripts/scrape_fish_reports.py --start 2005-01-01 --end 2026-08-02 --workers 4
+python3 scripts/extract_ais.py --start 2015-01-01 --end 2025-12-31 --workers 6
+python3 scripts/refine_registry.py
 python3 scripts/detect_stops.py
 python3 scripts/build_map_data.py
 ```

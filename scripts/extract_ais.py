@@ -13,8 +13,10 @@ import argparse
 import json
 import re
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime, timedelta
 from pathlib import Path
+from threading import Lock
 
 import duckdb
 import pandas as pd
@@ -85,87 +87,113 @@ def build_accepted_names(trips_path: Path) -> dict[str, str]:
     return accepted
 
 
+def _duckdb_http() -> duckdb.DuckDBPyConnection:
+    con = duckdb.connect()
+    con.execute("INSTALL httpfs; LOAD httpfs;")
+    return con
+
+
 def extract_day(
-    con: duckdb.DuckDBPyConnection,
     day: date,
     accepted: dict[str, str],
     out_dir: Path,
     force: bool,
+    con: duckdb.DuckDBPyConnection | None = None,
 ) -> dict:
     out_path = out_dir / f"ais_{day.isoformat()}.parquet"
-    if out_path.exists() and not force:
-        n = con.execute(f"SELECT count(*) FROM read_parquet('{out_path.as_posix()}')").fetchone()[0]
-        return {"date": day.isoformat(), "rows": int(n), "path": str(out_path), "skipped": True}
-
-    url = (
-        f"{AIS_BASE_URL_TMPL.format(year=day.year)}/"
-        f"{AIS_FILENAME.format(date=day.isoformat())}"
-    )
-    bbox = AIS_BBOX
-    allow_mmsis = sorted(set(MMSI_ALLOWLIST) | set(MMSI_TO_REPORT_BOAT))
-    allow_sql = ",".join(str(int(m)) for m in allow_mmsis) if allow_mmsis else "-1"
-    q = f"""
-    SELECT
-      mmsi,
-      base_date_time,
-      longitude,
-      latitude,
-      sog,
-      cog,
-      heading,
-      vessel_name,
-      call_sign,
-      vessel_type,
-      status,
-      length,
-      width,
-      draft,
-      transceiver
-    FROM read_csv('{url}', compression='zstd', parallel=true, ignore_errors=true)
-    WHERE longitude BETWEEN {bbox['min_lon']} AND {bbox['max_lon']}
-      AND latitude BETWEEN {bbox['min_lat']} AND {bbox['max_lat']}
-      AND (
-        vessel_name IS NOT NULL
-        OR mmsi IN ({allow_sql})
-      )
-    """
+    own_con = con is None
+    if own_con:
+        con = _duckdb_http()
+    assert con is not None
     try:
-        df = con.execute(q).fetchdf()
-    except Exception as exc:
-        # Missing year folders (e.g. csv2026 not published yet) or bad remote day.
-        msg = str(exc)
-        print(f"[warn] {day.isoformat()}: AIS fetch failed: {msg[:180]}", file=sys.stderr)
+        if out_path.exists() and not force:
+            n = con.execute(
+                f"SELECT count(*) FROM read_parquet('{out_path.as_posix()}')"
+            ).fetchone()[0]
+            return {
+                "date": day.isoformat(),
+                "rows": int(n),
+                "path": str(out_path),
+                "skipped": True,
+            }
+
+        url = (
+            f"{AIS_BASE_URL_TMPL.format(year=day.year)}/"
+            f"{AIS_FILENAME.format(date=day.isoformat())}"
+        )
+        bbox = AIS_BBOX
+        allow_mmsis = sorted(set(MMSI_ALLOWLIST) | set(MMSI_TO_REPORT_BOAT))
+        allow_sql = ",".join(str(int(m)) for m in allow_mmsis) if allow_mmsis else "-1"
+        q = f"""
+        SELECT
+          mmsi,
+          base_date_time,
+          longitude,
+          latitude,
+          sog,
+          cog,
+          heading,
+          vessel_name,
+          call_sign,
+          vessel_type,
+          status,
+          length,
+          width,
+          draft,
+          transceiver
+        FROM read_csv('{url}', compression='zstd', parallel=true, ignore_errors=true)
+        WHERE longitude BETWEEN {bbox['min_lon']} AND {bbox['max_lon']}
+          AND latitude BETWEEN {bbox['min_lat']} AND {bbox['max_lat']}
+          AND (
+            vessel_name IS NOT NULL
+            OR mmsi IN ({allow_sql})
+          )
+        """
+        try:
+            df = con.execute(q).fetchdf()
+        except Exception as exc:
+            # Missing year folders (e.g. csv2026 not published yet) or bad remote day.
+            msg = str(exc)
+            print(f"[warn] {day.isoformat()}: AIS fetch failed: {msg[:180]}", file=sys.stderr)
+            return {
+                "date": day.isoformat(),
+                "rows": 0,
+                "path": None,
+                "skipped": False,
+                "error": msg[:300],
+            }
+        if df.empty:
+            if out_path.exists():
+                out_path.unlink()
+            return {"date": day.isoformat(), "rows": 0, "path": None, "skipped": False}
+
+        norms = df["vessel_name"].fillna("").map(normalize_name)
+        name_hit = norms.isin(set(accepted.keys()))
+        mmsi_hit = df["mmsi"].isin(set(allow_mmsis))
+        fleet_df = df.loc[name_hit | mmsi_hit].copy()
+        fleet_df["vessel_name_norm"] = norms.loc[fleet_df.index].values
+        # Prefer explicit MMSI→boat mapping (confirmed human / allowlist), else name.
+        report_by_mmsi = {int(k): v for k, v in MMSI_TO_REPORT_BOAT.items()}
+        fleet_df["report_boat_name"] = [
+            report_by_mmsi.get(int(m)) or accepted.get(n)
+            for m, n in zip(fleet_df["mmsi"], fleet_df["vessel_name_norm"])
+        ]
+        fleet_df["date"] = day.isoformat()
+        if fleet_df.empty:
+            if out_path.exists():
+                out_path.unlink()
+            return {"date": day.isoformat(), "rows": 0, "path": None, "skipped": False}
+
+        fleet_df.to_parquet(out_path, index=False)
         return {
             "date": day.isoformat(),
-            "rows": 0,
-            "path": None,
+            "rows": int(len(fleet_df)),
+            "path": str(out_path),
             "skipped": False,
-            "error": msg[:300],
         }
-    if df.empty:
-        if out_path.exists():
-            out_path.unlink()
-        return {"date": day.isoformat(), "rows": 0, "path": None, "skipped": False}
-
-    norms = df["vessel_name"].fillna("").map(normalize_name)
-    name_hit = norms.isin(set(accepted.keys()))
-    mmsi_hit = df["mmsi"].isin(set(allow_mmsis))
-    fleet_df = df.loc[name_hit | mmsi_hit].copy()
-    fleet_df["vessel_name_norm"] = norms.loc[fleet_df.index].values
-    # Prefer explicit MMSI→boat mapping (confirmed human / allowlist), else name.
-    report_by_mmsi = {int(k): v for k, v in MMSI_TO_REPORT_BOAT.items()}
-    fleet_df["report_boat_name"] = [
-        report_by_mmsi.get(int(m)) or accepted.get(n)
-        for m, n in zip(fleet_df["mmsi"], fleet_df["vessel_name_norm"])
-    ]
-    fleet_df["date"] = day.isoformat()
-    if fleet_df.empty:
-        if out_path.exists():
-            out_path.unlink()
-        return {"date": day.isoformat(), "rows": 0, "path": None, "skipped": False}
-
-    fleet_df.to_parquet(out_path, index=False)
-    return {"date": day.isoformat(), "rows": int(len(fleet_df)), "path": str(out_path), "skipped": False}
+    finally:
+        if own_con:
+            con.close()
 
 
 def rebuild_mmsi_registry(ais_dir: Path, out_path: Path, accepted: dict[str, str]) -> pd.DataFrame:
@@ -220,6 +248,12 @@ def main():
     ap.add_argument("--trips", type=Path, default=DATA_RAW / "fish_reports" / "trips.jsonl")
     ap.add_argument("--out-dir", type=Path, default=DATA_PROCESSED / "ais_daily")
     ap.add_argument("--force", action="store_true", help="Re-download/filter even if parquet exists")
+    ap.add_argument(
+        "--workers",
+        type=int,
+        default=6,
+        help="Parallel day downloads (each worker uses its own DuckDB connection)",
+    )
     args = ap.parse_args()
 
     start = datetime.strptime(args.start, "%Y-%m-%d").date()
@@ -231,22 +265,42 @@ def main():
         print("No fleet names found in trips file; refusing to extract all SoCal traffic.", file=sys.stderr)
         sys.exit(2)
     print(f"Accepted AIS name keys: {len(accepted)}")
+    days = list(daterange(start, end))
+    print(f"Days to process: {len(days)} (workers={args.workers})")
 
-    con = duckdb.connect()
-    con.execute("INSTALL httpfs; LOAD httpfs;")
+    summary: list[dict] = []
+    print_lock = Lock()
+    workers = max(1, int(args.workers))
 
-    summary = []
-    for day in daterange(start, end):
-        info = extract_day(con, day, accepted, args.out_dir, force=args.force)
-        summary.append(info)
-        print(f"{info['date']}: rows={info['rows']} skipped={info.get('skipped')}")
+    def _job(day: date) -> dict:
+        info = extract_day(day, accepted, args.out_dir, force=args.force)
+        with print_lock:
+            err = f" err={info['error'][:60]}" if info.get("error") else ""
+            print(
+                f"{info['date']}: rows={info['rows']} skipped={info.get('skipped')}{err}",
+                flush=True,
+            )
+        return info
+
+    if workers == 1:
+        summary = [_job(day) for day in days]
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futs = {pool.submit(_job, day): day for day in days}
+            by_date = {}
+            for fut in as_completed(futs):
+                info = fut.result()
+                by_date[info["date"]] = info
+        summary = [by_date[d.isoformat()] for d in days]
 
     reg_path = DATA_PROCESSED / "vessel_mmsi_registry.json"
     rebuild_mmsi_registry(args.out_dir, reg_path, accepted)
     summary_path = DATA_PROCESSED / "ais_extract_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2))
+    n_ok = sum(1 for s in summary if s.get("rows", 0) > 0 or s.get("skipped"))
+    n_err = sum(1 for s in summary if s.get("error"))
     print(f"Registry -> {reg_path}")
-    print(f"Summary -> {summary_path}")
+    print(f"Summary -> {summary_path} (ok/skip days={n_ok}, errors={n_err})")
 
 
 if __name__ == "__main__":
