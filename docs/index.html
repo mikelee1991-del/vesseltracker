@@ -248,11 +248,13 @@
               <label for="sortBy">Sort spots</label>
               <select id="sortBy">
                 <option value="dwell_fph">Dwell-attributed fish/person/hour</option>
+                <option value="dwell_share">Mean dwell share</option>
                 <option value="fph">Mean trip fish/person/hour</option>
                 <option value="fpp">Mean trip fish/person</option>
                 <option value="dwell">Total dwell</option>
                 <option value="visits">Boat-days</option>
               </select>
+              <p class="note" id="sortNote" style="margin:0.45rem 0 0"></p>
             </div>
             <div>
               <label>Bathymetry stack</label>
@@ -494,8 +496,12 @@
         }
         if (map.hasLayer(bagSurvey)) bagSurvey.bringToFront();
         if (map.hasLayer(osmRef)) osmRef.bringToFront();
-        if (state.courseLayer) state.courseLayer.bringToFront();
-        if (state.layer) state.layer.bringToFront();
+        if (state.courseLayer && typeof state.courseLayer.bringToFront === "function") {
+          state.courseLayer.bringToFront();
+        }
+        if (state.layer && typeof state.layer.bringToFront === "function") {
+          state.layer.bringToFront();
+        }
       });
     }
     bindLayerToggle("toggleNcei", nceiDem);
@@ -620,6 +626,11 @@
       state.renderTimer = setTimeout(fn, delay);
     }
 
+    function meanDwellShare(visits) {
+      const shares = (visits || []).map((v) => v.dwell_share).filter((x) => x != null);
+      return shares.length ? shares.reduce((a, b) => a + b, 0) / shares.length : null;
+    }
+
     function aggregateFromVisits(base, visits) {
       const fpp = visits.map((v) => v.fish_per_person).filter((x) => x != null);
       const fph = visits.map((v) => v.fish_per_person_hour).filter((x) => x != null);
@@ -637,6 +648,7 @@
         total_dwell_min: visits.reduce((a, v) => a + (v.duration_min || 0), 0),
         mean_trip_fpp: fpp.length ? fpp.reduce((a, b) => a + b, 0) / fpp.length : null,
         mean_trip_fph: fph.length ? fph.reduce((a, b) => a + b, 0) / fph.length : null,
+        mean_dwell_share: meanDwellShare(visits),
         dwell_attributed_fph: hoursSum > 0 ? fishSum / hoursSum : null,
       };
     }
@@ -742,6 +754,7 @@
           mean_trip_fph: loc.fph_values.length
             ? loc.fph_values.reduce((a, b) => a + b, 0) / loc.fph_values.length
             : null,
+          mean_dwell_share: meanDwellShare(loc.visits),
           dwell_attributed_fph: loc.attributed_hours_sum > 0
             ? loc.attributed_fish_sum / loc.attributed_hours_sum
             : null,
@@ -769,12 +782,38 @@
         if (sortBy === "visits") return (b.n_boat_days || 0) - (a.n_boat_days || 0);
         if (sortBy === "fpp") return (b.mean_trip_fpp || -1) - (a.mean_trip_fpp || -1);
         if (sortBy === "fph") return (b.mean_trip_fph || -1) - (a.mean_trip_fph || -1);
+        if (sortBy === "dwell_share") {
+          return (b.mean_dwell_share || -1) - (a.mean_dwell_share || -1);
+        }
         if (sortBy === "dwell_fph") {
           return (b.dwell_attributed_fph || -1) - (a.dwell_attributed_fph || -1);
         }
         return (b.total_dwell_min || 0) - (a.total_dwell_min || 0);
       });
       return locs;
+    }
+
+    const SORT_NOTES = {
+      dwell_fph:
+        "Trip catch is split by AIS dwell share, then ÷ (anglers × nominal trip hours × share). " +
+        "Ranks spots by attributed fish per angler-hour.",
+      dwell_share:
+        "Mean of dwell_share = spot_dwell / total_offshore_dwell for each visit. " +
+        "High values mean boats spent a large fraction of that trip’s offshore time here.",
+      fph:
+        "Average of each visit’s dock-total fish/person ÷ nominal trip hours. " +
+        "Whole-trip rate — not split across stops.",
+      fpp:
+        "Average of each visit’s dock-total fish kept ÷ anglers. " +
+        "Whole-trip rate — not split across stops.",
+      dwell:
+        "Sum of AIS stop minutes at this spot across the filtered visits.",
+      visits:
+        "Number of boat-days (visits) at this spot in the current filter.",
+    };
+
+    function updateSortNote() {
+      el("sortNote").textContent = SORT_NOTES[el("sortBy").value] || "";
     }
 
     function currentCourses() {
@@ -792,7 +831,7 @@
       el("list").innerHTML = locs.slice(0, 80).map((loc) => `
         <article class="loc ${state.selectedId === locId(loc) ? "selected" : ""}" data-id="${locId(loc)}">
           <h3>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</h3>
-          <div class="meta">${loc.n_stops} stops · ${loc.n_boats} boat(s) · ${fmt(loc.total_dwell_min, 0)} min dwell</div>
+          <div class="meta">${loc.n_stops} stops · ${loc.n_boats} boat(s) · ${fmt(loc.total_dwell_min, 0)} min dwell · ${loc.mean_dwell_share != null ? `${fmt(100 * loc.mean_dwell_share, 0)}%` : "—"} mean dwell share</div>
           <div>
             <span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell FPH</span>
             <span class="meta"> · ${fmt(loc.mean_trip_fph, 2)} trip FPH · ${fmt(loc.mean_trip_fpp, 2)} fish/person</span>
@@ -818,7 +857,9 @@
             <span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell-attributed fish/person/hour</span>
           </div>
           <div class="meta">
-            Mean trip fish/person/hour ${fmt(loc.mean_trip_fph, 2)}
+            Mean dwell share ${loc.mean_dwell_share != null ? `${fmt(100 * loc.mean_dwell_share, 0)}%` : "—"}
+            (spot_dwell / trip offshore dwell)
+            · mean trip fish/person/hour ${fmt(loc.mean_trip_fph, 2)}
             · mean trip fish/person ${fmt(loc.mean_trip_fpp, 2)}
           </div>
           <p class="note">Trip catch is split across spots by AIS offshore dwell share; angler-hours use nominal trip hours × that share. Stops within ~150 ft are the same feature.</p>
@@ -1108,7 +1149,11 @@
     el("modeAll").addEventListener("click", () => setMode("all"));
     el("modeDay").addEventListener("click", () => setMode("day"));
     el("boatFilter").addEventListener("change", () => { state.selectedId = null; renderSpots(); });
-    el("sortBy").addEventListener("change", () => { state.selectedId = null; renderSpots(); });
+    el("sortBy").addEventListener("change", () => {
+      state.selectedId = null;
+      updateSortNote();
+      renderSpots();
+    });
     el("courseBoatFilter").addEventListener("change", () => {
       state.selectedCourseKey = null;
       renderCoursesView();
@@ -1157,6 +1202,7 @@
         state.selectedId = null;
         scheduleRender(renderSpots, 100);
       });
+      updateSortNote();
       setMode("all");
     })().catch((err) => {
       el("status").textContent = `Failed to load: ${err.message}`;
