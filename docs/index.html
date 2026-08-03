@@ -518,8 +518,12 @@
       if (el("toggleBlueTopoHill").checked) blueTopoHill.setOpacity(z >= 13 ? 0.42 : 0.3);
       if (map.hasLayer(bagSurvey)) bagSurvey.bringToFront();
       if (map.hasLayer(osmRef)) osmRef.bringToFront();
-      if (state.courseLayer) state.courseLayer.bringToFront();
-      if (state.layer) state.layer.bringToFront();
+      if (state.courseLayer && typeof state.courseLayer.bringToFront === "function") {
+        state.courseLayer.bringToFront();
+      }
+      if (state.layer && typeof state.layer.bringToFront === "function") {
+        state.layer.bringToFront();
+      }
     }
     map.on("zoomend", syncBathyForZoom);
     syncBathyForZoom();
@@ -848,7 +852,7 @@
 
     function renderMap(locs, { fit = false } = {}) {
       clearMarkers();
-      state.layer = L.layerGroup().addTo(map);
+      state.layer = L.featureGroup().addTo(map);
       const bounds = [];
       const maxDwell = Math.max(...locs.map((l) => l.total_dwell_min || 0), 1);
       locs.forEach((loc) => {
@@ -924,7 +928,7 @@
       const drawn = courses.length > MAX_COURSES_DRAWN
         ? courses.slice(-MAX_COURSES_DRAWN)
         : courses;
-      state.courseLayer = L.layerGroup().addTo(map);
+      state.courseLayer = L.featureGroup().addTo(map);
       const bounds = [];
       const selectedKey = highlight || state.selectedCourseKey;
 
