@@ -43,12 +43,17 @@
     }
     header p { margin: 0.25rem 0 0; max-width: 72ch; font-size: 0.92rem; color: rgba(19,32,43,0.78); }
     .tabs {
-      display: flex; gap: 0.35rem; margin-top: 0.7rem;
+      display: flex; gap: 0.35rem; margin-top: 0.7rem; flex-wrap: wrap; align-items: center;
     }
     .tabs button {
       width: auto; min-width: 7.5rem; padding: 0.42rem 0.9rem;
       border-radius: 999px; font-weight: 700; font-size: 0.88rem;
     }
+    .tabs .reset-btn {
+      margin-left: auto; min-width: 0; background: #fff; color: var(--alert);
+      border-color: rgba(181, 74, 42, 0.35);
+    }
+    .tabs .reset-btn:hover { background: rgba(181, 74, 42, 0.08); }
     .layout {
       display: grid;
       grid-template-columns: minmax(300px, 400px) 1fr;
@@ -215,6 +220,7 @@
         <button type="button" id="tabSpots" class="active" role="tab" aria-selected="true">Spots</button>
         <button type="button" id="tabCourses" class="secondary" role="tab" aria-selected="false">Courses</button>
         <button type="button" id="tabHeat" class="secondary" role="tab" aria-selected="false">Heatmap</button>
+        <button type="button" id="hardReset" class="secondary reset-btn" title="Reset all filters, dates, and map view">Reset</button>
       </div>
     </header>
     <div class="layout">
@@ -1529,9 +1535,76 @@
       }
     }
 
+    function resetDualRange(prefix) {
+      const startEl = el(`${prefix}DateStart`);
+      const endEl = el(`${prefix}DateEnd`);
+      if (!startEl || !endEl) return;
+      startEl.value = startEl.min || 0;
+      endEl.value = endEl.max || 0;
+      syncDualRange(prefix);
+    }
+
+    function setBasemapDefaults() {
+      const defaults = {
+        toggleNcei: true, toggleBag: true, toggleBlueTopo: true,
+        toggleBlueTopoHill: true, toggleOsm: true,
+      };
+      Object.entries(defaults).forEach(([id, on]) => {
+        const node = el(id);
+        if (!node) return;
+        if (node.checked !== on) {
+          node.checked = on;
+          node.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      });
+    }
+
+    function hardReset() {
+      // Spots filters
+      el("boatFilter").value = "";
+      el("speciesFilter").value = "";
+      el("sortBy").value = "dwell_fph";
+      updateSortNote();
+      resetDualRange("spots");
+      if (state.meta?.default_date) el("day").value = state.meta.default_date;
+
+      // Courses filters
+      if (el("courseBoatFilter")) el("courseBoatFilter").value = "";
+      if (el("courseOpacity")) el("courseOpacity").value = "22";
+      resetDualRange("courses");
+
+      // Heatmap filters
+      if (el("heatBoatFilter")) el("heatBoatFilter").value = "";
+      if (el("heatSpeciesFilter")) el("heatSpeciesFilter").value = "";
+      if (el("heatMetric")) el("heatMetric").value = "dwell";
+      if (el("heatRadius")) el("heatRadius").value = "25";
+      if (el("heatBlur")) el("heatBlur").value = "18";
+      if (el("heatMax")) el("heatMax").value = "0.6";
+      if (el("heatShowMarkers")) el("heatShowMarkers").checked = false;
+      resetDualRange("heat");
+
+      state.selectedId = null;
+      state.selectedCourseKey = null;
+      state.dayPayload = null;
+      state.hasFittedBounds = false;
+      setBasemapDefaults();
+
+      // Return to Spots / All days and re-render from scratch.
+      state.mode = "all";
+      el("modeAll").classList.add("active");
+      el("modeAll").classList.remove("secondary");
+      el("modeDay").classList.add("secondary");
+      el("modeDay").classList.remove("active");
+      el("dayControls").hidden = true;
+      el("spotsDateRange").style.opacity = "1";
+      el("spotsDateRange").style.pointerEvents = "auto";
+      setTab("spots");
+    }
+
     el("tabSpots").addEventListener("click", () => setTab("spots"));
     el("tabCourses").addEventListener("click", () => setTab("courses"));
     el("tabHeat").addEventListener("click", () => setTab("heat"));
+    el("hardReset").addEventListener("click", () => hardReset());
     el("modeAll").addEventListener("click", () => setMode("all"));
     el("modeDay").addEventListener("click", () => setMode("day"));
     el("boatFilter").addEventListener("change", () => { state.selectedId = null; renderSpots(); });
