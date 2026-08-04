@@ -35,7 +35,7 @@ https://cdn.jsdelivr.net/gh/mikelee1991-del/vesseltracker@main/docs/
 - As of **2026-08-03**, bulk daily CSV years **2015–2025** are published (`csv2015`…`csv2025`). **`csv2026` is not out yet.**
 - Default extract window: **2015-01-01 → 2025-12-31** (all CSV years), filtered to the SoCal bbox + fleet names/MMSIs.
 - Fish-report scrape default: **2005-01-01 → latest** (site archive); join/crosscheck is strongest where AIS overlaps (2015+).
-- No API keys needed for this path. Optional live forward archive: `scripts/collect_aisstream.py`.
+- No API keys needed for this path. Optional live forward archive: `scripts/collect_aisstream.py` (free-tier VM install: `deploy/aisstream/README.md`).
 
 ### Pilot data currently in-repo
 
