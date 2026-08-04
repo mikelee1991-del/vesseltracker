@@ -59,9 +59,60 @@
       grid-template-columns: minmax(300px, 400px) 1fr;
       min-height: 0;
     }
+    .layout.methods-mode {
+      grid-template-columns: 1fr;
+    }
+    .layout.methods-mode .map-wrap { display: none; }
+    .layout.methods-mode .sidebar {
+      border-right: none;
+      max-width: 52rem;
+      margin: 0 auto;
+      width: 100%;
+    }
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; grid-template-rows: auto 50vh; }
+      .layout.methods-mode { grid-template-rows: 1fr; }
     }
+    .methods-doc h2 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.35rem; color: var(--sea); margin: 1.4rem 0 0.45rem;
+    }
+    .methods-doc h2:first-child { margin-top: 0.2rem; }
+    .methods-doc h3 {
+      font-size: 1rem; color: var(--sea-mid); margin: 1rem 0 0.35rem;
+      font-family: Fraunces, Georgia, serif;
+    }
+    .methods-doc p, .methods-doc li {
+      font-size: 0.92rem; line-height: 1.45; color: rgba(19,32,43,0.82);
+    }
+    .methods-doc ul { margin: 0.3rem 0 0.6rem; padding-left: 1.2rem; }
+    .methods-doc code {
+      font-size: 0.84em; background: rgba(11,61,74,0.08);
+      padding: 0.08rem 0.28rem; border-radius: 4px;
+    }
+    .methods-doc .formula {
+      font-family: "Source Sans 3", sans-serif;
+      background: rgba(11,61,74,0.06); border: 1px solid var(--line);
+      border-radius: 8px; padding: 0.65rem 0.75rem; margin: 0.45rem 0 0.7rem;
+      font-size: 0.88rem; line-height: 1.4;
+    }
+    .methods-doc table {
+      width: 100%; border-collapse: collapse; font-size: 0.84rem; margin: 0.5rem 0 0.8rem;
+    }
+    .methods-doc th, .methods-doc td {
+      text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    .methods-doc th { color: var(--sea); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .methods-toc {
+      display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.5rem 0 1rem;
+    }
+    .methods-toc a {
+      font-size: 0.8rem; color: var(--sea-mid); text-decoration: none;
+      border: 1px solid var(--line); border-radius: 999px; padding: 0.28rem 0.65rem;
+      background: #fff;
+    }
+    .methods-toc a:hover { background: rgba(23,104,122,0.08); }
     .sidebar {
       overflow: auto; padding: 0.85rem 1rem 1.3rem;
       border-right: 1px solid var(--line); background: var(--panel);
@@ -220,10 +271,11 @@
         <button type="button" id="tabSpots" class="active" role="tab" aria-selected="true">Spots</button>
         <button type="button" id="tabCourses" class="secondary" role="tab" aria-selected="false">Courses</button>
         <button type="button" id="tabHeat" class="secondary" role="tab" aria-selected="false">Heatmap</button>
+        <button type="button" id="tabMethods" class="secondary" role="tab" aria-selected="false">Methods</button>
         <button type="button" id="hardReset" class="secondary reset-btn" title="Reset all filters, dates, and map view">Reset</button>
       </div>
     </header>
-    <div class="layout">
+    <div class="layout" id="mainLayout">
       <aside class="sidebar">
         <div id="panelSpots" class="panel">
           <div class="controls">
@@ -416,6 +468,147 @@
             Cool → hot = low → high for the selected metric. Narrow dates or pick a boat/species to focus the overlay.
           </p>
           <div id="heatList"></div>
+        </div>
+
+        <div id="panelMethods" class="panel methods-doc" hidden>
+          <h2 id="m-overview">What this map is</h2>
+          <p>
+            A pilot joining <strong>socalfishreports.com dock totals</strong> (kept fish, anglers, species, trip type)
+            with <strong>free NOAA Marine Cadastre AIS</strong> for LA-basin sportfishing boats.
+            AIS tells us where matched vessels hung offshore; dock totals tell us what was kept that day.
+            Nothing here invents MMSIs or catch counts.
+          </p>
+          <nav class="methods-toc" aria-label="Methods sections">
+            <a href="#m-inputs">Inputs</a>
+            <a href="#m-pipeline">Pipeline</a>
+            <a href="#m-stops">Stops &amp; spots</a>
+            <a href="#m-math">Math</a>
+            <a href="#m-filters">UI filters</a>
+            <a href="#m-tabs">Map tabs</a>
+            <a href="#m-limits">Limits</a>
+          </nav>
+
+          <h2 id="m-inputs">Data inputs</h2>
+          <table>
+            <thead><tr><th>Source</th><th>What we use</th><th>Window</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>socalfishreports.com</td>
+                <td>Daily boat dock totals for Redondo Beach, San Pedro, Long Beach, Marina Del Rey, Newport Beach, Dana Point: anglers, kept fish, species breakdown, trip type, landing</td>
+                <td id="m-report-window">2005 → latest scrape</td>
+              </tr>
+              <tr>
+                <td>NOAA Marine Cadastre / USCG NAIS</td>
+                <td>Daily AIS CSV (1-minute sample), filtered to SoCal bbox + fleet names/MMSIs</td>
+                <td id="m-ais-window">2015-01-01 → 2025-12-31</td>
+              </tr>
+              <tr>
+                <td>aisstream.io (optional)</td>
+                <td>Live forward archive while <code>csv2026</code> is unpublished — see <code>deploy/aisstream/</code></td>
+                <td>Live only (no history API)</td>
+              </tr>
+              <tr>
+                <td>Bathymetry</td>
+                <td>NCEI DEM, BAG surveys, BlueTopo WMTS/hillshade (display only)</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+          <p id="m-stats-note" class="note" style="margin-top:0.4rem"></p>
+
+          <h2 id="m-pipeline">Processing pipeline</h2>
+          <ol>
+            <li><code>scrape_fish_reports.py</code> — yearly trip shards under <code>data/raw/fish_reports/by_year/</code></li>
+            <li><code>extract_ais.py</code> — Cadastre days → fleet-filtered parquet in <code>data/processed/ais_daily/</code></li>
+            <li><code>detect_stops.py</code> — low-SOG offshore dwells outside home-dock exclusion radii</li>
+            <li><code>build_map_data.py</code> — cluster stops into spots, join dock totals, dwell-share attribution → <code>docs/data/</code></li>
+            <li><code>build_courses_data.py</code> — schematic home→stops→home courses → <code>courses.json</code></li>
+          </ol>
+
+          <h2 id="m-stops">Offshore stops &amp; spot clustering</h2>
+          <h3>Stop detection</h3>
+          <ul>
+            <li>Speed over ground ≤ <strong>0.8 kn</strong></li>
+            <li>Duration ≥ <strong>10 minutes</strong></li>
+            <li>Outside configured <strong>home-dock radii</strong> (harbor loitering excluded)</li>
+            <li>Short AIS gaps (≤ ~8 min) may merge within a stop; longer gaps start a new stop</li>
+            <li>Stop dates use <strong>America/Los_Angeles</strong>; overnight trips also pull prior local days when joining</li>
+          </ul>
+          <h3>Feature / spot clustering</h3>
+          <p>
+            Stops within <strong>150 ft (45.72 m)</strong> of a shared centroid are the same “spot”
+            (AIS/GPS revisit scatter). Clustering is centroid-bounded so points don’t chain along a reef into one mega-feature.
+          </p>
+
+          <h2 id="m-math">Math &amp; metrics</h2>
+          <h3>Trip-level (dock totals)</h3>
+          <div class="formula">
+            fish/person (FPP) = total kept fish ÷ anglers<br />
+            fish/person/hour (trip FPH) = FPP ÷ nominal trip hours
+          </div>
+          <p>Nominal hours from <code>trip_type</code> (dock totals have no clock times):</p>
+          <table>
+            <thead><tr><th>Product</th><th>Hours used</th></tr></thead>
+            <tbody>
+              <tr><td>½ day</td><td>≈ 5 h</td></tr>
+              <tr><td>¾ day</td><td>≈ 8 h</td></tr>
+              <tr><td>Full day</td><td>≈ 11 h</td></tr>
+              <tr><td>Overnight</td><td>≈ 18 h</td></tr>
+              <tr><td>N-day</td><td>≈ N × 12 h</td></tr>
+            </tbody>
+          </table>
+          <p>
+            Trip FPP/FPH are <strong>whole-trip</strong> rates — they are not split across stops by themselves.
+          </p>
+
+          <h3>Dwell share (how catch is split across spots)</h3>
+          <div class="formula">
+            dwell_share = spot_dwell ÷ total_offshore_dwell on that trip<br />
+            attributed fish = trip kept fish × dwell_share<br />
+            attributed angler-hours = anglers × nominal_trip_hours × dwell_share<br />
+            dwell-attributed FPH = Σ attributed fish ÷ Σ attributed angler-hours
+          </div>
+          <p>
+            Only trips with matched offshore AIS stops get this split. Trips with no species breakdown
+            are labeled <strong>Unknown fish</strong> in the species filter.
+          </p>
+
+          <h3>Mean dwell share (sort)</h3>
+          <p>
+            Average of per-visit <code>dwell_share</code> at a spot. High values mean boats spent a large
+            fraction of that trip’s offshore time here.
+          </p>
+
+          <h2 id="m-filters">UI filters &amp; sorting</h2>
+          <ul>
+            <li><strong>Date range</strong> — dual slider on Spots (All days), Courses, and Heatmap; re-aggregates visits inside the window</li>
+            <li><strong>One day</strong> (Spots) — loads that day’s join file only</li>
+            <li><strong>Boat</strong> — keep visits/courses for one vessel</li>
+            <li><strong>Species</strong> — keep visits that include that species (or Unknown fish)</li>
+            <li><strong>Sort spots</strong> — dwell-attributed FPH, mean dwell share, species fish count, trip FPH/FPP, total dwell, boat-days</li>
+            <li><strong>Reset</strong> — clears filters/controls and returns to Spots / All days</li>
+          </ul>
+
+          <h2 id="m-tabs">Map tabs</h2>
+          <ul>
+            <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH</li>
+            <li><strong>Courses</strong> — schematic polylines home → stops (time order) → home (not raw AIS tracks). Up to 2,500 paths drawn per filter for performance</li>
+            <li><strong>Heatmap</strong> — density of the same clustered spots; intensity = dwell, boat-days, attributed fish, dwell FPH, or trip FPP</li>
+          </ul>
+
+          <h2 id="m-limits">Known limits</h2>
+          <ul>
+            <li>Many LA charters still lack a reliable AIS MMSI match — those trips never get offshore stops (<a href="./verify-mmsi.html">help match MMSIs</a>)</li>
+            <li>No Marine Cadastre <code>csv2026</code> yet; 2026 YTD has dock totals but little/no Cadastre AIS</li>
+            <li>Dock totals are trip-level; dwell share is an attribution model, not a claim that every fish was caught on that pin</li>
+            <li>Nominal hours are schedule approximations, not measured trip clocks</li>
+            <li>aisstream live capture only fills forward while a collector is running</li>
+          </ul>
+          <p class="note">
+            Pipeline details and feedback live in <code>FEEDBACK.md</code> in the repo.
+            Config thresholds: <code>scripts/config.py</code>, trip hours: <code>scripts/trip_duration.py</code>,
+            attribution: <code>scripts/catch_attribution.py</code>.
+          </p>
         </div>
       </aside>
       <div class="map-wrap">
@@ -1437,6 +1630,7 @@
       const spots = tab === "spots";
       const courses = tab === "courses";
       const heat = tab === "heat";
+      const methods = tab === "methods";
       el("tabSpots").classList.toggle("active", spots);
       el("tabSpots").classList.toggle("secondary", !spots);
       el("tabSpots").setAttribute("aria-selected", spots ? "true" : "false");
@@ -1446,12 +1640,17 @@
       el("tabHeat").classList.toggle("active", heat);
       el("tabHeat").classList.toggle("secondary", !heat);
       el("tabHeat").setAttribute("aria-selected", heat ? "true" : "false");
+      el("tabMethods").classList.toggle("active", methods);
+      el("tabMethods").classList.toggle("secondary", !methods);
+      el("tabMethods").setAttribute("aria-selected", methods ? "true" : "false");
       el("panelSpots").hidden = !spots;
       el("panelCourses").hidden = !courses;
       el("panelHeat").hidden = !heat;
+      el("panelMethods").hidden = !methods;
       el("legendSpots").hidden = !spots;
       el("legendCourses").hidden = !courses;
       el("legendHeat").hidden = !heat;
+      el("mainLayout").classList.toggle("methods-mode", methods);
       el("headerBlurb").innerHTML = spots
         ? `Fishing spots grouped from AIS offshore stops within ~150 ft.
            Circle size is dwell; color tracks dwell-attributed fish/person/hour.
@@ -1460,8 +1659,10 @@
         : courses
         ? `Overlay every fishing day’s schematic course: home dock → offshore AIS stops (time order) → home.
            Paths are stop-to-stop polylines (not full AIS tracks). Use the date slider to thin the overlay.`
-        : `Heatmap of fishing intensity across AIS-clustered stops.
-           Pick dwell, boat-days, fish, dwell FPH, or trip fish/person; filter by date, boat, and species.`;
+        : heat
+        ? `Heatmap of fishing intensity across AIS-clustered stops.
+           Pick dwell, boat-days, fish, dwell FPH, or trip fish/person; filter by date, boat, and species.`
+        : `How the map is built: data sources, stop detection, dwell-share attribution, filters, and known limits.`;
       state.hasFittedBounds = false;
       state.selectedId = null;
       state.selectedCourseKey = null;
@@ -1472,10 +1673,34 @@
         renderSpots();
       } else if (courses) {
         ensureCourses().then(() => renderCoursesView());
-      } else {
+      } else if (heat) {
         renderHeatView();
       }
+      // methods tab is static HTML; optionally refresh live stats from meta
+      if (methods) fillMethodsMeta();
       setTimeout(() => map.invalidateSize(), 50);
+    }
+
+    function fillMethodsMeta() {
+      if (!state.meta) return;
+      const rw = state.meta.report_window;
+      const aw = state.meta.ais_window;
+      const st = state.meta.stats || {};
+      if (rw && el("m-report-window")) {
+        el("m-report-window").textContent = `${rw.start} → ${rw.end}`;
+      }
+      if (aw && el("m-ais-window")) {
+        el("m-ais-window").textContent = `${aw.start} → ${aw.end}`;
+      }
+      if (el("m-stats-note")) {
+        el("m-stats-note").textContent =
+          `Loaded archive: ${(st.n_trips || 0).toLocaleString()} dock-total trips · ` +
+          `${(st.n_offshore_stops || 0).toLocaleString()} offshore stops · ` +
+          `${(st.n_features || st.n_locations || 0).toLocaleString()} spots · ` +
+          `${(st.n_trips_with_stops || 0).toLocaleString()} trips with matched stops` +
+          (st.n_courses ? ` · ${st.n_courses.toLocaleString()} courses` : "") +
+          `.`;
+      }
     }
 
     async function ensureCourses() {
@@ -1604,6 +1829,7 @@
     el("tabSpots").addEventListener("click", () => setTab("spots"));
     el("tabCourses").addEventListener("click", () => setTab("courses"));
     el("tabHeat").addEventListener("click", () => setTab("heat"));
+    el("tabMethods").addEventListener("click", () => setTab("methods"));
     el("hardReset").addEventListener("click", () => hardReset());
     el("modeAll").addEventListener("click", () => setMode("all"));
     el("modeDay").addEventListener("click", () => setMode("day"));
