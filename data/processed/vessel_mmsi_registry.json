@@ -7,14 +7,13 @@
     "vessel_type": 1012,
     "length": 19,
     "width": 8,
-    "report_boat_names": [
-      "Redondo Special"
-    ],
+    "report_boat_names": [],
     "n_points": 3770272,
     "first_seen": "2015-01-01 00:00:02",
     "last_seen": "2025-12-31 23:57:36",
     "score": 4770272.0,
-    "match_confidence": "high"
+    "match_confidence": "denied",
+    "deny_reason": "Long Beach towing vessel REDONDO, not Redondo Special charter"
   },
   {
     "mmsi": 367542040,

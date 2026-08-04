@@ -57,6 +57,7 @@
     "Pursuit",
     "R R",
     "Rampage",
+    "Redondo Special",
     "Reel Fun",
     "Reel Loco",
     "Renegade (Long Beach, CA)",
@@ -208,7 +209,6 @@
     "WESTERNPRIDE"
   ],
   "vessel_aliases_config": {
-    "REDONDO": "Redondo Special",
     "PATRIOT": "Patriot (Newport)",
     "BETTYO": "Betty-O",
     "BETTYG": "Betty-G",
@@ -222,12 +222,29 @@
     "ELPATRON": "El Patron",
     "DANAPRIDE": "Dana Pride"
   },
-  "registry_non_high": [],
+  "registry_non_high": [
+    {
+      "mmsi": 366760710,
+      "ais_vessel_name": "REDONDO",
+      "vessel_name_norm": "REDONDO",
+      "call_sign": "WCD3906",
+      "vessel_type": 1012,
+      "length": 19,
+      "width": 8,
+      "report_boat_names": [],
+      "n_points": 3770272,
+      "first_seen": "2015-01-01 00:00:02",
+      "last_seen": "2025-12-31 23:57:36",
+      "score": 4770272.0,
+      "match_confidence": "denied",
+      "deny_reason": "Long Beach towing vessel REDONDO, not Redondo Special charter"
+    }
+  ],
   "ais_status_counts": {
-    "no_mmsi": 71863,
-    "outside_ais_window": 38698,
-    "matched_stops": 20449,
-    "no_offshore_stop": 13535
+    "no_mmsi": 79556,
+    "outside_ais_window": 33953,
+    "no_offshore_stop": 13267,
+    "matched_stops": 17769
   },
   "notes": [
     "Edit FEEDBACK.md / scripts/config.py VESSEL_ALIASES to correct MMSI/boat matches.",

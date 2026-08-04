@@ -1,6 +1,6 @@
 {
   "title": "LA-area sportfishing take (pilot)",
-  "description": "Feature-centric view of AIS offshore stops clustered by proximity (150 ft) and joined to socalfishreports.com dock totals. Trip catch is split across stops by AIS dwell share; angler-hours use nominal trip_type duration \u00d7 that share. Courses tab overlays schematic home\u2192stops\u2192home paths for each fishing day with AIS stops.",
+  "description": "Feature-centric view of AIS offshore stops clustered by proximity (150 ft) and joined to socalfishreports.com dock totals. Trip catch is split across stops by AIS dwell share; angler-hours use nominal trip_type duration \u00d7 that share.",
   "sources": {
     "fish_reports": "https://www.socalfishreports.com/",
     "ais": "NOAA Marine Cadastre / U.S. Coast Guard NAIS daily CSV (1-minute sample)",
@@ -31,8 +31,7 @@
     "offshore_stops": "SOG <= configured max, duration >= configured min, outside home-dock radii; see scripts/config.py",
     "feature_clustering": "Centroid-bounded cluster of stop positions within 150 ft (45.72 m) of a shared centroid; absorbs AIS/GPS scatter for revisits to the same place without chaining along a reef.",
     "catch_location_attribution": "Dwell-share split of trip dock totals across AIS offshore features (see dwell_share_catch_attribution). Trips without offshore stops are not attributed to spots.",
-    "day_join": "Stops dated in America/Los_Angeles; multi-day/overnight trips also pull prior local days.",
-    "courses": "Schematic polylines from home dock through offshore AIS stops in time order, returning home. Built by scripts/build_courses_data.py from day join payloads \u2014 not full AIS track exports."
+    "day_join": "Stops dated in America/Los_Angeles; multi-day/overnight trips also pull prior local days."
   },
   "feature_cluster_radius_m": 45.72,
   "feature_cluster_radius_ft": 150,
@@ -7817,19 +7816,18 @@
   "stats": {
     "n_days_with_reports": 7726,
     "n_trips": 144545,
-    "n_offshore_stops": 129319,
-    "n_features": 12351,
-    "n_locations": 12351,
+    "n_offshore_stops": 102711,
+    "n_features": 11999,
+    "n_locations": 11999,
     "n_registry_vessels": 39,
-    "n_trips_with_stops": 20449,
-    "n_trips_unmatched_to_mmsi": 71863,
+    "n_trips_with_stops": 17769,
+    "n_trips_unmatched_to_mmsi": 79556,
     "ais_status_counts": {
-      "no_mmsi": 71863,
-      "outside_ais_window": 38698,
-      "matched_stops": 20449,
-      "no_offshore_stop": 13535
-    },
-    "n_courses": 20444
+      "no_mmsi": 79556,
+      "outside_ais_window": 33953,
+      "no_offshore_stop": 13267,
+      "matched_stops": 17769
+    }
   },
   "default_date": "2025-12-31",
   "default_view": "locations",
@@ -7955,9 +7953,5 @@
     "Victory",
     "Westerly",
     "Western Pride"
-  ],
-  "courses_window": {
-    "start": "2015-01-01",
-    "end": "2025-12-31"
-  }
+  ]
 }

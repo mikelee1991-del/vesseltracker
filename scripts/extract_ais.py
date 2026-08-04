@@ -24,6 +24,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from config import (  # noqa: E402
+    ACCEPTED_NAME_DENYLIST,
     AIS_BASE_URL_TMPL,
     AIS_BBOX,
     AIS_FILENAME,
@@ -85,6 +86,8 @@ def build_accepted_names(trips_path: Path) -> dict[str, str]:
         uniq = sorted(set(names))
         if len(uniq) == 1 and base not in accepted:
             accepted[base] = uniq[0]
+    for denied in ACCEPTED_NAME_DENYLIST:
+        accepted.pop(normalize_name(denied), None)
     return accepted
 
 

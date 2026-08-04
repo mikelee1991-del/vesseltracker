@@ -25,7 +25,6 @@ Pilot allowlist (from AIS name + length/type/call-sign heuristics; please verify
 
 | Report boat name | MMSI | AIS name | Notes |
 |------------------|------|----------|-------|
-| Redondo Special | 366760710 | REDONDO | Alias; call sign WCD3906 |
 | New Del Mar | 366855060 | NEW DEL MAR | |
 | Victory | 366977270 | VICTORY | Rejected smaller recreational VICTORY |
 | Freedom | 367621160 | FREEDOM | Rejected other FREEDOM MMSIs |
@@ -50,6 +49,7 @@ Pilot allowlist (from AIS name + length/type/call-sign heuristics; please verify
 
 | AIS name / MMSI | Incorrectly matched report boat | Action |
 |-----------------|----------------------------------|--------|
+| REDONDO / 366760710 | Redondo Special | Denied — AIS is a Long Beach towing vessel (type 1012, ~20×8 m, call sign WCD3906), not the Redondo Beach sportfisher. Track parks inside LB breakwater (~33.767, −118.217); ~0% of pings near Redondo home dock. Root cause: accepted-name shortening of “Redondo Special” → `REDONDO`. `REDONDO` is now in `ACCEPTED_NAME_DENYLIST`; do not re-enable until a charter MMSI is confirmed. |
 | SWEET FREEDOM / 338225409 | Freedom | Denied |
 | VICTORY / 368033280 | Victory | Denied (recreational) |
 | TRITON / 538070070 | Triton | Denied (yacht) |
@@ -77,6 +77,7 @@ report names in Marine Cadastre NAIS for SoCal:
 | Amigo | 69 | No AIS name hit |
 | Sport King | 67 | No AIS name hit |
 | Pride (San Pedro) | 53 | DANA PRIDE / WESTERN PRIDE are other boats |
+| Redondo Special | — | Former MMSI 366760710 was a LB tug named REDONDO — denied 2026-08-04; charter still unmatched |
 | Gail Force | 50 | GAIL-ANNE is a parked recreational craft |
 | Pescador, MarDiosa, Truline, Navegante, Betty-G | few | No verified identity |
 
