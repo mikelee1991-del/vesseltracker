@@ -1214,19 +1214,21 @@
     function heatKernelPx(baseRadius, baseBlur, points) {
       const radiusFloor = Math.max(HEAT_RADIUS_MIN, Number(el("heatRadius").min) || HEAT_RADIUS_MIN);
       const blurFloor = Math.max(HEAT_BLUR_MIN, Number(el("heatBlur").min) || HEAT_BLUR_MIN);
-      // At the minimum setting, keep the kernel exact so the map shows min radius/blur.
-      if (baseRadius <= radiusFloor && baseBlur <= blurFloor) {
+      const radiusAtMin = baseRadius <= radiusFloor;
+      const blurAtMin = baseBlur <= blurFloor;
+      // At the minimum setting, keep that axis exact so the map shows min radius/blur.
+      if (radiusAtMin && blurAtMin) {
         return { radius: radiusFloor, blur: blurFloor };
       }
 
       const zoom = map.getZoom();
       // Prefer sharper kernels as zoom rises (leaflet.heat radius is screen pixels).
       const zoomT = Math.max(0, Math.min(1, (zoom - 10) / 5));
-      let radius = baseRadius * (1 - 0.35 * zoomT);
-      let blur = baseBlur * (1 - 0.4 * zoomT);
+      let radius = radiusAtMin ? radiusFloor : baseRadius * (1 - 0.35 * zoomT);
+      let blur = blurAtMin ? blurFloor : baseBlur * (1 - 0.4 * zoomT);
 
       // If median nearest-neighbor gap on screen ≫ kernel, shrink further so blobs don't smear.
-      if (points.length >= 8) {
+      if ((!radiusAtMin || !blurAtMin) && points.length >= 8) {
         const sample = points.length > 120
           ? points.filter((_, i) => i % Math.ceil(points.length / 120) === 0)
           : points;
@@ -1246,8 +1248,8 @@
         const medianGap = gaps[Math.floor(gaps.length / 2)] || 0;
         if (medianGap > 2.5 * baseRadius) {
           const room = Math.min(0.45, (medianGap / baseRadius - 2.5) / 8);
-          radius *= 1 - room;
-          blur *= 1 - room;
+          if (!radiusAtMin) radius *= 1 - room;
+          if (!blurAtMin) blur *= 1 - room;
         }
       }
 
