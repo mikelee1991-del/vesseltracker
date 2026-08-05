@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>LA Sportfishing Take</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,10 +27,17 @@
         radial-gradient(1200px 600px at 10% -10%, #9fd0d8 0%, transparent 55%),
         radial-gradient(900px 500px at 100% 0%, #d7c3a1 0%, transparent 50%),
         linear-gradient(165deg, #dfe9ec 0%, #c5d5da 45%, #b7c8cf 100%);
+      -webkit-text-size-adjust: 100%;
     }
-    .app { display: grid; grid-template-rows: auto 1fr; height: 100%; min-height: 100vh; }
+    .app {
+      display: grid; grid-template-rows: auto 1fr;
+      height: 100%; min-height: 100vh; min-height: 100dvh;
+    }
     header {
       padding: 0.85rem 1.1rem 0.7rem;
+      padding-left: max(1.1rem, env(safe-area-inset-left));
+      padding-right: max(1.1rem, env(safe-area-inset-right));
+      padding-top: max(0.85rem, env(safe-area-inset-top));
       border-bottom: 1px solid var(--line);
       background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.18));
       backdrop-filter: blur(8px);
@@ -48,6 +55,7 @@
     .tabs button {
       width: auto; min-width: 7.5rem; padding: 0.42rem 0.9rem;
       border-radius: 999px; font-weight: 700; font-size: 0.88rem;
+      touch-action: manipulation;
     }
     .tabs .reset-btn {
       margin-left: auto; min-width: 0; background: #fff; color: var(--alert);
@@ -69,9 +77,165 @@
       margin: 0 auto;
       width: 100%;
     }
+    .mobile-bar {
+      display: none;
+    }
+    .hint .touch-only { display: none; }
+    .hint .desk-only { display: inline; }
+    @media (pointer: coarse) {
+      .hint .touch-only { display: inline; }
+      .hint .desk-only { display: none; }
+    }
     @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; grid-template-rows: auto 50vh; }
-      .layout.methods-mode { grid-template-rows: 1fr; }
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(40dvh, 48dvh) minmax(0, 1fr);
+      }
+      .layout.methods-mode {
+        grid-template-rows: 1fr;
+      }
+      .map-wrap {
+        order: -1;
+        min-height: 40dvh;
+        border-bottom: 1px solid var(--line);
+      }
+      #map { min-height: 40dvh; }
+      .sidebar {
+        border-right: none;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding-bottom: max(1.3rem, env(safe-area-inset-bottom));
+      }
+      .mobile-bar {
+        display: flex;
+        position: sticky;
+        top: 0;
+        z-index: 6;
+        gap: 0.45rem;
+        align-items: center;
+        margin: -0.85rem -1rem 0.75rem;
+        padding: 0.65rem 1rem;
+        background: rgba(232, 241, 244, 0.97);
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: blur(8px);
+      }
+      .mobile-bar button {
+        width: auto;
+        flex: 1;
+        min-height: 2.55rem;
+        touch-action: manipulation;
+      }
+      .mobile-bar .mobile-jump {
+        flex: 0 0 auto;
+        min-width: 6.5rem;
+      }
+      .app.filters-collapsed .controls-body {
+        display: none;
+      }
+      .app.filters-collapsed .mobile-filters-btn {
+        background: #fff;
+        color: var(--sea);
+      }
+      header {
+        padding: 0.65rem 0.85rem 0.55rem;
+        padding-left: max(0.85rem, env(safe-area-inset-left));
+        padding-right: max(0.85rem, env(safe-area-inset-right));
+        padding-top: max(0.65rem, env(safe-area-inset-top));
+      }
+      header p {
+        font-size: 0.84rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 0.3rem;
+        margin: 0.55rem -0.15rem 0;
+        padding: 0.1rem 0.15rem 0.25rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tabs button {
+        min-width: 0;
+        flex: 0 0 auto;
+        padding: 0.48rem 0.78rem;
+        font-size: 0.84rem;
+      }
+      .tabs .reset-btn {
+        margin-left: 0.15rem;
+      }
+      .legend {
+        right: 8px;
+        bottom: 10px;
+        left: auto;
+        max-width: min(210px, calc(100% - 64px));
+        padding: 0.45rem 0.55rem;
+        font-size: 0.7rem;
+      }
+      .legend .sub { display: none; }
+      .legend .size-hint { display: none; }
+      select.multi {
+        min-height: 5.6rem;
+        font-size: 1rem; /* avoid iOS zoom on focus */
+      }
+      input, select, button {
+        font-size: 1rem;
+        min-height: 2.5rem;
+      }
+      button.linkish {
+        min-height: 0;
+        font-size: 0.78rem;
+        padding: 0.28rem 0.5rem;
+      }
+      .dual-range {
+        height: 36px;
+      }
+      .dual-range input[type="range"] {
+        height: 36px;
+      }
+      .dual-range input[type="range"]::-webkit-slider-thumb {
+        width: 26px; height: 26px;
+      }
+      .dual-range input[type="range"]::-moz-range-thumb {
+        width: 26px; height: 26px;
+      }
+      .stat-row {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.35rem;
+      }
+      .stat { padding: 0.45rem 0.5rem; }
+      .stat .v { font-size: 1.02rem; }
+      .leaflet-control-zoom a {
+        width: 36px !important;
+        height: 36px !important;
+        line-height: 36px !important;
+        font-size: 18px !important;
+      }
+    }
+    @media (max-width: 560px) {
+      .layout {
+        grid-template-rows: minmax(38dvh, 44dvh) minmax(0, 1fr);
+      }
+      .row2.mode-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .stat-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .stat:last-child {
+        grid-column: 1 / -1;
+      }
+      .basemap-toggles {
+        font-size: 0.9rem;
+      }
+      .basemap-toggles label.chk {
+        min-height: 2.2rem;
+      }
     }
     .methods-doc h2 {
       font-family: Fraunces, Georgia, serif;
@@ -284,7 +448,7 @@
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="app" id="appRoot">
     <header>
       <h1 class="brand">LA Sportfishing Take</h1>
       <p id="headerBlurb">
@@ -303,8 +467,13 @@
     </header>
     <div class="layout" id="mainLayout">
       <aside class="sidebar">
+        <div class="mobile-bar" id="mobileBar">
+          <button type="button" id="mobileFiltersBtn" class="mobile-filters-btn" aria-expanded="true">Hide filters</button>
+          <button type="button" id="mobileJumpMap" class="secondary mobile-jump">View map</button>
+        </div>
         <div id="panelSpots" class="panel">
           <div class="controls">
+            <div class="controls-body">
             <div class="date-range" id="spotsDateRange">
               <label>Date range</label>
               <div class="range-labels">
@@ -318,7 +487,7 @@
                 <input id="spotsDateEnd" type="range" min="0" max="0" value="0" aria-label="End date" />
               </div>
             </div>
-            <div class="row2">
+            <div class="row2 mode-row">
               <button type="button" id="modeAll" class="active">All days</button>
               <button type="button" id="modeDay" class="secondary">One day</button>
             </div>
@@ -336,7 +505,7 @@
                 <button type="button" class="linkish" id="boatFilterClear" title="Clear boat selection">Clear</button>
               </div>
               <select id="boatFilter" class="multi" multiple size="6" aria-label="Boats (multi-select)"></select>
-              <p class="hint">⌘/Ctrl+click · empty = all boats</p>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all boats</p>
             </div>
             <div>
               <div class="multi-head">
@@ -344,7 +513,7 @@
                 <button type="button" class="linkish" id="speciesFilterClear" title="Clear species selection">Clear</button>
               </div>
               <select id="speciesFilter" class="multi" multiple size="7" aria-label="Species (multi-select)"></select>
-              <p class="hint">⌘/Ctrl+click · empty = all species · match any selected</p>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all · match any</p>
             </div>
             <div>
               <label for="sortBy">Sort spots</label>
@@ -369,6 +538,7 @@
                 <label class="chk"><input type="checkbox" id="toggleOsm" checked /> Coast reference</label>
               </div>
             </div>
+            </div>
             <p class="status" id="status">Loading…</p>
           </div>
           <div class="stat-row">
@@ -385,6 +555,7 @@
 
         <div id="panelCourses" class="panel" hidden>
           <div class="controls">
+            <div class="controls-body">
             <div class="date-range" id="coursesDateRange">
               <label>Date range</label>
               <div class="range-labels">
@@ -404,7 +575,7 @@
                 <button type="button" class="linkish" id="courseBoatFilterClear" title="Clear boat selection">Clear</button>
               </div>
               <select id="courseBoatFilter" class="multi" multiple size="6" aria-label="Course boats (multi-select)"></select>
-              <p class="hint">⌘/Ctrl+click · empty = all boats</p>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all boats</p>
             </div>
             <div>
               <label for="courseOpacity">Path opacity</label>
@@ -419,6 +590,7 @@
                 <label class="chk"><input type="checkbox" id="toggleBlueTopoHillC" checked /> BlueTopo hillshade</label>
                 <label class="chk"><input type="checkbox" id="toggleOsmC" checked /> Coast reference</label>
               </div>
+            </div>
             </div>
             <p class="status" id="courseStatus">Loading courses…</p>
           </div>
@@ -436,6 +608,7 @@
 
         <div id="panelHeat" class="panel" hidden>
           <div class="controls">
+            <div class="controls-body">
             <div class="date-range" id="heatDateRange">
               <label>Date range</label>
               <div class="range-labels">
@@ -455,7 +628,7 @@
                 <button type="button" class="linkish" id="heatBoatFilterClear" title="Clear boat selection">Clear</button>
               </div>
               <select id="heatBoatFilter" class="multi" multiple size="6" aria-label="Heatmap boats (multi-select)"></select>
-              <p class="hint">⌘/Ctrl+click · empty = all boats</p>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all boats</p>
             </div>
             <div>
               <div class="multi-head">
@@ -463,7 +636,7 @@
                 <button type="button" class="linkish" id="heatSpeciesFilterClear" title="Clear species selection">Clear</button>
               </div>
               <select id="heatSpeciesFilter" class="multi" multiple size="7" aria-label="Heatmap species (multi-select)"></select>
-              <p class="hint">⌘/Ctrl+click · empty = all species · match any selected</p>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all · match any</p>
             </div>
             <div>
               <label for="heatMetric">Intensity metric</label>
@@ -501,6 +674,7 @@
                 <label class="chk"><input type="checkbox" id="toggleBlueTopoHillH" checked /> BlueTopo hillshade</label>
                 <label class="chk"><input type="checkbox" id="toggleOsmH" checked /> Coast reference</label>
               </div>
+            </div>
             </div>
             <p class="status" id="heatStatus">Loading…</p>
           </div>
@@ -734,6 +908,7 @@
       coursesLoaded: false,
       coursesLoading: false,
       renderTimer: null,
+      resizeTimer: null,
     };
 
     const map = L.map("map", {
@@ -1006,6 +1181,35 @@
     function scheduleRender(fn, delay = 80) {
       if (state.renderTimer) clearTimeout(state.renderTimer);
       state.renderTimer = setTimeout(fn, delay);
+    }
+
+    function isMobileLayout() {
+      return window.matchMedia("(max-width: 900px)").matches;
+    }
+
+    function syncMobileFiltersBtn() {
+      const btn = el("mobileFiltersBtn");
+      if (!btn) return;
+      const collapsed = document.getElementById("appRoot")?.classList.contains("filters-collapsed");
+      btn.textContent = collapsed ? "Show filters" : "Hide filters";
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    }
+
+    function setFiltersCollapsed(collapsed) {
+      const root = document.getElementById("appRoot");
+      if (!root) return;
+      root.classList.toggle("filters-collapsed", !!collapsed);
+      syncMobileFiltersBtn();
+      setTimeout(() => map.invalidateSize(), 60);
+    }
+
+    function applyMobileDefaults() {
+      if (!isMobileLayout()) {
+        setFiltersCollapsed(false);
+        return;
+      }
+      // Map-first: start with filters collapsed so the map stays in view.
+      setFiltersCollapsed(true);
     }
 
     const UNKNOWN_FISH = "Unknown fish";
@@ -1828,6 +2032,7 @@
       el("legendCourses").hidden = !courses;
       el("legendHeat").hidden = !heat;
       el("mainLayout").classList.toggle("methods-mode", methods);
+      if (el("mobileBar")) el("mobileBar").hidden = methods;
       el("headerBlurb").innerHTML = spots
         ? `Fishing spots grouped from AIS offshore stops within ~150 ft.
            Circle size is dwell; color tracks dwell-attributed fish/person/hour.
@@ -2011,6 +2216,23 @@
     el("tabHeat").addEventListener("click", () => setTab("heat"));
     el("tabMethods").addEventListener("click", () => setTab("methods"));
     el("hardReset").addEventListener("click", () => hardReset());
+    el("mobileFiltersBtn").addEventListener("click", () => {
+      const root = document.getElementById("appRoot");
+      setFiltersCollapsed(!root.classList.contains("filters-collapsed"));
+    });
+    el("mobileJumpMap").addEventListener("click", () => {
+      setFiltersCollapsed(true);
+      el("map").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      setTimeout(() => map.invalidateSize(), 80);
+    });
+    window.addEventListener("resize", () => {
+      if (state.resizeTimer) clearTimeout(state.resizeTimer);
+      state.resizeTimer = setTimeout(() => {
+        if (!isMobileLayout()) setFiltersCollapsed(false);
+        map.invalidateSize();
+      }, 150);
+    });
+    applyMobileDefaults();
     el("modeAll").addEventListener("click", () => setMode("all"));
     el("modeDay").addEventListener("click", () => setMode("day"));
     el("boatFilter").addEventListener("change", () => {
