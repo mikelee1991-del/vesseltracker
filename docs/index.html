@@ -2689,6 +2689,11 @@
       setSpeciesGroups(state.speciesGroupsDefault || { groups: [] }, { source: "shipped defaults" });
       renderSpeciesGroupsEditor();
     });
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key === "Escape" && el("speciesGroupsModal") && !el("speciesGroupsModal").hidden) {
+        closeSpeciesGroupsModal();
+      }
+    });
     el("sortBy").addEventListener("change", () => {
       state.selectedId = null;
       updateSortNote();
