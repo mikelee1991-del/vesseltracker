@@ -431,12 +431,12 @@
             </div>
             <div class="row2">
               <div>
-                <label for="heatRadius">Radius</label>
-                <input id="heatRadius" type="range" min="8" max="60" value="25" />
+                <label for="heatRadius">Radius <span class="meta" id="heatRadiusVal">8 px</span></label>
+                <input id="heatRadius" type="range" min="4" max="40" value="8" />
               </div>
               <div>
-                <label for="heatBlur">Blur</label>
-                <input id="heatBlur" type="range" min="8" max="50" value="18" />
+                <label for="heatBlur">Blur <span class="meta" id="heatBlurVal">8 px</span></label>
+                <input id="heatBlur" type="range" min="3" max="35" value="8" />
               </div>
             </div>
             <div>
@@ -465,7 +465,8 @@
           </div>
           <p class="note">
             Heat intensity sums filtered visits at each AIS cluster (same aggregation as Spots “All days”).
-            Cool → hot = low → high for the selected metric. Narrow dates or pick a boat/species to focus the overlay.
+            Cool → hot = low → high for the selected metric. Default radius/blur stay sharp; the overlay
+            tightens further when you zoom in or when spots are well separated. Raise the sliders only to soft-merge dense areas.
           </p>
           <div id="heatList"></div>
         </div>
@@ -857,7 +858,10 @@
         state.heatMarkerLayer.bringToFront();
       }
     }
-    map.on("zoomend", syncBathyForZoom);
+    map.on("zoomend", () => {
+      syncBathyForZoom();
+      if (state.tab === "heat") scheduleRender(renderHeatView, 80);
+    });
     syncBathyForZoom();
 
     function fphColor(fph) {
@@ -1108,6 +1112,61 @@
       return sorted[idx];
     }
 
+    /** Tighten heat kernels when zoomed in or spots are well separated (higher effective resolution). */
+    function heatKernelPx(baseRadius, baseBlur, points) {
+      const zoom = map.getZoom();
+      // Prefer sharper kernels as zoom rises (leaflet.heat radius is screen pixels).
+      const zoomT = Math.max(0, Math.min(1, (zoom - 10) / 5));
+      let radius = baseRadius * (1 - 0.35 * zoomT);
+      let blur = baseBlur * (1 - 0.4 * zoomT);
+
+      // If median nearest-neighbor gap on screen ≫ kernel, shrink further so blobs don't smear.
+      if (points.length >= 8) {
+        const sample = points.length > 120
+          ? points.filter((_, i) => i % Math.ceil(points.length / 120) === 0)
+          : points;
+        const gaps = [];
+        for (let i = 0; i < sample.length; i++) {
+          let best = Infinity;
+          const a = map.latLngToLayerPoint([sample[i][0], sample[i][1]]);
+          for (let j = 0; j < sample.length; j++) {
+            if (i === j) continue;
+            const b = map.latLngToLayerPoint([sample[j][0], sample[j][1]]);
+            const d = Math.hypot(a.x - b.x, a.y - b.y);
+            if (d < best) best = d;
+          }
+          if (Number.isFinite(best)) gaps.push(best);
+        }
+        gaps.sort((a, b) => a - b);
+        const medianGap = gaps[Math.floor(gaps.length / 2)] || 0;
+        if (medianGap > 2.5 * baseRadius) {
+          const room = Math.min(0.45, (medianGap / baseRadius - 2.5) / 8);
+          radius *= 1 - room;
+          blur *= 1 - room;
+        }
+      }
+
+      return {
+        radius: Math.max(3, Math.round(radius)),
+        blur: Math.max(2, Math.round(blur)),
+      };
+    }
+
+    function syncHeatKernelLabels(baseRadius, baseBlur, effective) {
+      const rEl = el("heatRadiusVal");
+      const bEl = el("heatBlurVal");
+      if (rEl) {
+        rEl.textContent = effective && effective.radius !== baseRadius
+          ? `${baseRadius} → ${effective.radius} px`
+          : `${baseRadius} px`;
+      }
+      if (bEl) {
+        bEl.textContent = effective && effective.blur !== baseBlur
+          ? `${baseBlur} → ${effective.blur} px`
+          : `${baseBlur} px`;
+      }
+    }
+
     function renderHeatView() {
       clearHeat();
       clearMarkers();
@@ -1115,8 +1174,8 @@
       const locs = locationsForHeat();
       const metric = el("heatMetric").value;
       const speciesKey = el("heatSpeciesFilter").value;
-      const radius = Number(el("heatRadius").value) || 25;
-      const blur = Number(el("heatBlur").value) || 18;
+      const baseRadius = Number(el("heatRadius").value) || 8;
+      const baseBlur = Number(el("heatBlur").value) || 8;
       const maxScale = Number(el("heatMax").value) || 0.6;
       const showMarkers = el("heatShowMarkers").checked;
 
@@ -1129,12 +1188,15 @@
       const p95 = percentile(intensities, 0.95) || intensities[intensities.length - 1] || 1;
       const maxVal = Math.max(p95 * maxScale, 1e-6);
       const points = scored.map(({ loc, intensity }) => [loc.lat, loc.lon, intensity]);
+      const { radius, blur } = heatKernelPx(baseRadius, baseBlur, points);
+      syncHeatKernelLabels(baseRadius, baseBlur, { radius, blur });
 
       if (points.length && typeof L.heatLayer === "function") {
         state.heatLayer = L.heatLayer(points, {
           radius,
           blur,
-          maxZoom: 17,
+          maxZoom: 18,
+          minOpacity: 0.35,
           max: maxVal,
           gradient: {
             0.0: "#0b3d4a",
@@ -1802,10 +1864,11 @@
       if (el("heatBoatFilter")) el("heatBoatFilter").value = "";
       if (el("heatSpeciesFilter")) el("heatSpeciesFilter").value = "";
       if (el("heatMetric")) el("heatMetric").value = "dwell";
-      if (el("heatRadius")) el("heatRadius").value = "25";
-      if (el("heatBlur")) el("heatBlur").value = "18";
+      if (el("heatRadius")) el("heatRadius").value = "8";
+      if (el("heatBlur")) el("heatBlur").value = "8";
       if (el("heatMax")) el("heatMax").value = "0.6";
       if (el("heatShowMarkers")) el("heatShowMarkers").checked = false;
+      syncHeatKernelLabels(8, 8, null);
       resetDualRange("heat");
 
       state.selectedId = null;
