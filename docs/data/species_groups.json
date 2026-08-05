@@ -1,0 +1,249 @@
+{
+  "description": "Editable species groupings for LA Sportfishing Take. kind=type is taxonomic/common family; kind=habitat is fishing zone. Members use normalized dock-total names. Override in the map UI (saved to browser localStorage) or replace this file and redeploy. Export JSON from the UI to send corrections via FEEDBACK.md.",
+  "version": 1,
+  "aliases": {
+    "Vermillion Rockfish": "Vermilion Rockfish"
+  },
+  "groups": [
+    {
+      "id": "rockfish",
+      "label": "Rockfish",
+      "kind": "type",
+      "notes": "Includes generic Rockfish plus named rockfish / near-rockfish report labels (Vermilion, Bocaccio, Chilipepper, Red Snapper as often used in SoCal totals, Salmon Grouper).",
+      "members": [
+        "Rockfish",
+        "Vermilion Rockfish",
+        "Red Rockfish",
+        "Bocaccio",
+        "Chilipepper",
+        "Copper Rockfish",
+        "Brown Rockfish",
+        "Kelp Rockfish",
+        "Ocean Perch",
+        "Salmon Grouper",
+        "Red Snapper"
+      ]
+    },
+    {
+      "id": "bass",
+      "label": "Bass",
+      "kind": "type",
+      "members": [
+        "Sand Bass",
+        "Calico Bass",
+        "Spotted Sand Bass",
+        "Black Seabass"
+      ]
+    },
+    {
+      "id": "flatfish",
+      "label": "Flatfish",
+      "kind": "type",
+      "members": [
+        "Sanddab",
+        "Halibut",
+        "Rock Sole",
+        "Petrale Sole",
+        "Sand Sole"
+      ]
+    },
+    {
+      "id": "tuna_pelagic",
+      "label": "Tuna & open-water gamefish",
+      "kind": "type",
+      "members": [
+        "Yellowtail",
+        "Bonito",
+        "Barracuda",
+        "Dorado",
+        "Bluefin Tuna",
+        "Yellowfin Tuna",
+        "Skipjack Tuna",
+        "Albacore",
+        "White Seabass",
+        "Mackerel",
+        "Spanish Mackerel",
+        "Jack Mackerel",
+        "Spanish Jack",
+        "King Salmon",
+        "Striped Marlin"
+      ]
+    },
+    {
+      "id": "perch_kelp",
+      "label": "Perch & kelp fish",
+      "kind": "type",
+      "members": [
+        "Blue Perch",
+        "Black Seaperch",
+        "Perch",
+        "Rubberlip Seaperch",
+        "Opaleye",
+        "Halfmoon",
+        "Blacksmith",
+        "Sargo",
+        "Sheephead"
+      ]
+    },
+    {
+      "id": "sculpin_lingcod",
+      "label": "Sculpin, lingcod & cabezon",
+      "kind": "type",
+      "members": [
+        "Sculpin",
+        "Lingcod",
+        "Cabezon"
+      ]
+    },
+    {
+      "id": "whitefish",
+      "label": "Whitefish",
+      "kind": "type",
+      "members": [
+        "Whitefish"
+      ]
+    },
+    {
+      "id": "croaker",
+      "label": "Croaker",
+      "kind": "type",
+      "members": [
+        "White Croaker",
+        "Yellowfin Croaker",
+        "Black Croaker"
+      ]
+    },
+    {
+      "id": "sharks",
+      "label": "Sharks",
+      "kind": "type",
+      "members": [
+        "Mako Shark",
+        "Thresher Shark",
+        "Leopard Shark",
+        "Angel Shark"
+      ]
+    },
+    {
+      "id": "shellfish",
+      "label": "Shellfish",
+      "kind": "type",
+      "members": [
+        "Spiny Lobster",
+        "Rock Crab"
+      ]
+    },
+    {
+      "id": "other_type",
+      "label": "Other / uncommon",
+      "kind": "type",
+      "members": [
+        "Triggerfish",
+        "Wolf Eel",
+        "Ratfish",
+        "Popeye Catalufa"
+      ]
+    },
+    {
+      "id": "bottom",
+      "label": "Bottom fish",
+      "kind": "habitat",
+      "notes": "Typical deep / structure / sand bottom targets on ¾–full day rockcod and bottom trips.",
+      "members": [
+        "Rockfish",
+        "Vermilion Rockfish",
+        "Red Rockfish",
+        "Bocaccio",
+        "Chilipepper",
+        "Copper Rockfish",
+        "Brown Rockfish",
+        "Kelp Rockfish",
+        "Ocean Perch",
+        "Salmon Grouper",
+        "Red Snapper",
+        "Sculpin",
+        "Whitefish",
+        "Sanddab",
+        "Lingcod",
+        "Cabezon",
+        "Sheephead",
+        "Sand Bass",
+        "Spotted Sand Bass",
+        "Halibut",
+        "Rock Sole",
+        "Petrale Sole",
+        "Sand Sole",
+        "Triggerfish",
+        "Wolf Eel",
+        "Ratfish",
+        "Popeye Catalufa",
+        "Spiny Lobster",
+        "Rock Crab",
+        "Black Seabass"
+      ]
+    },
+    {
+      "id": "kelp_mid",
+      "label": "Kelp / midwater",
+      "kind": "habitat",
+      "notes": "Kelp beds and mid-column structure (calicos, sheephead, perch, etc.).",
+      "members": [
+        "Calico Bass",
+        "Sheephead",
+        "Opaleye",
+        "Halfmoon",
+        "Blacksmith",
+        "Blue Perch",
+        "Black Seaperch",
+        "Perch",
+        "Rubberlip Seaperch",
+        "Sargo",
+        "Kelp Rockfish",
+        "Sand Bass"
+      ]
+    },
+    {
+      "id": "surface",
+      "label": "Surface / pelagic",
+      "kind": "habitat",
+      "notes": "Surface iron, troll, and blue-water targets.",
+      "members": [
+        "Yellowtail",
+        "Bonito",
+        "Barracuda",
+        "Dorado",
+        "Bluefin Tuna",
+        "Yellowfin Tuna",
+        "Skipjack Tuna",
+        "Albacore",
+        "White Seabass",
+        "Mackerel",
+        "Spanish Mackerel",
+        "Jack Mackerel",
+        "Spanish Jack",
+        "King Salmon",
+        "Striped Marlin",
+        "Mako Shark",
+        "Thresher Shark"
+      ]
+    },
+    {
+      "id": "bay_shallow",
+      "label": "Bay / shallow",
+      "kind": "habitat",
+      "notes": "Bay, harbor, and nearshore shallow species when reported.",
+      "members": [
+        "Sand Bass",
+        "Spotted Sand Bass",
+        "Halibut",
+        "White Croaker",
+        "Yellowfin Croaker",
+        "Black Croaker",
+        "Leopard Shark",
+        "Angel Shark",
+        "Sargo",
+        "Opaleye"
+      ]
+    }
+  ]
+}
