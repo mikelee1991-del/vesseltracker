@@ -477,12 +477,12 @@
             </div>
             <div class="row2">
               <div>
-                <label for="heatRadius">Radius <span class="meta" id="heatRadiusVal">8 px</span></label>
-                <input id="heatRadius" type="range" min="4" max="40" value="8" />
+                <label for="heatRadius">Radius <span class="meta" id="heatRadiusVal">4 px (min)</span></label>
+                <input id="heatRadius" type="range" min="4" max="40" value="4" />
               </div>
               <div>
-                <label for="heatBlur">Blur <span class="meta" id="heatBlurVal">8 px</span></label>
-                <input id="heatBlur" type="range" min="3" max="35" value="8" />
+                <label for="heatBlur">Blur <span class="meta" id="heatBlurVal">3 px (min)</span></label>
+                <input id="heatBlur" type="range" min="3" max="35" value="3" />
               </div>
             </div>
             <div>
@@ -511,8 +511,9 @@
           </div>
           <p class="note">
             Heat intensity sums filtered visits at each AIS cluster (same aggregation as Spots “All days”).
-            Cool → hot = low → high for the selected metric. Default radius/blur stay sharp; the overlay
-            tightens further when you zoom in or when spots are well separated. Raise the sliders only to soft-merge dense areas.
+            Cool → hot = low → high for the selected metric. Defaults to the minimum radius/blur for max clarity;
+            raise the sliders only to soft-merge dense areas. Above the minimum, the overlay can tighten further on zoom
+            when spots are well separated.
           </p>
           <div id="heatList"></div>
         </div>
@@ -640,7 +641,7 @@
           <ul>
             <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH</li>
             <li><strong>Courses</strong> — schematic polylines home → stops (time order) → home (not raw AIS tracks). Up to 2,500 paths drawn per filter for performance</li>
-            <li><strong>Heatmap</strong> — density of the same clustered spots; intensity = dwell, boat-days, attributed fish, dwell FPH, or trip FPP. Default kernel is sharp (8 px radius/blur) and tightens further on zoom or when spots are well separated</li>
+            <li><strong>Heatmap</strong> — density of the same clustered spots; intensity = dwell, boat-days, attributed fish, dwell FPH, or trip FPP. Default kernel is the minimum (4 px radius / 3 px blur); above that floor it can tighten further on zoom when spots are well separated</li>
           </ul>
 
           <h2 id="m-limits">Known limits</h2>
@@ -1206,8 +1207,18 @@
       return sorted[idx];
     }
 
+    const HEAT_RADIUS_MIN = 4;
+    const HEAT_BLUR_MIN = 3;
+
     /** Tighten heat kernels when zoomed in or spots are well separated (higher effective resolution). */
     function heatKernelPx(baseRadius, baseBlur, points) {
+      const radiusFloor = Math.max(HEAT_RADIUS_MIN, Number(el("heatRadius").min) || HEAT_RADIUS_MIN);
+      const blurFloor = Math.max(HEAT_BLUR_MIN, Number(el("heatBlur").min) || HEAT_BLUR_MIN);
+      // At the minimum setting, keep the kernel exact so the map shows min radius/blur.
+      if (baseRadius <= radiusFloor && baseBlur <= blurFloor) {
+        return { radius: radiusFloor, blur: blurFloor };
+      }
+
       const zoom = map.getZoom();
       // Prefer sharper kernels as zoom rises (leaflet.heat radius is screen pixels).
       const zoomT = Math.max(0, Math.min(1, (zoom - 10) / 5));
@@ -1241,23 +1252,35 @@
       }
 
       return {
-        radius: Math.max(3, Math.round(radius)),
-        blur: Math.max(2, Math.round(blur)),
+        radius: Math.max(radiusFloor, Math.round(radius)),
+        blur: Math.max(blurFloor, Math.round(blur)),
       };
+    }
+
+    function formatHeatKernelLabel(base, effective, floor) {
+      const atMin = base <= floor;
+      if (effective != null && effective !== base) {
+        return `${base} → ${effective} px${atMin ? " (min)" : ""}`;
+      }
+      return atMin ? `${base} px (min)` : `${base} px`;
     }
 
     function syncHeatKernelLabels(baseRadius, baseBlur, effective) {
       const rEl = el("heatRadiusVal");
       const bEl = el("heatBlurVal");
       if (rEl) {
-        rEl.textContent = effective && effective.radius !== baseRadius
-          ? `${baseRadius} → ${effective.radius} px`
-          : `${baseRadius} px`;
+        rEl.textContent = formatHeatKernelLabel(
+          baseRadius,
+          effective ? effective.radius : null,
+          HEAT_RADIUS_MIN
+        );
       }
       if (bEl) {
-        bEl.textContent = effective && effective.blur !== baseBlur
-          ? `${baseBlur} → ${effective.blur} px`
-          : `${baseBlur} px`;
+        bEl.textContent = formatHeatKernelLabel(
+          baseBlur,
+          effective ? effective.blur : null,
+          HEAT_BLUR_MIN
+        );
       }
     }
 
@@ -1268,8 +1291,8 @@
       const locs = locationsForHeat();
       const metric = el("heatMetric").value;
       const speciesKeys = selectedValues(el("heatSpeciesFilter"));
-      const baseRadius = Number(el("heatRadius").value) || 8;
-      const baseBlur = Number(el("heatBlur").value) || 8;
+      const baseRadius = Number(el("heatRadius").value) || HEAT_RADIUS_MIN;
+      const baseBlur = Number(el("heatBlur").value) || HEAT_BLUR_MIN;
       const maxScale = Number(el("heatMax").value) || 0.6;
       const showMarkers = el("heatShowMarkers").checked;
 
@@ -1955,11 +1978,11 @@
       clearMultiSelect(el("heatBoatFilter"));
       clearMultiSelect(el("heatSpeciesFilter"));
       if (el("heatMetric")) el("heatMetric").value = "dwell";
-      if (el("heatRadius")) el("heatRadius").value = "8";
-      if (el("heatBlur")) el("heatBlur").value = "8";
+      if (el("heatRadius")) el("heatRadius").value = String(HEAT_RADIUS_MIN);
+      if (el("heatBlur")) el("heatBlur").value = String(HEAT_BLUR_MIN);
       if (el("heatMax")) el("heatMax").value = "0.6";
       if (el("heatShowMarkers")) el("heatShowMarkers").checked = false;
-      syncHeatKernelLabels(8, 8, null);
+      syncHeatKernelLabels(HEAT_RADIUS_MIN, HEAT_BLUR_MIN, null);
       resetDualRange("heat");
       syncAllMultiSummaries();
 
