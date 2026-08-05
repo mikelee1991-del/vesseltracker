@@ -660,8 +660,9 @@
               </div>
             </div>
             <div>
-              <label for="heatMax">Max intensity scale</label>
+              <label for="heatMax">Hot threshold <span class="meta" id="heatMaxVal">0.60</span></label>
               <input id="heatMax" type="range" min="0.2" max="1.0" step="0.05" value="0.6" />
+              <p class="hint">Color scale auto-fits the current boat/species/date filter; lower threshold = hotter peaks</p>
             </div>
             <div class="basemap-toggles">
               <label class="chk"><input type="checkbox" id="heatShowMarkers" /> Show faint spot markers</label>
@@ -686,9 +687,9 @@
           </div>
           <p class="note">
             Heat intensity sums filtered visits at each AIS cluster (same aggregation as Spots “All days”).
-            Cool → hot = low → high for the selected metric. Defaults to the minimum radius/blur for max clarity;
-            raise the sliders only to soft-merge dense areas. Above the minimum, the overlay can tighten further on zoom
-            when spots are well separated.
+            Cool → hot = low → high for the selected metric. Intensity is <strong>re-scaled</strong> to the
+            current boat/species/date filter so a single vessel or species still uses the full temperature range.
+            Defaults to the minimum radius/blur for max clarity; raise those sliders only to soft-merge dense areas.
           </p>
           <div id="heatList"></div>
         </div>
@@ -816,7 +817,7 @@
           <ul>
             <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH</li>
             <li><strong>Courses</strong> — schematic polylines home → stops (time order) → home (not raw AIS tracks). Up to 2,500 paths drawn per filter for performance</li>
-            <li><strong>Heatmap</strong> — density of the same clustered spots; intensity = dwell, boat-days, attributed fish, dwell FPH, or trip FPP. Default kernel is the minimum (4 px radius / 3 px blur); above that floor it can tighten further on zoom when spots are well separated</li>
+            <li><strong>Heatmap</strong> — density of the same clustered spots; intensity = dwell, boat-days, attributed fish, dwell FPH, or trip FPP. Color scale <strong>auto-rescales</strong> to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur)</li>
           </ul>
 
           <h2 id="m-limits">Known limits</h2>
@@ -1412,6 +1413,25 @@
       return sorted[idx];
     }
 
+    /** Ceiling for the current filtered heat sample (auto-rescales with boat/species/date). */
+    function heatDataMax(sortedIntensities) {
+      if (!sortedIntensities.length) return 1;
+      const hi = sortedIntensities[sortedIntensities.length - 1];
+      if (!(hi > 0)) return 1e-9;
+      // Small selections: stretch to the true max so one boat/species still hits full hot.
+      if (sortedIntensities.length <= 8) return hi;
+      const p95 = percentile(sortedIntensities, 0.95) || hi;
+      // Ignore a few extreme parks so the rest of the filter still has color range.
+      return Math.max(p95, hi * 0.12, 1e-9);
+    }
+
+    function syncHeatMaxLabel(hotThreshold, dataMax, metric) {
+      const node = el("heatMaxVal");
+      if (!node) return;
+      const decimals = metric === "visits" || metric === "dwell" ? 0 : 2;
+      node.textContent = `${Number(hotThreshold).toFixed(2)} · auto max ${fmt(dataMax, decimals)}`;
+    }
+
     const HEAT_RADIUS_MIN = 4;
     const HEAT_BLUR_MIN = 3;
 
@@ -1498,9 +1518,10 @@
       const locs = locationsForHeat();
       const metric = el("heatMetric").value;
       const speciesKeys = selectedValues(el("heatSpeciesFilter"));
+      const boats = selectedValues(el("heatBoatFilter"));
       const baseRadius = Number(el("heatRadius").value) || HEAT_RADIUS_MIN;
       const baseBlur = Number(el("heatBlur").value) || HEAT_BLUR_MIN;
-      const maxScale = Number(el("heatMax").value) || 0.6;
+      const hotThreshold = Number(el("heatMax").value) || 0.6;
       const showMarkers = el("heatShowMarkers").checked;
 
       const scored = locs.map((loc) => {
@@ -1509,19 +1530,25 @@
       }).filter((x) => x.intensity > 0 && x.loc.lat != null && x.loc.lon != null);
 
       const intensities = scored.map((x) => x.intensity).sort((a, b) => a - b);
-      const p95 = percentile(intensities, 0.95) || intensities[intensities.length - 1] || 1;
-      const maxVal = Math.max(p95 * maxScale, 1e-6);
-      const points = scored.map(({ loc, intensity }) => [loc.lat, loc.lon, intensity]);
+      const dataMax = heatDataMax(intensities);
+      // Normalize to the current filter so boat/species subselects re-stretch the temperature scale.
+      const points = scored.map(({ loc, intensity }) => [
+        loc.lat,
+        loc.lon,
+        Math.min(intensity / dataMax, 4),
+      ]);
       const { radius, blur } = heatKernelPx(baseRadius, baseBlur, points);
       syncHeatKernelLabels(baseRadius, baseBlur, { radius, blur });
+      syncHeatMaxLabel(hotThreshold, dataMax, metric);
 
       if (points.length && typeof L.heatLayer === "function") {
         state.heatLayer = L.heatLayer(points, {
           radius,
           blur,
           maxZoom: 18,
-          minOpacity: 0.35,
-          max: maxVal,
+          minOpacity: scored.length < 50 ? 0.22 : 0.32,
+          // Relative units after auto-normalize; threshold redraws fully hot by this fraction of dataMax.
+          max: Math.max(0.05, hotThreshold),
           gradient: {
             0.0: "#0b3d4a",
             0.35: "#17687a",
@@ -1544,21 +1571,22 @@
             opacity: 0.35,
           }).bindPopup(
             `<strong>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</strong><br>
-             Intensity ${fmt(intensity, metric === "visits" || metric === "dwell" ? 0 : 2)}`
+             Intensity ${fmt(intensity, metric === "visits" || metric === "dwell" ? 0 : 2)}
+             <span class="meta">(${fmt(100 * intensity / dataMax, 0)}% of filter max)</span>`
           ).addTo(state.heatMarkerLayer);
         });
       }
 
       const intensitySum = scored.reduce((a, x) => a + x.intensity, 0);
       const intensityMean = scored.length ? intensitySum / scored.length : null;
-      const boats = new Set();
-      scored.forEach(({ loc }) => (loc.boats || []).forEach((b) => boats.add(b)));
+      const boatSet = new Set();
+      scored.forEach(({ loc }) => (loc.boats || []).forEach((b) => boatSet.add(b)));
 
       el("statHeatLocs").textContent = String(scored.length);
       el("statHeatIntensity").textContent = scored.length
         ? `${fmt(intensitySum, metric === "visits" || metric === "dwell" ? 0 : 1)} / ${fmt(intensityMean, 2)}`
         : "—";
-      el("statHeatBoats").textContent = String(boats.size);
+      el("statHeatBoats").textContent = String(boatSet.size);
 
       const top = [...scored].sort((a, b) => b.intensity - a.intensity).slice(0, 40);
       el("heatList").innerHTML = top.map(({ loc, intensity }) => `
@@ -1566,7 +1594,7 @@
           <h3>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</h3>
           <div class="meta">${loc.n_boat_days || 0} boat-days · ${fmt(loc.total_dwell_min, 0)} min dwell · ${loc.n_boats || 0} boat(s)</div>
           <div><span class="fpp">${fmt(intensity, metric === "visits" || metric === "dwell" ? 0 : 2)}</span>
-            <span class="meta"> intensity</span></div>
+            <span class="meta"> intensity · ${fmt(100 * intensity / dataMax, 0)}% of filter max</span></div>
         </article>`).join("") || "<p class='status'>No heat points for this filter.</p>";
 
       el("heatList").querySelectorAll(".heat").forEach((node) => {
@@ -1579,8 +1607,11 @@
 
       const { start, end } = heatDateBounds();
       syncAllMultiSummaries();
+      const boatLabel = boats.length ? ` · ${selectionSummary(boats)}` : "";
+      const decimals = metric === "visits" || metric === "dwell" ? 0 : 2;
       el("heatStatus").textContent =
-        `${start || "?"} → ${end || "?"}${speciesFilterLabel(speciesKeys)} · ${scored.length} hot spot(s) · metric ${metric}` +
+        `${start || "?"} → ${end || "?"}${boatLabel}${speciesFilterLabel(speciesKeys)} · ${scored.length} hot spot(s) · ${metric}` +
+        (scored.length ? ` · auto max ${fmt(dataMax, decimals)}` : "") +
         (typeof L.heatLayer !== "function" ? " · heat plugin missing" : "");
 
       if (points.length && !state.hasFittedBounds) {
@@ -2191,6 +2222,7 @@
       if (el("heatMax")) el("heatMax").value = "0.6";
       if (el("heatShowMarkers")) el("heatShowMarkers").checked = false;
       syncHeatKernelLabels(HEAT_RADIUS_MIN, HEAT_BLUR_MIN, null);
+      syncHeatMaxLabel(0.6, 1, "dwell");
       resetDualRange("heat");
       syncAllMultiSummaries();
 
