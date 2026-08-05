@@ -316,6 +316,7 @@
       margin-bottom: 0.28rem;
     }
     .multi-head label { margin-bottom: 0; }
+    .multi-actions { display: flex; gap: 0.25rem; align-items: center; flex-shrink: 0; }
     button.linkish {
       width: auto; padding: 0.12rem 0.4rem; font-size: 0.72rem; font-weight: 600;
       background: transparent; color: var(--sea-mid); border: 1px solid transparent;
@@ -324,6 +325,51 @@
     .hint {
       font-size: 0.72rem; color: rgba(19,32,43,0.6); margin: 0.28rem 0 0; line-height: 1.3;
     }
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(11, 40, 48, 0.45);
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: max(1rem, env(safe-area-inset-top)) 0.75rem max(1rem, env(safe-area-inset-bottom));
+      overflow: auto;
+    }
+    .modal-backdrop[hidden] { display: none !important; }
+    .modal {
+      width: min(720px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(11,40,48,0.28);
+      padding: 0.9rem 1rem 1.1rem;
+      margin: 0.5rem 0 2rem;
+    }
+    .modal h2 {
+      margin: 0;
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.35rem;
+      color: var(--sea);
+    }
+    .modal-head {
+      display: flex; justify-content: space-between; gap: 0.75rem; align-items: flex-start;
+      margin-bottom: 0.55rem;
+    }
+    .modal-actions {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.65rem 0 0.85rem;
+    }
+    .modal-actions button { width: auto; min-height: 2.4rem; padding: 0.4rem 0.75rem; }
+    .group-editor-list { display: grid; gap: 0.65rem; max-height: min(60vh, 520px); overflow: auto; }
+    .group-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.65rem 0.7rem;
+      background: #fff;
+    }
+    .group-card .row2 { margin-top: 0.35rem; }
+    .group-card textarea {
+      width: 100%; min-height: 4.5rem; font: inherit; font-size: 0.9rem;
+      padding: 0.45rem 0.55rem; border: 1px solid var(--line); border-radius: 8px;
+      resize: vertical;
+    }
+    .group-card .meta { margin: 0.25rem 0 0; }
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
     button {
       cursor: pointer; background: var(--sea); color: #f4fafb; border-color: var(--sea); font-weight: 600;
@@ -511,10 +557,13 @@
             <div>
               <div class="multi-head">
                 <label for="speciesFilter">Species <span class="meta" id="speciesFilterSummary">all</span></label>
-                <button type="button" class="linkish" id="speciesFilterClear" title="Clear species selection">Clear</button>
+                <span class="multi-actions">
+                  <button type="button" class="linkish" id="speciesGroupsEdit" title="Edit type and habitat groups">Groups</button>
+                  <button type="button" class="linkish" id="speciesFilterClear" title="Clear species selection">Clear</button>
+                </span>
               </div>
-              <select id="speciesFilter" class="multi" multiple size="7" aria-label="Species (multi-select)"></select>
-              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all · match any</p>
+              <select id="speciesFilter" class="multi" multiple size="9" aria-label="Species and groups (multi-select)"></select>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · groups or species · empty = all · match any</p>
             </div>
             <div>
               <label for="sortBy">Sort spots</label>
@@ -634,10 +683,13 @@
             <div>
               <div class="multi-head">
                 <label for="heatSpeciesFilter">Species <span class="meta" id="heatSpeciesFilterSummary">all</span></label>
-                <button type="button" class="linkish" id="heatSpeciesFilterClear" title="Clear species selection">Clear</button>
+                <span class="multi-actions">
+                  <button type="button" class="linkish" id="heatSpeciesGroupsEdit" title="Edit type and habitat groups">Groups</button>
+                  <button type="button" class="linkish" id="heatSpeciesFilterClear" title="Clear species selection">Clear</button>
+                </span>
               </div>
-              <select id="heatSpeciesFilter" class="multi" multiple size="7" aria-label="Heatmap species (multi-select)"></select>
-              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all · match any</p>
+              <select id="heatSpeciesFilter" class="multi" multiple size="9" aria-label="Heatmap species and groups (multi-select)"></select>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · groups or species · empty = all · match any</p>
             </div>
             <div>
               <label for="heatMetric">Intensity metric</label>
@@ -808,7 +860,7 @@
             <li><strong>Date range</strong> — dual slider on Spots (All days), Courses, and Heatmap; re-aggregates visits inside the window</li>
             <li><strong>One day</strong> (Spots) — loads that day’s join file only</li>
             <li><strong>Boat</strong> — multi-select (⌘/Ctrl+click); empty = all; keep visits/courses for any selected vessel</li>
-            <li><strong>Species</strong> — multi-select; empty = all; keep visits that include any selected species (or Unknown fish)</li>
+            <li><strong>Species</strong> — multi-select individuals or <strong>groups</strong> (by type: Rockfish, Bass…; by habitat: Bottom / Kelp / Surface…). Empty = all; match any. Edit groups via the Groups button (browser localStorage + JSON export)</li>
             <li><strong>Sort spots</strong> — dwell-attributed FPH, mean dwell share, species fish count, trip FPH/FPP, total dwell, boat-days</li>
             <li><strong>Reset</strong> — clears filters/controls and returns to Spots / All days</li>
           </ul>
@@ -880,6 +932,36 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="speciesGroupsModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="speciesGroupsTitle">
+      <div class="modal-head">
+        <div>
+          <h2 id="speciesGroupsTitle">Species groups</h2>
+          <p class="meta" style="margin:0.25rem 0 0">
+            First-pass type &amp; habitat buckets from dock-total names. Edit here (saved in this browser),
+            export JSON to share corrections, or replace <code>docs/data/species_groups.json</code> in the repo.
+          </p>
+        </div>
+        <button type="button" class="secondary" id="speciesGroupsClose" style="width:auto">Close</button>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="speciesGroupsAddType">Add type group</button>
+        <button type="button" id="speciesGroupsAddHabitat" class="secondary">Add habitat group</button>
+        <button type="button" id="speciesGroupsSave" class="secondary">Save in browser</button>
+        <button type="button" id="speciesGroupsExport" class="secondary">Export JSON</button>
+        <button type="button" id="speciesGroupsImportBtn" class="secondary">Import JSON</button>
+        <input id="speciesGroupsImport" type="file" accept="application/json,.json" hidden />
+        <button type="button" id="speciesGroupsReset" class="secondary">Reset to shipped defaults</button>
+      </div>
+      <p class="status" id="speciesGroupsStatus">Loading…</p>
+      <div class="group-editor-list" id="speciesGroupsEditor"></div>
+      <p class="note" style="margin-top:0.85rem">
+        Members are comma- or newline-separated dock-total names (after alias normalize).
+        Unassigned species still appear under Individual in the filter. Unknown fish stays separate.
+      </p>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
   <script>
@@ -911,6 +993,10 @@
       coursesLoading: false,
       renderTimer: null,
       resizeTimer: null,
+      speciesCatalog: [],
+      unknownSpeciesVisits: 0,
+      speciesGroupsDefault: null,
+      speciesGroups: null,
     };
 
     const map = L.map("map", {
@@ -1215,14 +1301,21 @@
     }
 
     const UNKNOWN_FISH = "Unknown fish";
+    const SPECIES_GROUP_PREFIX = "group:";
+    const SPECIES_GROUPS_STORAGE_KEY = "vesseltracker.species_groups.v1";
     const SPECIES_ALIASES = {
       "Vermillion Rockfish": "Vermilion Rockfish",
     };
 
-    function normalizeSpecies(name) {
+    function normalizeSpecies(name, aliasExtra) {
       const raw = (name || "").trim();
       if (!raw) return UNKNOWN_FISH;
-      return SPECIES_ALIASES[raw] || raw;
+      const aliasMap = {
+        ...SPECIES_ALIASES,
+        ...((state.speciesGroups && state.speciesGroups.aliases) || {}),
+        ...(aliasExtra || {}),
+      };
+      return aliasMap[raw] || raw;
     }
 
     function selectedValues(selectEl) {
@@ -1235,11 +1328,72 @@
       [...selectEl.options].forEach((o) => { o.selected = false; });
     }
 
+    function isSpeciesGroupKey(key) {
+      return String(key || "").startsWith(SPECIES_GROUP_PREFIX);
+    }
+
+    function speciesGroupId(key) {
+      return String(key || "").slice(SPECIES_GROUP_PREFIX.length);
+    }
+
+    function speciesGroupKey(id) {
+      return `${SPECIES_GROUP_PREFIX}${id}`;
+    }
+
+    function cloneSpeciesGroups(payload) {
+      return JSON.parse(JSON.stringify(payload || { version: 1, aliases: {}, groups: [] }));
+    }
+
+    function normalizeGroupPayload(payload) {
+      const out = cloneSpeciesGroups(payload);
+      out.version = Number(out.version) || 1;
+      out.aliases = out.aliases && typeof out.aliases === "object" ? out.aliases : {};
+      out.groups = Array.isArray(out.groups) ? out.groups : [];
+      out.groups = out.groups.map((g, i) => ({
+        id: String(g.id || `group_${i + 1}`).trim() || `group_${i + 1}`,
+        label: String(g.label || g.id || `Group ${i + 1}`).trim(),
+        kind: g.kind === "habitat" ? "habitat" : "type",
+        notes: g.notes || "",
+        members: [...new Set((g.members || []).map((m) => normalizeSpecies(m, out.aliases)).filter((m) => m && m !== UNKNOWN_FISH))],
+      }));
+      return out;
+    }
+
+    function findSpeciesGroup(id) {
+      return (state.speciesGroups?.groups || []).find((g) => g.id === id) || null;
+    }
+
+    function labelForSpeciesKey(key) {
+      if (!key) return "";
+      if (key === UNKNOWN_FISH) return UNKNOWN_FISH;
+      if (isSpeciesGroupKey(key)) {
+        const g = findSpeciesGroup(speciesGroupId(key));
+        return g ? g.label : speciesGroupId(key);
+      }
+      return key;
+    }
+
+    function expandSpeciesKeys(speciesKeyOrKeys) {
+      const keys = asSpeciesKeys(speciesKeyOrKeys);
+      if (!keys.length) return [];
+      const out = new Set();
+      for (const key of keys) {
+        if (isSpeciesGroupKey(key)) {
+          const g = findSpeciesGroup(speciesGroupId(key));
+          if (g) g.members.forEach((m) => out.add(normalizeSpecies(m)));
+          continue;
+        }
+        out.add(key === UNKNOWN_FISH ? UNKNOWN_FISH : normalizeSpecies(key));
+      }
+      return [...out];
+    }
+
     function selectionSummary(values, emptyLabel = "all") {
       if (!values.length) return emptyLabel;
-      if (values.length === 1) return values[0];
-      if (values.length === 2) return values.join(", ");
-      return `${values[0]} +${values.length - 1}`;
+      const labels = values.map(labelForSpeciesKey);
+      if (labels.length === 1) return labels[0];
+      if (labels.length === 2) return labels.join(", ");
+      return `${labels[0]} +${labels.length - 1}`;
     }
 
     function syncMultiSummary(selectId, summaryId) {
@@ -1291,11 +1445,11 @@
       const keys = asSpeciesKeys(speciesKeys);
       if (!keys.length) return true;
       const wantsUnknown = keys.includes(UNKNOWN_FISH);
-      const named = keys.filter((k) => k !== UNKNOWN_FISH);
-      if (!named.length) return !visitHasSpeciesBreakdown(v);
+      const expanded = expandSpeciesKeys(keys.filter((k) => k !== UNKNOWN_FISH));
+      if (!expanded.length) return !visitHasSpeciesBreakdown(v);
       if (wantsUnknown && !visitHasSpeciesBreakdown(v)) return true;
       const counts = visitSpeciesCounts(v);
-      return named.some((k) => (counts[k] || 0) > 0 || Object.prototype.hasOwnProperty.call(counts, k));
+      return expanded.some((k) => (counts[k] || 0) > 0 || Object.prototype.hasOwnProperty.call(counts, k));
     }
 
     function speciesFishForLoc(loc, speciesKeyOrKeys) {
@@ -1304,13 +1458,220 @@
       if (!keys.length) {
         return Object.values(counts).reduce((a, b) => a + b, 0);
       }
-      return keys.reduce((sum, k) => sum + (counts[k] || 0), 0);
+      const expanded = expandSpeciesKeys(keys);
+      return expanded.reduce((sum, k) => sum + (counts[k] || 0), 0);
     }
 
     function speciesFilterLabel(speciesKeys) {
       const keys = asSpeciesKeys(speciesKeys);
       if (!keys.length) return "";
       return ` · ${selectionSummary(keys)}`;
+    }
+
+    function speciesFilterHtml(speciesNames, unknownVisits) {
+      const groups = state.speciesGroups?.groups || [];
+      const typeGroups = groups.filter((g) => g.kind === "type");
+      const habitatGroups = groups.filter((g) => g.kind === "habitat");
+      const parts = [];
+      parts.push(`<option value="${UNKNOWN_FISH}">${UNKNOWN_FISH}${unknownVisits ? ` (${unknownVisits} visits)` : ""}</option>`);
+      if (typeGroups.length) {
+        parts.push('<optgroup label="By type">');
+        for (const g of typeGroups) {
+          parts.push(
+            `<option value="${speciesGroupKey(g.id)}">${g.label} (${g.members.length})</option>`
+          );
+        }
+        parts.push("</optgroup>");
+      }
+      if (habitatGroups.length) {
+        parts.push('<optgroup label="By habitat">');
+        for (const g of habitatGroups) {
+          parts.push(
+            `<option value="${speciesGroupKey(g.id)}">${g.label} (${g.members.length})</option>`
+          );
+        }
+        parts.push("</optgroup>");
+      }
+      parts.push('<optgroup label="Individual species">');
+      for (const s of speciesNames) {
+        parts.push(`<option value="${s}">${s}</option>`);
+      }
+      parts.push("</optgroup>");
+      return parts.join("");
+    }
+
+    function refreshSpeciesFilterOptions() {
+      const names = state.speciesCatalog || [];
+      const unknownVisits = state.unknownSpeciesVisits || 0;
+      const html = speciesFilterHtml(names, unknownVisits);
+      const keepSpots = selectedValues(el("speciesFilter"));
+      const keepHeat = selectedValues(el("heatSpeciesFilter"));
+      el("speciesFilter").innerHTML = html;
+      el("heatSpeciesFilter").innerHTML = html;
+      const spotSet = new Set([...el("speciesFilter").options].map((o) => o.value));
+      const heatSet = new Set([...el("heatSpeciesFilter").options].map((o) => o.value));
+      [...el("speciesFilter").options].forEach((o) => { o.selected = keepSpots.includes(o.value) && spotSet.has(o.value); });
+      [...el("heatSpeciesFilter").options].forEach((o) => { o.selected = keepHeat.includes(o.value) && heatSet.has(o.value); });
+      syncAllMultiSummaries();
+    }
+
+    function slugifyGroupId(label) {
+      return String(label || "group")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .slice(0, 40) || "group";
+    }
+
+    function uniqueGroupId(base, existing) {
+      let id = base || "group";
+      let n = 2;
+      while (existing.has(id)) {
+        id = `${base}_${n}`;
+        n += 1;
+      }
+      existing.add(id);
+      return id;
+    }
+
+    function readGroupsFromEditor() {
+      const cards = [...el("speciesGroupsEditor").querySelectorAll(".group-card")];
+      const used = new Set();
+      const groups = cards.map((card, i) => {
+        const label = (card.querySelector(".group-label")?.value || "").trim() || `Group ${i + 1}`;
+        const kind = card.querySelector(".group-kind")?.value === "habitat" ? "habitat" : "type";
+        const notes = (card.querySelector(".group-notes")?.value || "").trim();
+        const membersRaw = card.querySelector(".group-members")?.value || "";
+        const members = [...new Set(
+          membersRaw
+            .split(/[\n,]+/)
+            .map((m) => normalizeSpecies(m, state.speciesGroups?.aliases))
+            .filter((m) => m && m !== UNKNOWN_FISH)
+        )];
+        const preferred = (card.dataset.groupId || slugifyGroupId(label)).trim();
+        const id = uniqueGroupId(preferred || slugifyGroupId(label), used);
+        return { id, label, kind, notes, members };
+      });
+      return normalizeGroupPayload({
+        ...(state.speciesGroups || {}),
+        groups,
+      });
+    }
+
+    function renderSpeciesGroupsEditor() {
+      const host = el("speciesGroupsEditor");
+      const groups = state.speciesGroups?.groups || [];
+      const catalogHint = (state.speciesCatalog || []).slice(0, 12).join(", ");
+      host.innerHTML = groups.map((g) => `
+        <article class="group-card" data-group-id="${g.id}">
+          <div class="row2">
+            <div>
+              <label>Label</label>
+              <input class="group-label" type="text" value="${g.label.replace(/"/g, "&quot;")}" />
+            </div>
+            <div>
+              <label>Kind</label>
+              <select class="group-kind">
+                <option value="type" ${g.kind === "type" ? "selected" : ""}>Type (e.g. Rockfish)</option>
+                <option value="habitat" ${g.kind === "habitat" ? "selected" : ""}>Habitat (e.g. Bottom fish)</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:0.45rem">
+            <label>Members (comma or newline)</label>
+            <textarea class="group-members">${(g.members || []).join(", ")}</textarea>
+            <p class="meta">Known species include: ${catalogHint}${state.speciesCatalog.length > 12 ? "…" : ""}</p>
+          </div>
+          <div style="margin-top:0.45rem">
+            <label>Notes</label>
+            <input class="group-notes" type="text" value="${(g.notes || "").replace(/"/g, "&quot;")}" />
+          </div>
+          <div class="modal-actions" style="margin:0.5rem 0 0">
+            <button type="button" class="secondary group-remove">Remove group</button>
+          </div>
+        </article>
+      `).join("") || "<p class='status'>No groups yet — add a type or habitat group.</p>";
+
+      host.querySelectorAll(".group-remove").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          btn.closest(".group-card")?.remove();
+          el("speciesGroupsStatus").textContent = "Removed locally — Save in browser to keep, or Close to discard unsaved editor edits after reload.";
+        });
+      });
+    }
+
+    function setSpeciesGroups(payload, { persist = false, source = "", silent = false } = {}) {
+      state.speciesGroups = normalizeGroupPayload(payload);
+      if (persist) {
+        try {
+          localStorage.setItem(SPECIES_GROUPS_STORAGE_KEY, JSON.stringify(state.speciesGroups));
+        } catch (err) {
+          console.warn("Could not save species groups", err);
+        }
+      }
+      refreshSpeciesFilterOptions();
+      if (el("speciesGroupsStatus")) {
+        const nType = state.speciesGroups.groups.filter((g) => g.kind === "type").length;
+        const nHab = state.speciesGroups.groups.filter((g) => g.kind === "habitat").length;
+        el("speciesGroupsStatus").textContent =
+          `${state.speciesGroups.groups.length} groups (${nType} type · ${nHab} habitat)` +
+          (source ? ` · ${source}` : "");
+      }
+      if (!silent) {
+        if (state.tab === "spots") renderSpots();
+        if (state.tab === "heat") scheduleRender(renderHeatView, 40);
+      }
+    }
+
+    function openSpeciesGroupsModal() {
+      el("speciesGroupsModal").hidden = false;
+      renderSpeciesGroupsEditor();
+      const nType = (state.speciesGroups?.groups || []).filter((g) => g.kind === "type").length;
+      const nHab = (state.speciesGroups?.groups || []).filter((g) => g.kind === "habitat").length;
+      el("speciesGroupsStatus").textContent =
+        `${(state.speciesGroups?.groups || []).length} groups (${nType} type · ${nHab} habitat) · edit & save to override defaults in this browser`;
+    }
+
+    function closeSpeciesGroupsModal() {
+      el("speciesGroupsModal").hidden = true;
+    }
+
+    function addSpeciesGroup(kind) {
+      const draft = readGroupsFromEditor();
+      const used = new Set(draft.groups.map((g) => g.id));
+      const label = kind === "habitat" ? "New habitat group" : "New type group";
+      draft.groups.push({
+        id: uniqueGroupId(slugifyGroupId(label), used),
+        label,
+        kind,
+        notes: "",
+        members: [],
+      });
+      state.speciesGroups = draft;
+      renderSpeciesGroupsEditor();
+      el("speciesGroupsStatus").textContent = `Added ${kind} group — fill members, then Save in browser`;
+    }
+
+    async function loadSpeciesGroups() {
+      let shipped = { version: 1, aliases: {}, groups: [] };
+      try {
+        shipped = await (await fetch("data/species_groups.json")).json();
+      } catch (err) {
+        console.warn("species_groups.json missing", err);
+      }
+      state.speciesGroupsDefault = normalizeGroupPayload(shipped);
+      let local = null;
+      try {
+        const raw = localStorage.getItem(SPECIES_GROUPS_STORAGE_KEY);
+        if (raw) local = JSON.parse(raw);
+      } catch (err) {
+        console.warn("Bad local species groups", err);
+      }
+      if (local) {
+        setSpeciesGroups(local, { source: "browser override", silent: true });
+      } else {
+        setSpeciesGroups(state.speciesGroupsDefault, { source: "shipped defaults", silent: true });
+      }
     }
 
     function topSpeciesLabel(loc, limit = 3) {
@@ -1760,7 +2121,7 @@
         "High values mean boats spent a large fraction of that trip’s offshore time here.",
       species_fish:
         "Ranks spots by fish count for the Species filter (empty = all reported fish; " +
-        "multi-select sums selected species; Unknown fish = trips with no species breakdown). " +
+        "multi-select and type/habitat groups sum matching species; Unknown fish = trips with no species breakdown). " +
         "Counts use dwell-attributed species when available.",
       fph:
         "Average of each visit’s dock-total fish/person ÷ nominal trip hours. " +
@@ -2287,6 +2648,47 @@
       clearMultiSelect(el("speciesFilter"));
       el("speciesFilter").dispatchEvent(new Event("change", { bubbles: true }));
     });
+    el("speciesGroupsEdit").addEventListener("click", () => openSpeciesGroupsModal());
+    el("heatSpeciesGroupsEdit").addEventListener("click", () => openSpeciesGroupsModal());
+    el("speciesGroupsClose").addEventListener("click", () => closeSpeciesGroupsModal());
+    el("speciesGroupsModal").addEventListener("click", (ev) => {
+      if (ev.target === el("speciesGroupsModal")) closeSpeciesGroupsModal();
+    });
+    el("speciesGroupsAddType").addEventListener("click", () => addSpeciesGroup("type"));
+    el("speciesGroupsAddHabitat").addEventListener("click", () => addSpeciesGroup("habitat"));
+    el("speciesGroupsSave").addEventListener("click", () => {
+      setSpeciesGroups(readGroupsFromEditor(), { persist: true, source: "saved in browser" });
+      renderSpeciesGroupsEditor();
+    });
+    el("speciesGroupsExport").addEventListener("click", () => {
+      const payload = readGroupsFromEditor();
+      const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "species_groups.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      el("speciesGroupsStatus").textContent = "Exported species_groups.json — send via FEEDBACK or replace docs/data/species_groups.json";
+    });
+    el("speciesGroupsImportBtn").addEventListener("click", () => el("speciesGroupsImport").click());
+    el("speciesGroupsImport").addEventListener("change", async (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        setSpeciesGroups(JSON.parse(text), { persist: true, source: `imported ${file.name}` });
+        renderSpeciesGroupsEditor();
+      } catch (err) {
+        el("speciesGroupsStatus").textContent = `Import failed: ${err.message}`;
+      }
+      ev.target.value = "";
+    });
+    el("speciesGroupsReset").addEventListener("click", () => {
+      try { localStorage.removeItem(SPECIES_GROUPS_STORAGE_KEY); } catch (_) {}
+      setSpeciesGroups(state.speciesGroupsDefault || { groups: [] }, { source: "shipped defaults" });
+      renderSpeciesGroupsEditor();
+    });
     el("sortBy").addEventListener("change", () => {
       state.selectedId = null;
       updateSortNote();
@@ -2349,6 +2751,7 @@
       el("methodNote").textContent =
         `Spots = AIS offshore stops clustered within ${ft} ft (${meta.ais_window.start}→${meta.ais_window.end}). ` +
         `Multi-select boats/species (⌘/Ctrl+click; empty = all; species match any). ` +
+        `Species filter includes type/habitat groups (edit via Groups). ` +
         `Trips with no breakdown = ${UNKNOWN_FISH}. ` +
         `Sort by dwell-attributed FPH, mean dwell share, species fish count, trip FPH/FPP, dwell, or boat-days. ` +
         `${meta.stats.n_features || meta.stats.n_locations || "?"} spots · ${meta.stats.n_offshore_stops} stops.`;
@@ -2356,7 +2759,7 @@
       const locData = await (await fetch(`data/locations.json?v=${cacheBust}`)).json();
       state.locations = locData.locations || [];
 
-      // Build species dropdown from reported catch (plus Unknown fish).
+      // Build species catalog from reported catch (plus Unknown fish / groups).
       const speciesSet = new Set();
       let unknownVisits = 0;
       for (const loc of state.locations) {
@@ -2368,12 +2771,9 @@
           for (const s of v.species) speciesSet.add(normalizeSpecies(s.species));
         }
       }
-      const speciesNames = [...speciesSet].sort((a, b) => a.localeCompare(b));
-      el("speciesFilter").innerHTML =
-        `<option value="${UNKNOWN_FISH}">${UNKNOWN_FISH}${unknownVisits ? ` (${unknownVisits} visits)` : ""}</option>` +
-        speciesNames.map((s) => `<option value="${s}">${s}</option>`).join("");
-      el("heatSpeciesFilter").innerHTML = el("speciesFilter").innerHTML;
-      syncAllMultiSummaries();
+      state.speciesCatalog = [...speciesSet].sort((a, b) => a.localeCompare(b));
+      state.unknownSpeciesVisits = unknownVisits;
+      await loadSpeciesGroups();
 
       // Dense day list for the spots slider: report dates inside the AIS window.
       const aisStart = meta.ais_window?.start || "2015-01-01";

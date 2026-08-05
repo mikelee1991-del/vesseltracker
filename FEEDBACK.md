@@ -213,3 +213,23 @@ Notes:
 ## Free-form notes
 
 -
+
+## Species groups (type & habitat)
+
+Shipped defaults live in [`docs/data/species_groups.json`](docs/data/species_groups.json).
+The map UI **Groups** button (next to Species on Spots / Heatmap) lets you:
+
+1. Edit type buckets (Rockfish, Bass, Flatfish, …) and habitat buckets (Bottom / Kelp / Surface / Bay)
+2. **Save in browser** (localStorage override)
+3. **Export JSON** — paste or attach here / open a PR replacing `species_groups.json`
+4. **Import JSON** / **Reset to shipped defaults**
+
+First-pass notes (please correct):
+
+- SoCal dock “Red Snapper” and “Salmon Grouper” are treated as rockfish-complex labels
+- “Whitefish” is its own type but also Bottom habitat
+- Calico Bass is kelp/midwater; Sand Bass is both bass type and bottom/bay
+- Surface/pelagic includes yellowtail, bonito, barracuda, tunas, dorado, white seabass, mackerels, pelagic sharks
+
+Unassigned uncommon names still appear under **Individual species** in the filter.
+
