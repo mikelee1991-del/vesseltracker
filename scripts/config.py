@@ -85,7 +85,6 @@ REQUEST_SLEEP_SEC = 0.35
 # Explicit AIS vessel_name (normalized) -> report boat name.
 # Only exact normalized equality or these aliases are accepted (no fuzzy substring).
 VESSEL_ALIASES = {
-    "REDONDO": "Redondo Special",
     "PATRIOT": "Patriot (Newport)",
     "BETTYO": "Betty-O",
     "BETTYG": "Betty-G",
@@ -98,6 +97,13 @@ VESSEL_ALIASES = {
     "MONTECARLO": "Monte Carlo",
     "ELPATRON": "El Patron",
     "DANAPRIDE": "Dana Pride",
+}
+
+# Normalized AIS vessel_name keys that must never map to a report boat.
+# Used after alias/shortening so e.g. Redondo Special → REDONDO cannot claim the
+# Long Beach towing vessel that broadcasts "REDONDO".
+ACCEPTED_NAME_DENYLIST = {
+    "REDONDO",  # tug / towing vessel; charter AIS broadcast name still unknown
 }
 
 # MMSIs rejected after inspection (same name as a charter, but wrong vessel).
@@ -118,6 +124,7 @@ MMSI_DENYLIST = {
     338424198,  # PATRIOT recreational near MDR — Newport Patriot AIS name unconfirmed
     338429048,  # CURRENT — not Dana Wharf charter (moors ~San Pedro outer; weak trip overlap)
     338477409,  # FURY recreational (len 13; only 3 AIS days)
+    366760710,  # REDONDO — Long Beach towing vessel (type 1012), not Redondo Beach charter
     # Note: 366849310 DANA PRIDE is allowlisted for report boat "Dana Pride" only;
     # it must never map to San Pedro "Pride".
 }
@@ -125,7 +132,6 @@ MMSI_DENYLIST = {
 # Preferred MMSIs when known (wins over heuristic).
 MMSI_ALLOWLIST = {
     366855060,  # NEW DEL MAR
-    366760710,  # REDONDO / Redondo Special
     366977270,  # VICTORY
     367621160,  # FREEDOM (San Pedro)
     367550710,  # TRITON (San Pedro sportfisher)
@@ -151,7 +157,6 @@ MMSI_ALLOWLIST = {
 # MMSI_ALLOWLIST / FEEDBACK.md (scripts/apply_mmsi_feedback.py updates both).
 MMSI_TO_REPORT_BOAT = {
     366855060: "New Del Mar",
-    366760710: "Redondo Special",
     366977270: "Victory",
     367621160: "Freedom",
     367550710: "Triton",

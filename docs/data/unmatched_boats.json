@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-08-03T06:07:57.017933+00:00",
+  "generated_at": "2026-08-04T17:04:01.391718+00:00",
   "focus_ports": [
     "Redondo Beach",
     "San Pedro"
   ],
   "instructions": "Confirm an MMSI only if you know it is that charter\u2019s AIS identity (hull, FCC/USCG docs, MarineTraffic track that matches trip days, or captain/landing confirmation). Include the AIS broadcast name if it differs from the dock-total name. Download JSON and send it back or run scripts/apply_mmsi_feedback.py.",
   "stats": {
-    "n_unmatched_boats": 82,
-    "n_unmatched_focus_boats": 34,
-    "n_unmatched_focus_trips": 30342,
-    "n_matched_focus_boats": 15
+    "n_unmatched_boats": 83,
+    "n_unmatched_focus_boats": 35,
+    "n_unmatched_focus_trips": 38035,
+    "n_matched_focus_boats": 14
   },
   "unmatched": [
     {
@@ -33,6 +33,26 @@
       "lookup": {
         "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Sum+Fun",
         "vesselfinder": "https://www.vesselfinder.com/vessels?name=Sum+Fun"
+      },
+      "search_hints": [],
+      "status": "unmatched"
+    },
+    {
+      "report_boat": "Redondo Special",
+      "n_trips": 7693,
+      "cities": [
+        "Redondo Beach"
+      ],
+      "landings": [
+        {
+          "name": "Redondo Beach Sportfishing",
+          "n": 7693
+        }
+      ],
+      "priority": "focus",
+      "lookup": {
+        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Redondo+Special",
+        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Redondo+Special"
       },
       "search_hints": [],
       "status": "unmatched"
@@ -1865,27 +1885,6 @@
     }
   ],
   "matched_focus": [
-    {
-      "report_boat": "Redondo Special",
-      "n_trips": 7693,
-      "cities": [
-        "Redondo Beach"
-      ],
-      "landings": [
-        {
-          "name": "Redondo Beach Sportfishing",
-          "n": 7693
-        }
-      ],
-      "priority": "focus",
-      "lookup": {
-        "marinetraffic": "https://www.marinetraffic.com/en/ais/index/search/all?keyword=Redondo+Special",
-        "vesselfinder": "https://www.vesselfinder.com/vessels?name=Redondo+Special"
-      },
-      "search_hints": [],
-      "status": "matched",
-      "mmsi": 366760710
-    },
     {
       "report_boat": "Monte Carlo",
       "n_trips": 7377,
