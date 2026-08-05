@@ -133,6 +133,32 @@
       width: 100%; font: inherit; padding: 0.5rem 0.65rem;
       border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink);
     }
+    select.multi {
+      min-height: 7.2rem;
+      padding: 0.3rem;
+      line-height: 1.25;
+    }
+    select.multi option {
+      padding: 0.28rem 0.45rem;
+      border-radius: 4px;
+    }
+    select.multi option:checked {
+      background: linear-gradient(0deg, rgba(23,104,122,0.22), rgba(23,104,122,0.22));
+      color: var(--ink);
+    }
+    .multi-head {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 0.45rem;
+      margin-bottom: 0.28rem;
+    }
+    .multi-head label { margin-bottom: 0; }
+    button.linkish {
+      width: auto; padding: 0.12rem 0.4rem; font-size: 0.72rem; font-weight: 600;
+      background: transparent; color: var(--sea-mid); border: 1px solid transparent;
+    }
+    button.linkish:hover { border-color: var(--line); background: rgba(23,104,122,0.06); }
+    .hint {
+      font-size: 0.72rem; color: rgba(19,32,43,0.6); margin: 0.28rem 0 0; line-height: 1.3;
+    }
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
     button {
       cursor: pointer; background: var(--sea); color: #f4fafb; border-color: var(--sea); font-weight: 600;
@@ -305,12 +331,20 @@
               </div>
             </div>
             <div>
-              <label for="boatFilter">Boat</label>
-              <select id="boatFilter"><option value="">All boats</option></select>
+              <div class="multi-head">
+                <label for="boatFilter">Boat <span class="meta" id="boatFilterSummary">all</span></label>
+                <button type="button" class="linkish" id="boatFilterClear" title="Clear boat selection">Clear</button>
+              </div>
+              <select id="boatFilter" class="multi" multiple size="6" aria-label="Boats (multi-select)"></select>
+              <p class="hint">⌘/Ctrl+click · empty = all boats</p>
             </div>
             <div>
-              <label for="speciesFilter">Species</label>
-              <select id="speciesFilter"><option value="">All species</option></select>
+              <div class="multi-head">
+                <label for="speciesFilter">Species <span class="meta" id="speciesFilterSummary">all</span></label>
+                <button type="button" class="linkish" id="speciesFilterClear" title="Clear species selection">Clear</button>
+              </div>
+              <select id="speciesFilter" class="multi" multiple size="7" aria-label="Species (multi-select)"></select>
+              <p class="hint">⌘/Ctrl+click · empty = all species · match any selected</p>
             </div>
             <div>
               <label for="sortBy">Sort spots</label>
@@ -365,8 +399,12 @@
               </div>
             </div>
             <div>
-              <label for="courseBoatFilter">Boat</label>
-              <select id="courseBoatFilter"><option value="">All boats</option></select>
+              <div class="multi-head">
+                <label for="courseBoatFilter">Boat <span class="meta" id="courseBoatFilterSummary">all</span></label>
+                <button type="button" class="linkish" id="courseBoatFilterClear" title="Clear boat selection">Clear</button>
+              </div>
+              <select id="courseBoatFilter" class="multi" multiple size="6" aria-label="Course boats (multi-select)"></select>
+              <p class="hint">⌘/Ctrl+click · empty = all boats</p>
             </div>
             <div>
               <label for="courseOpacity">Path opacity</label>
@@ -412,12 +450,20 @@
               </div>
             </div>
             <div>
-              <label for="heatBoatFilter">Boat</label>
-              <select id="heatBoatFilter"><option value="">All boats</option></select>
+              <div class="multi-head">
+                <label for="heatBoatFilter">Boat <span class="meta" id="heatBoatFilterSummary">all</span></label>
+                <button type="button" class="linkish" id="heatBoatFilterClear" title="Clear boat selection">Clear</button>
+              </div>
+              <select id="heatBoatFilter" class="multi" multiple size="6" aria-label="Heatmap boats (multi-select)"></select>
+              <p class="hint">⌘/Ctrl+click · empty = all boats</p>
             </div>
             <div>
-              <label for="heatSpeciesFilter">Species</label>
-              <select id="heatSpeciesFilter"><option value="">All species</option></select>
+              <div class="multi-head">
+                <label for="heatSpeciesFilter">Species <span class="meta" id="heatSpeciesFilterSummary">all</span></label>
+                <button type="button" class="linkish" id="heatSpeciesFilterClear" title="Clear species selection">Clear</button>
+              </div>
+              <select id="heatSpeciesFilter" class="multi" multiple size="7" aria-label="Heatmap species (multi-select)"></select>
+              <p class="hint">⌘/Ctrl+click · empty = all species · match any selected</p>
             </div>
             <div>
               <label for="heatMetric">Intensity metric</label>
@@ -431,12 +477,12 @@
             </div>
             <div class="row2">
               <div>
-                <label for="heatRadius">Radius</label>
-                <input id="heatRadius" type="range" min="8" max="60" value="25" />
+                <label for="heatRadius">Radius <span class="meta" id="heatRadiusVal">8 px</span></label>
+                <input id="heatRadius" type="range" min="4" max="40" value="8" />
               </div>
               <div>
-                <label for="heatBlur">Blur</label>
-                <input id="heatBlur" type="range" min="8" max="50" value="18" />
+                <label for="heatBlur">Blur <span class="meta" id="heatBlurVal">8 px</span></label>
+                <input id="heatBlur" type="range" min="3" max="35" value="8" />
               </div>
             </div>
             <div>
@@ -465,7 +511,8 @@
           </div>
           <p class="note">
             Heat intensity sums filtered visits at each AIS cluster (same aggregation as Spots “All days”).
-            Cool → hot = low → high for the selected metric. Narrow dates or pick a boat/species to focus the overlay.
+            Cool → hot = low → high for the selected metric. Default radius/blur stay sharp; the overlay
+            tightens further when you zoom in or when spots are well separated. Raise the sliders only to soft-merge dense areas.
           </p>
           <div id="heatList"></div>
         </div>
@@ -583,8 +630,8 @@
           <ul>
             <li><strong>Date range</strong> — dual slider on Spots (All days), Courses, and Heatmap; re-aggregates visits inside the window</li>
             <li><strong>One day</strong> (Spots) — loads that day’s join file only</li>
-            <li><strong>Boat</strong> — keep visits/courses for one vessel</li>
-            <li><strong>Species</strong> — keep visits that include that species (or Unknown fish)</li>
+            <li><strong>Boat</strong> — multi-select (⌘/Ctrl+click); empty = all; keep visits/courses for any selected vessel</li>
+            <li><strong>Species</strong> — multi-select; empty = all; keep visits that include any selected species (or Unknown fish)</li>
             <li><strong>Sort spots</strong> — dwell-attributed FPH, mean dwell share, species fish count, trip FPH/FPP, total dwell, boat-days</li>
             <li><strong>Reset</strong> — clears filters/controls and returns to Spots / All days</li>
           </ul>
@@ -593,7 +640,7 @@
           <ul>
             <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH</li>
             <li><strong>Courses</strong> — schematic polylines home → stops (time order) → home (not raw AIS tracks). Up to 2,500 paths drawn per filter for performance</li>
-            <li><strong>Heatmap</strong> — density of the same clustered spots; intensity = dwell, boat-days, attributed fish, dwell FPH, or trip FPP</li>
+            <li><strong>Heatmap</strong> — density of the same clustered spots; intensity = dwell, boat-days, attributed fish, dwell FPH, or trip FPP. Default kernel is sharp (8 px radius/blur) and tightens further on zoom or when spots are well separated</li>
           </ul>
 
           <h2 id="m-limits">Known limits</h2>
@@ -857,7 +904,10 @@
         state.heatMarkerLayer.bringToFront();
       }
     }
-    map.on("zoomend", syncBathyForZoom);
+    map.on("zoomend", () => {
+      syncBathyForZoom();
+      if (state.tab === "heat") scheduleRender(renderHeatView, 80);
+    });
     syncBathyForZoom();
 
     function fphColor(fph) {
@@ -968,6 +1018,37 @@
       return SPECIES_ALIASES[raw] || raw;
     }
 
+    function selectedValues(selectEl) {
+      if (!selectEl) return [];
+      return [...selectEl.selectedOptions].map((o) => o.value).filter((v) => v !== "");
+    }
+
+    function clearMultiSelect(selectEl) {
+      if (!selectEl) return;
+      [...selectEl.options].forEach((o) => { o.selected = false; });
+    }
+
+    function selectionSummary(values, emptyLabel = "all") {
+      if (!values.length) return emptyLabel;
+      if (values.length === 1) return values[0];
+      if (values.length === 2) return values.join(", ");
+      return `${values[0]} +${values.length - 1}`;
+    }
+
+    function syncMultiSummary(selectId, summaryId) {
+      const summary = el(summaryId);
+      if (!summary) return;
+      summary.textContent = selectionSummary(selectedValues(el(selectId)));
+    }
+
+    function syncAllMultiSummaries() {
+      syncMultiSummary("boatFilter", "boatFilterSummary");
+      syncMultiSummary("speciesFilter", "speciesFilterSummary");
+      syncMultiSummary("courseBoatFilter", "courseBoatFilterSummary");
+      syncMultiSummary("heatBoatFilter", "heatBoatFilterSummary");
+      syncMultiSummary("heatSpeciesFilter", "heatSpeciesFilterSummary");
+    }
+
     function visitHasSpeciesBreakdown(v) {
       return Array.isArray(v.species) && v.species.length > 0;
     }
@@ -993,12 +1074,36 @@
       return into;
     }
 
-    function speciesFishForLoc(loc, speciesKey) {
+    function asSpeciesKeys(speciesKeyOrKeys) {
+      if (Array.isArray(speciesKeyOrKeys)) return speciesKeyOrKeys.filter(Boolean);
+      if (speciesKeyOrKeys) return [speciesKeyOrKeys];
+      return [];
+    }
+
+    function visitMatchesSpeciesKeys(v, speciesKeys) {
+      const keys = asSpeciesKeys(speciesKeys);
+      if (!keys.length) return true;
+      const wantsUnknown = keys.includes(UNKNOWN_FISH);
+      const named = keys.filter((k) => k !== UNKNOWN_FISH);
+      if (!named.length) return !visitHasSpeciesBreakdown(v);
+      if (wantsUnknown && !visitHasSpeciesBreakdown(v)) return true;
+      const counts = visitSpeciesCounts(v);
+      return named.some((k) => (counts[k] || 0) > 0 || Object.prototype.hasOwnProperty.call(counts, k));
+    }
+
+    function speciesFishForLoc(loc, speciesKeyOrKeys) {
       const counts = loc.species_counts || {};
-      if (!speciesKey) {
+      const keys = asSpeciesKeys(speciesKeyOrKeys);
+      if (!keys.length) {
         return Object.values(counts).reduce((a, b) => a + b, 0);
       }
-      return counts[speciesKey] || 0;
+      return keys.reduce((sum, k) => sum + (counts[k] || 0), 0);
+    }
+
+    function speciesFilterLabel(speciesKeys) {
+      const keys = asSpeciesKeys(speciesKeys);
+      if (!keys.length) return "";
+      return ` · ${selectionSummary(keys)}`;
     }
 
     function topSpeciesLabel(loc, limit = 3) {
@@ -1060,11 +1165,11 @@
       return syncDualRange("heat");
     }
 
-    function heatIntensity(loc, metric, speciesKey) {
+    function heatIntensity(loc, metric, speciesKeys) {
       if (metric === "dwell") return loc.total_dwell_min || 0;
       if (metric === "visits") return loc.n_boat_days || 0;
       if (metric === "fish") {
-        if (speciesKey) return speciesFishForLoc(loc, speciesKey);
+        if (asSpeciesKeys(speciesKeys).length) return speciesFishForLoc(loc, speciesKeys);
         const fromVisits = (loc.visits || []).reduce((a, v) => a + (Number(v.attributed_fish) || 0), 0);
         if (fromVisits > 0) return fromVisits;
         return Object.values(loc.species_counts || {}).reduce((a, b) => a + b, 0);
@@ -1075,16 +1180,9 @@
     }
 
     function locationsForHeat() {
-      const boat = el("heatBoatFilter").value;
-      const speciesKey = el("heatSpeciesFilter").value;
+      const boats = selectedValues(el("heatBoatFilter"));
+      const speciesKeys = selectedValues(el("heatSpeciesFilter"));
       const { start, end } = heatDateBounds();
-
-      function visitMatchesSpecies(v) {
-        if (!speciesKey) return true;
-        if (speciesKey === UNKNOWN_FISH) return !visitHasSpeciesBreakdown(v);
-        const counts = visitSpeciesCounts(v);
-        return (counts[speciesKey] || 0) > 0 || Object.prototype.hasOwnProperty.call(counts, speciesKey);
-      }
 
       return state.locations
         .map((loc) => {
@@ -1094,8 +1192,8 @@
           if (start || end) {
             visits = visits.filter((v) => (!start || v.date >= start) && (!end || v.date <= end));
           }
-          if (boat) visits = visits.filter((v) => v.boat_name === boat);
-          if (speciesKey) visits = visits.filter(visitMatchesSpecies);
+          if (boats.length) visits = visits.filter((v) => boats.includes(v.boat_name));
+          if (speciesKeys.length) visits = visits.filter((v) => visitMatchesSpeciesKeys(v, speciesKeys));
           if (!visits.length) return null;
           return aggregateFromVisits(loc, visits);
         })
@@ -1108,20 +1206,75 @@
       return sorted[idx];
     }
 
+    /** Tighten heat kernels when zoomed in or spots are well separated (higher effective resolution). */
+    function heatKernelPx(baseRadius, baseBlur, points) {
+      const zoom = map.getZoom();
+      // Prefer sharper kernels as zoom rises (leaflet.heat radius is screen pixels).
+      const zoomT = Math.max(0, Math.min(1, (zoom - 10) / 5));
+      let radius = baseRadius * (1 - 0.35 * zoomT);
+      let blur = baseBlur * (1 - 0.4 * zoomT);
+
+      // If median nearest-neighbor gap on screen ≫ kernel, shrink further so blobs don't smear.
+      if (points.length >= 8) {
+        const sample = points.length > 120
+          ? points.filter((_, i) => i % Math.ceil(points.length / 120) === 0)
+          : points;
+        const gaps = [];
+        for (let i = 0; i < sample.length; i++) {
+          let best = Infinity;
+          const a = map.latLngToLayerPoint([sample[i][0], sample[i][1]]);
+          for (let j = 0; j < sample.length; j++) {
+            if (i === j) continue;
+            const b = map.latLngToLayerPoint([sample[j][0], sample[j][1]]);
+            const d = Math.hypot(a.x - b.x, a.y - b.y);
+            if (d < best) best = d;
+          }
+          if (Number.isFinite(best)) gaps.push(best);
+        }
+        gaps.sort((a, b) => a - b);
+        const medianGap = gaps[Math.floor(gaps.length / 2)] || 0;
+        if (medianGap > 2.5 * baseRadius) {
+          const room = Math.min(0.45, (medianGap / baseRadius - 2.5) / 8);
+          radius *= 1 - room;
+          blur *= 1 - room;
+        }
+      }
+
+      return {
+        radius: Math.max(3, Math.round(radius)),
+        blur: Math.max(2, Math.round(blur)),
+      };
+    }
+
+    function syncHeatKernelLabels(baseRadius, baseBlur, effective) {
+      const rEl = el("heatRadiusVal");
+      const bEl = el("heatBlurVal");
+      if (rEl) {
+        rEl.textContent = effective && effective.radius !== baseRadius
+          ? `${baseRadius} → ${effective.radius} px`
+          : `${baseRadius} px`;
+      }
+      if (bEl) {
+        bEl.textContent = effective && effective.blur !== baseBlur
+          ? `${baseBlur} → ${effective.blur} px`
+          : `${baseBlur} px`;
+      }
+    }
+
     function renderHeatView() {
       clearHeat();
       clearMarkers();
       clearCourses();
       const locs = locationsForHeat();
       const metric = el("heatMetric").value;
-      const speciesKey = el("heatSpeciesFilter").value;
-      const radius = Number(el("heatRadius").value) || 25;
-      const blur = Number(el("heatBlur").value) || 18;
+      const speciesKeys = selectedValues(el("heatSpeciesFilter"));
+      const baseRadius = Number(el("heatRadius").value) || 8;
+      const baseBlur = Number(el("heatBlur").value) || 8;
       const maxScale = Number(el("heatMax").value) || 0.6;
       const showMarkers = el("heatShowMarkers").checked;
 
       const scored = locs.map((loc) => {
-        const intensity = heatIntensity(loc, metric, speciesKey);
+        const intensity = heatIntensity(loc, metric, speciesKeys);
         return { loc, intensity };
       }).filter((x) => x.intensity > 0 && x.loc.lat != null && x.loc.lon != null);
 
@@ -1129,12 +1282,15 @@
       const p95 = percentile(intensities, 0.95) || intensities[intensities.length - 1] || 1;
       const maxVal = Math.max(p95 * maxScale, 1e-6);
       const points = scored.map(({ loc, intensity }) => [loc.lat, loc.lon, intensity]);
+      const { radius, blur } = heatKernelPx(baseRadius, baseBlur, points);
+      syncHeatKernelLabels(baseRadius, baseBlur, { radius, blur });
 
       if (points.length && typeof L.heatLayer === "function") {
         state.heatLayer = L.heatLayer(points, {
           radius,
           blur,
-          maxZoom: 17,
+          maxZoom: 18,
+          minOpacity: 0.35,
           max: maxVal,
           gradient: {
             0.0: "#0b3d4a",
@@ -1192,9 +1348,9 @@
       });
 
       const { start, end } = heatDateBounds();
-      const speciesLabel = speciesKey ? ` · ${speciesKey}` : "";
+      syncAllMultiSummaries();
       el("heatStatus").textContent =
-        `${start || "?"} → ${end || "?"}${speciesLabel} · ${scored.length} hot spot(s) · metric ${metric}` +
+        `${start || "?"} → ${end || "?"}${speciesFilterLabel(speciesKeys)} · ${scored.length} hot spot(s) · metric ${metric}` +
         (typeof L.heatLayer !== "function" ? " · heat plugin missing" : "");
 
       if (points.length && !state.hasFittedBounds) {
@@ -1204,22 +1360,15 @@
     }
 
     function currentLocations() {
-      const boat = el("boatFilter").value;
-      const speciesKey = el("speciesFilter").value;
+      const boats = selectedValues(el("boatFilter"));
+      const speciesKeys = selectedValues(el("speciesFilter"));
       const { start, end } = spotsDateBounds();
       let locs = state.locations;
-
-      function visitMatchesSpecies(v) {
-        if (!speciesKey) return true;
-        if (speciesKey === UNKNOWN_FISH) return !visitHasSpeciesBreakdown(v);
-        const counts = visitSpeciesCounts(v);
-        return (counts[speciesKey] || 0) > 0 || Object.prototype.hasOwnProperty.call(counts, speciesKey);
-      }
 
       if (state.mode === "day" && state.dayPayload) {
         const mapLoc = new Map();
         for (const t of state.dayPayload.trips) {
-          if (boat && t.boat_name !== boat) continue;
+          if (boats.length && !boats.includes(t.boat_name)) continue;
           const attrs = t.feature_attributions || [];
           if (attrs.length) {
             for (const a of attrs) {
@@ -1236,7 +1385,7 @@
                 attributed_angler_hours: a.attributed_angler_hours,
                 species: a.attributed_species || t.species || [],
               };
-              if (!visitMatchesSpecies(visit)) continue;
+              if (!visitMatchesSpeciesKeys(visit, speciesKeys)) continue;
               const fid = a.feature_id;
               let loc = mapLoc.get(fid);
               if (!loc) {
@@ -1269,7 +1418,7 @@
               total_fish_kept: t.total_fish_kept, duration_min: s.duration_min,
               dwell_share: s.dwell_share, species: t.species || [],
             };
-            if (!visitMatchesSpecies(visit)) continue;
+            if (!visitMatchesSpeciesKeys(visit, speciesKeys)) continue;
             const fid = s.feature_id || s.grid_id || `pt_${s.lat.toFixed(3)}_${s.lon.toFixed(3)}`;
             let loc = mapLoc.get(fid);
             if (!loc) {
@@ -1314,8 +1463,8 @@
             if (start || end) {
               visits = visits.filter((v) => (!start || v.date >= start) && (!end || v.date <= end));
             }
-            if (boat) visits = visits.filter((v) => v.boat_name === boat);
-            if (speciesKey) visits = visits.filter(visitMatchesSpecies);
+            if (boats.length) visits = visits.filter((v) => boats.includes(v.boat_name));
+            if (speciesKeys.length) visits = visits.filter((v) => visitMatchesSpeciesKeys(v, speciesKeys));
             if (!visits.length) return null;
             return aggregateFromVisits(loc, visits);
           })
@@ -1331,7 +1480,7 @@
           return (b.mean_dwell_share || -1) - (a.mean_dwell_share || -1);
         }
         if (sortBy === "species_fish") {
-          return speciesFishForLoc(b, speciesKey) - speciesFishForLoc(a, speciesKey);
+          return speciesFishForLoc(b, speciesKeys) - speciesFishForLoc(a, speciesKeys);
         }
         if (sortBy === "dwell_fph") {
           return (b.dwell_attributed_fph || -1) - (a.dwell_attributed_fph || -1);
@@ -1349,8 +1498,9 @@
         "Mean of dwell_share = spot_dwell / total_offshore_dwell for each visit. " +
         "High values mean boats spent a large fraction of that trip’s offshore time here.",
       species_fish:
-        "Ranks spots by fish count for the Species filter (All = all reported fish; " +
-        "Unknown fish = trips with no species breakdown). Counts use dwell-attributed species when available.",
+        "Ranks spots by fish count for the Species filter (empty = all reported fish; " +
+        "multi-select sums selected species; Unknown fish = trips with no species breakdown). " +
+        "Counts use dwell-attributed species when available.",
       fph:
         "Average of each visit’s dock-total fish/person ÷ nominal trip hours. " +
         "Whole-trip rate — not split across stops.",
@@ -1368,10 +1518,10 @@
     }
 
     function currentCourses() {
-      const boat = el("courseBoatFilter").value;
+      const boats = selectedValues(el("courseBoatFilter"));
       const { start, end } = coursesDateBounds();
       return state.courses.filter((c) => {
-        if (boat && c.boat_name !== boat) return false;
+        if (boats.length && !boats.includes(c.boat_name)) return false;
         if (start && c.date < start) return false;
         if (end && c.date > end) return false;
         return true;
@@ -1379,11 +1529,11 @@
     }
 
     function showLocationList(locs) {
-      const speciesKey = el("speciesFilter").value;
+      const speciesKeys = selectedValues(el("speciesFilter"));
       el("list").innerHTML = locs.slice(0, 80).map((loc) => {
-        const speciesCount = speciesFishForLoc(loc, speciesKey);
-        const speciesLine = speciesKey
-          ? `<span class="fpp">${fmt(speciesCount, 0)} ${speciesKey}</span>`
+        const speciesCount = speciesFishForLoc(loc, speciesKeys);
+        const speciesLine = speciesKeys.length
+          ? `<span class="fpp">${fmt(speciesCount, 0)} ${selectionSummary(speciesKeys)}</span>`
           : `<span class="meta">${topSpeciesLabel(loc)}</span>`;
         return `
         <article class="loc ${state.selectedId === locId(loc) ? "selected" : ""}" data-id="${locId(loc)}">
@@ -1581,14 +1731,14 @@
 
     function renderSpots() {
       const locs = currentLocations();
-      const speciesKey = el("speciesFilter").value;
+      const speciesKeys = selectedValues(el("speciesFilter"));
       const sortBy = el("sortBy").value;
       const fphs = locs.map((l) => l.dwell_attributed_fph).filter((x) => x != null);
       el("statLocs").textContent = String(locs.length);
       el("statStops").textContent = String(locs.reduce((a, l) => a + (l.n_stops || 0), 0));
-      if (sortBy === "species_fish" || speciesKey) {
-        const total = locs.reduce((a, l) => a + speciesFishForLoc(l, speciesKey), 0);
-        el("statThirdLabel").textContent = speciesKey ? speciesKey : "Fish*";
+      if (sortBy === "species_fish" || speciesKeys.length) {
+        const total = locs.reduce((a, l) => a + speciesFishForLoc(l, speciesKeys), 0);
+        el("statThirdLabel").textContent = speciesKeys.length ? selectionSummary(speciesKeys, "Fish*") : "Fish*";
         el("statFph").textContent = fmt(total, 0);
       } else {
         el("statThirdLabel").textContent = "Mean FPH*";
@@ -1606,8 +1756,8 @@
         ? el("day").value
         : `${start || "?"} → ${end || "?"}`;
       const ft = state.meta.feature_cluster_radius_ft || 50;
-      const speciesLabel = speciesKey ? ` · ${speciesKey}` : "";
-      el("status").textContent = `${modeLabel}${speciesLabel} · ${locs.length} spot(s) · ≤${ft} ft clusters`;
+      syncAllMultiSummaries();
+      el("status").textContent = `${modeLabel}${speciesFilterLabel(speciesKeys)} · ${locs.length} spot(s) · ≤${ft} ft clusters`;
     }
 
     function renderCoursesView() {
@@ -1617,8 +1767,10 @@
       }
       const courses = currentCourses();
       const { start, end } = coursesDateBounds();
+      const boats = selectedValues(el("courseBoatFilter"));
+      syncMultiSummary("courseBoatFilter", "courseBoatFilterSummary");
       el("courseStatus").textContent =
-        `${start || "?"} → ${end || "?"} · ${courses.length.toLocaleString()} course(s)` +
+        `${start || "?"} → ${end || "?"}${boats.length ? ` · ${selectionSummary(boats)}` : ""} · ${courses.length.toLocaleString()} course(s)` +
         (courses.length > MAX_COURSES_DRAWN
           ? ` · drawing last ${MAX_COURSES_DRAWN.toLocaleString()}`
           : "");
@@ -1715,8 +1867,9 @@
           ? data.dates
           : [...new Set(state.courses.map((c) => c.date))].sort();
         const boats = [...new Set(state.courses.map((c) => c.boat_name))].sort();
-        el("courseBoatFilter").innerHTML = '<option value="">All boats</option>' +
+        el("courseBoatFilter").innerHTML =
           boats.map((b) => `<option value="${b}">${b}</option>`).join("");
+        syncMultiSummary("courseBoatFilter", "courseBoatFilterSummary");
         setupDualRange("courses", state.courseDates, () => scheduleRender(renderCoursesView, 100));
         state.coursesLoaded = true;
         el("courseStatus").textContent = `${state.courses.length.toLocaleString()} courses ready`;
@@ -1786,27 +1939,29 @@
 
     function hardReset() {
       // Spots filters
-      el("boatFilter").value = "";
-      el("speciesFilter").value = "";
+      clearMultiSelect(el("boatFilter"));
+      clearMultiSelect(el("speciesFilter"));
       el("sortBy").value = "dwell_fph";
       updateSortNote();
       resetDualRange("spots");
       if (state.meta?.default_date) el("day").value = state.meta.default_date;
 
       // Courses filters
-      if (el("courseBoatFilter")) el("courseBoatFilter").value = "";
+      clearMultiSelect(el("courseBoatFilter"));
       if (el("courseOpacity")) el("courseOpacity").value = "22";
       resetDualRange("courses");
 
       // Heatmap filters
-      if (el("heatBoatFilter")) el("heatBoatFilter").value = "";
-      if (el("heatSpeciesFilter")) el("heatSpeciesFilter").value = "";
+      clearMultiSelect(el("heatBoatFilter"));
+      clearMultiSelect(el("heatSpeciesFilter"));
       if (el("heatMetric")) el("heatMetric").value = "dwell";
-      if (el("heatRadius")) el("heatRadius").value = "25";
-      if (el("heatBlur")) el("heatBlur").value = "18";
+      if (el("heatRadius")) el("heatRadius").value = "8";
+      if (el("heatBlur")) el("heatBlur").value = "8";
       if (el("heatMax")) el("heatMax").value = "0.6";
       if (el("heatShowMarkers")) el("heatShowMarkers").checked = false;
+      syncHeatKernelLabels(8, 8, null);
       resetDualRange("heat");
+      syncAllMultiSummaries();
 
       state.selectedId = null;
       state.selectedCourseKey = null;
@@ -1833,11 +1988,24 @@
     el("hardReset").addEventListener("click", () => hardReset());
     el("modeAll").addEventListener("click", () => setMode("all"));
     el("modeDay").addEventListener("click", () => setMode("day"));
-    el("boatFilter").addEventListener("change", () => { state.selectedId = null; renderSpots(); });
+    el("boatFilter").addEventListener("change", () => {
+      syncMultiSummary("boatFilter", "boatFilterSummary");
+      state.selectedId = null;
+      renderSpots();
+    });
     el("speciesFilter").addEventListener("change", () => {
+      syncMultiSummary("speciesFilter", "speciesFilterSummary");
       state.selectedId = null;
       updateSortNote();
       renderSpots();
+    });
+    el("boatFilterClear").addEventListener("click", () => {
+      clearMultiSelect(el("boatFilter"));
+      el("boatFilter").dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    el("speciesFilterClear").addEventListener("click", () => {
+      clearMultiSelect(el("speciesFilter"));
+      el("speciesFilter").dispatchEvent(new Event("change", { bubbles: true }));
     });
     el("sortBy").addEventListener("change", () => {
       state.selectedId = null;
@@ -1845,12 +2013,31 @@
       renderSpots();
     });
     el("courseBoatFilter").addEventListener("change", () => {
+      syncMultiSummary("courseBoatFilter", "courseBoatFilterSummary");
       state.selectedCourseKey = null;
       renderCoursesView();
     });
+    el("courseBoatFilterClear").addEventListener("click", () => {
+      clearMultiSelect(el("courseBoatFilter"));
+      el("courseBoatFilter").dispatchEvent(new Event("change", { bubbles: true }));
+    });
     el("courseOpacity").addEventListener("input", () => scheduleRender(renderCoursesView, 60));
-    el("heatBoatFilter").addEventListener("change", () => scheduleRender(renderHeatView, 80));
-    el("heatSpeciesFilter").addEventListener("change", () => scheduleRender(renderHeatView, 80));
+    el("heatBoatFilter").addEventListener("change", () => {
+      syncMultiSummary("heatBoatFilter", "heatBoatFilterSummary");
+      scheduleRender(renderHeatView, 80);
+    });
+    el("heatSpeciesFilter").addEventListener("change", () => {
+      syncMultiSummary("heatSpeciesFilter", "heatSpeciesFilterSummary");
+      scheduleRender(renderHeatView, 80);
+    });
+    el("heatBoatFilterClear").addEventListener("click", () => {
+      clearMultiSelect(el("heatBoatFilter"));
+      el("heatBoatFilter").dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    el("heatSpeciesFilterClear").addEventListener("click", () => {
+      clearMultiSelect(el("heatSpeciesFilter"));
+      el("heatSpeciesFilter").dispatchEvent(new Event("change", { bubbles: true }));
+    });
     el("heatMetric").addEventListener("change", () => scheduleRender(renderHeatView, 80));
     el("heatRadius").addEventListener("input", () => scheduleRender(renderHeatView, 60));
     el("heatBlur").addEventListener("input", () => scheduleRender(renderHeatView, 60));
@@ -1875,13 +2062,14 @@
       el("day").max = meta.dates[meta.dates.length - 1];
       el("day").value = meta.default_date;
       renderDocks(meta.home_docks);
-      el("boatFilter").innerHTML = '<option value="">All boats</option>' +
+      el("boatFilter").innerHTML =
         (meta.boats || []).map((b) => `<option value="${b}">${b}</option>`).join("");
       el("heatBoatFilter").innerHTML = el("boatFilter").innerHTML;
       const ft = meta.feature_cluster_radius_ft || 50;
       el("methodNote").textContent =
         `Spots = AIS offshore stops clustered within ${ft} ft (${meta.ais_window.start}→${meta.ais_window.end}). ` +
-        `Filter by species from dock totals (trips with no breakdown = ${UNKNOWN_FISH}). ` +
+        `Multi-select boats/species (⌘/Ctrl+click; empty = all; species match any). ` +
+        `Trips with no breakdown = ${UNKNOWN_FISH}. ` +
         `Sort by dwell-attributed FPH, mean dwell share, species fish count, trip FPH/FPP, dwell, or boat-days. ` +
         `${meta.stats.n_features || meta.stats.n_locations || "?"} spots · ${meta.stats.n_offshore_stops} stops.`;
       const cacheBust = encodeURIComponent(meta.ais_window?.end || "") + "-" + (meta.stats?.n_trips || "");
@@ -1902,10 +2090,10 @@
       }
       const speciesNames = [...speciesSet].sort((a, b) => a.localeCompare(b));
       el("speciesFilter").innerHTML =
-        '<option value="">All species</option>' +
         `<option value="${UNKNOWN_FISH}">${UNKNOWN_FISH}${unknownVisits ? ` (${unknownVisits} visits)` : ""}</option>` +
         speciesNames.map((s) => `<option value="${s}">${s}</option>`).join("");
       el("heatSpeciesFilter").innerHTML = el("speciesFilter").innerHTML;
+      syncAllMultiSummaries();
 
       // Dense day list for the spots slider: report dates inside the AIS window.
       const aisStart = meta.ais_window?.start || "2015-01-01";
