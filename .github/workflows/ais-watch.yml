@@ -1,0 +1,162 @@
+name: AIS Cadastre watch
+
+# Daily probe for new NOAA Marine Cadastre bulk AIS (csv{YYYY}/ais-*.csv.zst).
+# Also refreshes Catch-tab dock totals (fish-report scrape, no AIS required).
+#
+# Full AIS extract + stop/map rebuild still needs a machine with the local
+# parquet archive (gitignored). This workflow detects publication and keeps
+# status / Catch data fresh on GitHub Pages.
+
+on:
+  schedule:
+    # ~08:30 America/Los_Angeles (16:30 UTC winter / 15:30 UTC PDT — pick 15:30)
+    - cron: "30 15 * * *"
+  workflow_dispatch:
+    inputs:
+      scrape_days:
+        description: "How many trailing days of fish reports to refresh"
+        required: false
+        default: "14"
+      skip_scrape:
+        description: "Skip fish-report scrape (probe only)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ais-watch
+  cancel-in-progress: true
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Probe is stdlib-only; scrape needs these. Skip duckdb/pandas for the watch job.
+          pip install "beautifulsoup4>=4.12" "lxml>=5.0" "requests>=2.31"
+
+      - name: Probe Marine Cadastre availability
+        id: cadastre
+        run: |
+          python3 scripts/check_ais_cadastre.py \
+            --out docs/data/ais_cadastre_status.json \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Refresh recent fish reports + Catch summary
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip_scrape != 'true' }}
+        env:
+          SCRAPE_DAYS: ${{ github.event.inputs.scrape_days || '14' }}
+        run: |
+          set -euo pipefail
+          END=$(python3 - <<'PY'
+          from datetime import date
+          print(date.today().isoformat())
+          PY
+          )
+          START=$(python3 - <<'PY'
+          from datetime import date, timedelta
+          import os
+          days = max(1, int(os.environ.get("SCRAPE_DAYS", "14")))
+          print((date.today() - timedelta(days=days - 1)).isoformat())
+          PY
+          )
+          echo "Scraping fish reports $START → $END"
+          python3 scripts/scrape_fish_reports.py --start "$START" --end "$END" --workers 4
+          python3 scripts/build_homeport_summary.py
+          # Mirror report window end in config note is optional; homeport as_of follows scrape.
+
+      - name: Commit updated status / Catch data
+        id: commit
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/ais_cadastre_status.json docs/data/homeport_summary.json || true
+          # Yearly fish-report shards if scrape rewrote them
+          git add data/raw/fish_reports/by_year/*.jsonl 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No data changes to commit."
+          else
+            git commit -m "chore: daily AIS Cadastre watch + Catch refresh"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open or update issue when new Cadastre coverage appears
+        if: ${{ steps.cadastre.outputs.new_coverage == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/cadastre_issue.md
+          import json
+          from pathlib import Path
+          import os
+          s = json.loads(Path("docs/data/ais_cadastre_status.json").read_text())
+          latest = s.get("latest_published_day") or "unknown"
+          config_end = s.get("config_ais_end") or "unknown"
+          run_url = os.environ.get("RUN_URL", "")
+          print(f"## New Cadastre coverage detected\n")
+          print(f"- **Latest published day:** `{latest}`")
+          print(f"- **Config `PILOT_AIS_END`:** `{config_end}`")
+          print(f"- **csv next-year published:** `{s.get('next_year_published')}`")
+          print(f"- **Checked by:** [AIS Cadastre watch]({run_url})\n")
+          print("### Recommended next steps\n")
+          print(s.get("recommendation") or "")
+          print("\n```bash")
+          print("# On a machine that already has data/processed/ais_daily/:")
+          print(f"python3 scripts/extract_ais.py --start {config_end} --end {latest}")
+          print("python3 scripts/refine_registry.py")
+          print("python3 scripts/detect_stops.py")
+          print("python3 scripts/build_map_data.py")
+          print("python3 scripts/build_homeport_summary.py")
+          print(f"# bump PILOT_AIS_END in scripts/config.py to {latest}")
+          print("```\n")
+          print("Prefer Cadastre over overlapping aisstream parquet days once extracted.")
+          Path("/tmp/cadastre_issue_title.txt").write_text(
+              f"Marine Cadastre AIS update available (through {latest})\n"
+          )
+          PY
+          TITLE=$(cat /tmp/cadastre_issue_title.txt)
+          EXISTING=$(gh issue list --label cadastre-watch --state open --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body-file /tmp/cadastre_issue.md
+            gh issue edit "$EXISTING" --title "$TITLE"
+          else
+            gh label create cadastre-watch --description "Marine Cadastre bulk AIS availability" --color "0E8A16" 2>/dev/null || true
+            gh issue create --title "$TITLE" --label cadastre-watch --body-file /tmp/cadastre_issue.md
+          fi
+
+      # GITHUB_TOKEN pushes do not re-trigger pages.yml — deploy here when docs data changed.
+      - name: Configure Pages
+        if: ${{ steps.commit.outputs.changed == 'true' }}
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: ${{ steps.commit.outputs.changed == 'true' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy Pages
+        if: ${{ steps.commit.outputs.changed == 'true' }}
+        id: deployment
+        uses: actions/deploy-pages@v4

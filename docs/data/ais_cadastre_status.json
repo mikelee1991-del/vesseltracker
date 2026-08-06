@@ -1,0 +1,69 @@
+{
+  "title": "Marine Cadastre AIS availability",
+  "checked_at": "2026-08-06T16:09:40Z",
+  "checked_day_utc": "2026-08-06",
+  "blob_years": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "max_blob_year": 2025,
+  "latest_published_day": "2025-12-31",
+  "latest_probe": {
+    "date": "2025-12-31",
+    "url": "https://noaaocm.blob.core.windows.net/ais/csv2/csv2025/ais-2025-12-31.csv.zst",
+    "http_status": 200,
+    "bytes": 239837329,
+    "available": true
+  },
+  "next_year": 2026,
+  "next_year_published": false,
+  "config_ais_window": {
+    "start": "see PILOT_AIS_START",
+    "end": "2025-12-31"
+  },
+  "config_ais_end": "2025-12-31",
+  "ahead_of_config": false,
+  "new_coverage": false,
+  "sentinel_probes": [
+    {
+      "date": "2025-12-31",
+      "url": "https://noaaocm.blob.core.windows.net/ais/csv2/csv2025/ais-2025-12-31.csv.zst",
+      "http_status": 200,
+      "bytes": 239837329,
+      "available": true
+    },
+    {
+      "date": "2025-12-01",
+      "url": "https://noaaocm.blob.core.windows.net/ais/csv2/csv2025/ais-2025-12-01.csv.zst",
+      "http_status": 200,
+      "bytes": 234010952,
+      "available": true
+    },
+    {
+      "date": "2025-06-15",
+      "url": "https://noaaocm.blob.core.windows.net/ais/csv2/csv2025/ais-2025-06-15.csv.zst",
+      "http_status": 200,
+      "bytes": 256339378,
+      "available": true
+    },
+    {
+      "date": "2026-01-01",
+      "url": "https://noaaocm.blob.core.windows.net/ais/csv2/csv2026/ais-2026-01-01.csv.zst",
+      "http_status": 404,
+      "bytes": null,
+      "available": false
+    }
+  ],
+  "recommendation": "No new Cadastre bulk beyond 2025-12-31. Keep aisstream collector running for live forward coverage; re-check daily.",
+  "source": "https://noaaocm.blob.core.windows.net/ais",
+  "coverage_changed": true
+}

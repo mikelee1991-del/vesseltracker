@@ -214,6 +214,23 @@ aisstream live capture for the **same fleet + bbox** should be in a similar ball
 4. When NOAA drops `csv2026`, pull it and prefer it over aisstream for those days.
 5. 2026-01-01 → today backfill is **not freely available** as bulk points; paid AIS or waiting on NOAA.
 
+### Daily Cadastre watch (GitHub Actions)
+
+Workflow: [`.github/workflows/ais-watch.yml`](.github/workflows/ais-watch.yml) (cron ~15:30 UTC daily + manual dispatch).
+
+| Step | What it does |
+|------|----------------|
+| `scripts/check_ais_cadastre.py` | Azure blob **list** + **HEAD** probes only (no multi‑hundred‑MB downloads). Writes `docs/data/ais_cadastre_status.json`. |
+| Fish-report scrape (last 14 days) | Keeps Catch-tab dock totals fresh without AIS. |
+| `build_homeport_summary.py` | Rebuilds `docs/data/homeport_summary.json`. |
+| Commit + Pages | Pushes data updates to `main` (Pages deploys via `pages.yml`). |
+| Issue on new coverage | If Cadastre publishes beyond `PILOT_AIS_END` / `csv2026`, opens or updates a `cadastre-watch` issue with extract steps. |
+
+**Not** done in Actions (needs the local `data/processed/ais_daily/` archive + heavier DuckDB extract):
+`extract_ais.py` → `refine_registry.py` → `detect_stops.py` → `build_map_data.py`.
+
+aisstream remains a **VM/Pi always-on** collector (`deploy/aisstream/`) — Actions cannot hold a 24/7 WebSocket.
+
 ### Full-archive pull status (2026-08-03)
 
 | Dataset | Coverage | Count |
