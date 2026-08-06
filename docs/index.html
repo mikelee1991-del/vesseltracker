@@ -499,15 +499,15 @@
     <header>
       <h1 class="brand">LA Sportfishing Take</h1>
       <p id="headerBlurb">
-        Fishing spots grouped from AIS offshore stops within ~150 ft.
-        Circle size is dwell; color tracks dwell-attributed fish/person/hour.
+        Heatmap of fishing intensity across AIS-clustered stops.
+        Default intensity is dwell-attributed fish/person/hour; filter by date, boat, and species.
         Many LA charters still lack identifiable AIS —
         <a href="./verify-mmsi.html" style="color:var(--sea-mid);font-weight:600">help match MMSIs</a>.
       </p>
       <div class="tabs" role="tablist" aria-label="Map views">
-        <button type="button" id="tabSpots" class="active" role="tab" aria-selected="true">Spots</button>
+        <button type="button" id="tabHeat" class="active" role="tab" aria-selected="true">Heatmap</button>
+        <button type="button" id="tabSpots" class="secondary" role="tab" aria-selected="false">Spots</button>
         <button type="button" id="tabCourses" class="secondary" role="tab" aria-selected="false">Courses</button>
-        <button type="button" id="tabHeat" class="secondary" role="tab" aria-selected="false">Heatmap</button>
         <button type="button" id="tabMethods" class="secondary" role="tab" aria-selected="false">Methods</button>
         <button type="button" id="hardReset" class="secondary reset-btn" title="Reset all filters, dates, and map view">Reset</button>
       </div>
@@ -518,7 +518,7 @@
           <button type="button" id="mobileFiltersBtn" class="mobile-filters-btn" aria-expanded="true">Hide filters</button>
           <button type="button" id="mobileJumpMap" class="secondary mobile-jump">View map</button>
         </div>
-        <div id="panelSpots" class="panel">
+        <div id="panelSpots" class="panel" hidden>
           <div class="controls">
             <div class="controls-body">
             <div class="date-range" id="spotsDateRange">
@@ -568,7 +568,7 @@
             <div>
               <label for="sortBy">Sort spots</label>
               <select id="sortBy">
-                <option value="dwell_fph">Dwell-attributed fish/person/hour</option>
+                <option value="dwell_fph" selected>Dwell-attributed fish/person/hour</option>
                 <option value="dwell_share">Mean dwell share</option>
                 <option value="species_fish">Species fish count</option>
                 <option value="fph">Mean trip fish/person/hour</option>
@@ -656,7 +656,7 @@
           <div id="courseList"></div>
         </div>
 
-        <div id="panelHeat" class="panel" hidden>
+        <div id="panelHeat" class="panel">
           <div class="controls">
             <div class="controls-body">
             <div class="date-range" id="heatDateRange">
@@ -694,10 +694,10 @@
             <div>
               <label for="heatMetric">Intensity metric</label>
               <select id="heatMetric">
-                <option value="dwell" selected>Total AIS dwell (min)</option>
+                <option value="dwell_fph" selected>Dwell-attributed FPH</option>
+                <option value="dwell">Total AIS dwell (min)</option>
                 <option value="visits">Boat-days</option>
                 <option value="fish">Attributed fish</option>
-                <option value="dwell_fph">Dwell-attributed FPH</option>
                 <option value="fpp">Mean trip fish/person</option>
               </select>
             </div>
@@ -868,14 +868,14 @@
             <li><strong>Boat</strong> — multi-select (⌘/Ctrl+click); empty = all; keep visits/courses for any selected vessel</li>
             <li><strong>Species</strong> — multi-select individuals or <strong>groups</strong> (by type: Rockfish, Bass…; by habitat: Bottom / Kelp / Surface…). Empty = all; match any. Edit groups via the Groups button (browser localStorage + JSON export)</li>
             <li><strong>Sort spots</strong> — dwell-attributed FPH, mean dwell share, species fish count, trip FPH/FPP, total dwell, boat-days</li>
-            <li><strong>Reset</strong> — clears filters/controls and returns to Spots / All days</li>
+            <li><strong>Reset</strong> — clears filters/controls and returns to Heatmap (dwell-attributed FPH)</li>
           </ul>
 
           <h2 id="m-tabs">Map tabs</h2>
           <ul>
-            <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH</li>
+            <li><strong>Heatmap</strong> (default) — density of AIS-clustered spots; default intensity = <strong>dwell-attributed FPH</strong> (also dwell, boat-days, attributed fish, trip FPP). Color scale auto-rescales to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur); opacity defaults to 80%</li>
+            <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH; default sort is dwell-attributed FPH</li>
             <li><strong>Courses</strong> — schematic polylines home → stops (time order) → home (not raw AIS tracks). Up to 2,500 paths drawn per filter for performance</li>
-            <li><strong>Heatmap</strong> — density of the same clustered spots; intensity = dwell, boat-days, attributed fish, dwell FPH, or trip FPP. Color scale <strong>auto-rescales</strong> to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur); opacity defaults to 80% (slider)</li>
           </ul>
 
           <h2 id="m-limits">Known limits</h2>
@@ -895,7 +895,7 @@
       </aside>
       <div class="map-wrap">
         <div id="map"></div>
-        <div class="legend" id="legendSpots">
+        <div class="legend" id="legendSpots" hidden>
           <strong>High-res bathymetry</strong>
           <div class="sub">NCEI + BAG surveys + BlueTopo<br />Zoom in — tiles sharpen with scale<br />Spots ≤150 ft AIS cluster</div>
           <div class="scale-title">Dwell-attributed fish/person/hour</div>
@@ -924,9 +924,9 @@
             <div class="swatch-row"><span class="swatch line" style="background:#b54a2a"></span><span>Selected course</span></div>
           </div>
         </div>
-        <div class="legend" id="legendHeat" hidden>
+        <div class="legend" id="legendHeat">
           <strong>Fishing heatmap</strong>
-          <div class="sub">AIS cluster intensity from filtered visits<br />Sea → sand → clay scale</div>
+          <div class="sub">Default: dwell-attributed FPH · Sea → sand → clay scale</div>
           <div class="scale-title">Intensity</div>
           <div class="heat-grad" aria-hidden="true"></div>
           <div class="swatches">
@@ -984,7 +984,7 @@
       courseDates: [],
       spotsDates: [],
       dayPayload: null,
-      tab: "spots", // spots | courses | heat
+      tab: "heat", // heat | spots | courses | methods
       mode: "all", // all | day
       selectedId: null,
       selectedCourseKey: null,
@@ -2445,7 +2445,7 @@
            Paths are stop-to-stop polylines (not full AIS tracks). Use the date slider to thin the overlay.`
         : heat
         ? `Heatmap of fishing intensity across AIS-clustered stops.
-           Pick dwell, boat-days, fish, dwell FPH, or trip fish/person; filter by date, boat, and species.`
+           Default metric is dwell-attributed fish/person/hour; also dwell, boat-days, fish, or trip fish/person.`
         : `How the map is built: data sources, stop detection, dwell-share attribution, filters, and known limits.`;
       state.hasFittedBounds = false;
       state.selectedId = null;
@@ -2586,7 +2586,7 @@
       // Heatmap filters
       clearMultiSelect(el("heatBoatFilter"));
       clearMultiSelect(el("heatSpeciesFilter"));
-      if (el("heatMetric")) el("heatMetric").value = "dwell";
+      if (el("heatMetric")) el("heatMetric").value = "dwell_fph";
       if (el("heatRadius")) el("heatRadius").value = String(HEAT_RADIUS_MIN);
       if (el("heatBlur")) el("heatBlur").value = String(HEAT_BLUR_MIN);
       if (el("heatOpacity")) el("heatOpacity").value = "80";
@@ -2594,7 +2594,7 @@
       if (el("heatMax")) el("heatMax").value = "0.6";
       if (el("heatShowMarkers")) el("heatShowMarkers").checked = false;
       syncHeatKernelLabels(HEAT_RADIUS_MIN, HEAT_BLUR_MIN, null);
-      syncHeatMaxLabel(0.6, 1, "dwell");
+      syncHeatMaxLabel(0.6, 1, "dwell_fph");
       resetDualRange("heat");
       syncAllMultiSummaries();
 
@@ -2604,7 +2604,7 @@
       state.hasFittedBounds = false;
       setBasemapDefaults();
 
-      // Return to Spots / All days and re-render from scratch.
+      // Return to Heatmap / All days and re-render from scratch.
       state.mode = "all";
       el("modeAll").classList.add("active");
       el("modeAll").classList.remove("secondary");
@@ -2613,7 +2613,7 @@
       el("dayControls").hidden = true;
       el("spotsDateRange").style.opacity = "1";
       el("spotsDateRange").style.pointerEvents = "auto";
-      setTab("spots");
+      setTab("heat");
     }
 
     el("tabSpots").addEventListener("click", () => setTab("spots"));
@@ -2813,6 +2813,7 @@
       setupDualRange("heat", state.spotsDates, () => scheduleRender(renderHeatView, 100));
       updateSortNote();
       setMode("all");
+      setTab("heat");
     })().catch((err) => {
       el("status").textContent = `Failed to load: ${err.message}`;
     });
