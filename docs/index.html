@@ -977,6 +977,7 @@
             <li>Dock totals are trip-level; dwell share is an attribution model, not a claim that every fish was caught on that pin</li>
             <li>Nominal hours are schedule approximations, not measured trip clocks</li>
             <li>aisstream live capture only fills forward while a collector is running</li>
+            <li>Daily Actions job probes Cadastre availability (HEAD/list) and refreshes Catch dock totals; full AIS extract still runs offline when new bulk files appear — see <code>ais_cadastre_status.json</code></li>
           </ul>
           <p class="note">
             Pipeline details and feedback live in <code>FEEDBACK.md</code> in the repo.
@@ -2994,6 +2995,17 @@
           (st.n_courses ? ` · ${st.n_courses.toLocaleString()} courses` : "") +
           `.`;
       }
+      fetch("data/ais_cadastre_status.json")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((s) => {
+          if (!s || !el("m-stats-note")) return;
+          const latest = s.latest_published_day || "—";
+          const checked = (s.checked_at || "").slice(0, 10) || "—";
+          el("m-stats-note").textContent +=
+            ` Cadastre bulk through ${latest} (probed ${checked}` +
+            `${s.new_coverage ? "; NEW COVERAGE — see cadastre-watch issue" : ""}).`;
+        })
+        .catch(() => {});
     }
 
     async function ensureCourses() {

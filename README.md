@@ -36,6 +36,7 @@ https://cdn.jsdelivr.net/gh/mikelee1991-del/vesseltracker@main/docs/
 - Default extract window: **2015-01-01 → 2025-12-31** (all CSV years), filtered to the SoCal bbox + fleet names/MMSIs.
 - Fish-report scrape default: **2005-01-01 → latest** (site archive); join/crosscheck is strongest where AIS overlaps (2015+).
 - No API keys needed for this path. Optional live forward archive: `scripts/collect_aisstream.py` (free-tier VM install: `deploy/aisstream/README.md`).
+- **Daily watch:** GitHub Action `AIS Cadastre watch` probes Cadastre with HEAD/list (no big downloads), refreshes Catch dock totals, and opens a `cadastre-watch` issue when new bulk AIS appears. Status: `docs/data/ais_cadastre_status.json`.
 
 ### Pilot data currently in-repo
 
