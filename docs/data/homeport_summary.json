@@ -1,0 +1,3079 @@
+{
+  "title": "Recent catch by homeport",
+  "description": "Dock totals from socalfishreports.com rolled up by city (homeport). No AIS required \u2014 useful when Marine Cadastre coverage is missing.",
+  "as_of": "2026-08-02",
+  "source": "socalfishreports.com dock totals",
+  "cities": [
+    "Dana Point",
+    "Long Beach",
+    "Marina Del Rey",
+    "Newport Beach",
+    "Redondo Beach",
+    "San Pedro"
+  ],
+  "default_window": "14",
+  "windows": {
+    "7": {
+      "days": 7,
+      "start": "2026-07-27",
+      "end": "2026-08-02",
+      "n_trips": 137,
+      "n_boats": 36,
+      "anglers": 4782,
+      "fish_kept": 22328.0,
+      "mean_fpp": 5.29,
+      "by_city": [
+        {
+          "city": "Newport Beach",
+          "n_trips": 45,
+          "n_boats": 6,
+          "n_days": 7,
+          "anglers": 1766,
+          "fish_kept": 6941.0,
+          "mean_fpp": 4.5,
+          "mean_fph": 0.62,
+          "species_top": [
+            {
+              "species": "Barracuda",
+              "count": 3280.0
+            },
+            {
+              "species": "Bonito",
+              "count": 1175.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 730.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 533.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 443.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 378.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 166.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 137.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Western Pride",
+              "n_trips": 19,
+              "fish_kept": 2635.0,
+              "anglers": 886,
+              "mean_fpp": 2.99
+            },
+            {
+              "boat_name": "Freelance",
+              "n_trips": 9,
+              "fish_kept": 2159.0,
+              "anglers": 470,
+              "mean_fpp": 4.41
+            },
+            {
+              "boat_name": "Patriot (Newport)",
+              "n_trips": 5,
+              "fish_kept": 913.0,
+              "anglers": 180,
+              "mean_fpp": 5.26
+            },
+            {
+              "boat_name": "Thunderbird",
+              "n_trips": 5,
+              "fish_kept": 636.0,
+              "anglers": 148,
+              "mean_fpp": 4.31
+            },
+            {
+              "boat_name": "Aggressor",
+              "n_trips": 5,
+              "fish_kept": 491.0,
+              "anglers": 73,
+              "mean_fpp": 6.73
+            },
+            {
+              "boat_name": "Blackfish",
+              "n_trips": 2,
+              "fish_kept": 107.0,
+              "anglers": 9,
+              "mean_fpp": 12.2
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Davey's Locker",
+              "n_trips": 26,
+              "n_boats": 3,
+              "anglers": 1172,
+              "fish_kept": 4244.0
+            },
+            {
+              "landing_name": "Newport Landing",
+              "n_trips": 19,
+              "n_boats": 4,
+              "anglers": 594,
+              "fish_kept": 2697.0
+            }
+          ]
+        },
+        {
+          "city": "San Pedro",
+          "n_trips": 39,
+          "n_boats": 9,
+          "n_days": 7,
+          "anglers": 1316,
+          "fish_kept": 6090.0,
+          "mean_fpp": 5.36,
+          "mean_fph": 0.53,
+          "species_top": [
+            {
+              "species": "Barracuda",
+              "count": 2282.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 1439.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 496.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 421.0
+            },
+            {
+              "species": "Bonito",
+              "count": 416.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 390.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 269.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 202.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Native Sun",
+              "n_trips": 7,
+              "fish_kept": 1872.0,
+              "anglers": 262,
+              "mean_fpp": 7.42
+            },
+            {
+              "boat_name": "Freedom",
+              "n_trips": 4,
+              "fish_kept": 1120.0,
+              "anglers": 140,
+              "mean_fpp": 8.0
+            },
+            {
+              "boat_name": "Monte Carlo",
+              "n_trips": 7,
+              "fish_kept": 1078.0,
+              "anglers": 466,
+              "mean_fpp": 2.51
+            },
+            {
+              "boat_name": "Pursuit",
+              "n_trips": 5,
+              "fish_kept": 639.0,
+              "anglers": 189,
+              "mean_fpp": 3.38
+            },
+            {
+              "boat_name": "Gail Force",
+              "n_trips": 4,
+              "fish_kept": 506.0,
+              "anglers": 72,
+              "mean_fpp": 6.54
+            },
+            {
+              "boat_name": "Amigo",
+              "n_trips": 5,
+              "fish_kept": 466.0,
+              "anglers": 66,
+              "mean_fpp": 7.06
+            },
+            {
+              "boat_name": "Pride",
+              "n_trips": 2,
+              "fish_kept": 286.0,
+              "anglers": 26,
+              "mean_fpp": 11.41
+            },
+            {
+              "boat_name": "Sport King",
+              "n_trips": 4,
+              "fish_kept": 119.0,
+              "anglers": 79,
+              "mean_fpp": 1.54
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "22nd Street Landing",
+              "n_trips": 30,
+              "n_boats": 6,
+              "anglers": 1149,
+              "fish_kept": 5461.0
+            },
+            {
+              "landing_name": "LA Waterfront Cruises and Sportfishing",
+              "n_trips": 9,
+              "n_boats": 3,
+              "anglers": 167,
+              "fish_kept": 629.0
+            }
+          ]
+        },
+        {
+          "city": "Long Beach",
+          "n_trips": 16,
+          "n_boats": 6,
+          "n_days": 7,
+          "anglers": 493,
+          "fish_kept": 5325.0,
+          "mean_fpp": 10.72,
+          "mean_fph": 1.15,
+          "species_top": [
+            {
+              "species": "Barracuda",
+              "count": 3081.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 538.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 477.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 444.0
+            },
+            {
+              "species": "Bonito",
+              "count": 309.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 179.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 131.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 92.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Victory",
+              "n_trips": 6,
+              "fish_kept": 2494.0,
+              "anglers": 263,
+              "mean_fpp": 8.44
+            },
+            {
+              "boat_name": "Enterprise",
+              "n_trips": 3,
+              "fish_kept": 1040.0,
+              "anglers": 70,
+              "mean_fpp": 12.82
+            },
+            {
+              "boat_name": "El Patron",
+              "n_trips": 3,
+              "fish_kept": 813.0,
+              "anglers": 63,
+              "mean_fpp": 12.9
+            },
+            {
+              "boat_name": "Toronado",
+              "n_trips": 1,
+              "fish_kept": 378.0,
+              "anglers": 20,
+              "mean_fpp": 18.9
+            },
+            {
+              "boat_name": "Ahra-Ahn",
+              "n_trips": 2,
+              "fish_kept": 330.0,
+              "anglers": 54,
+              "mean_fpp": 6.47
+            },
+            {
+              "boat_name": "City of Long Beach",
+              "n_trips": 1,
+              "fish_kept": 270.0,
+              "anglers": 23,
+              "mean_fpp": 11.74
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Long Beach Sportfishing",
+              "n_trips": 11,
+              "n_boats": 3,
+              "anglers": 380,
+              "fish_kept": 3637.0
+            },
+            {
+              "landing_name": "Pierpoint Landing",
+              "n_trips": 5,
+              "n_boats": 3,
+              "anglers": 113,
+              "fish_kept": 1688.0
+            }
+          ]
+        },
+        {
+          "city": "Marina Del Rey",
+          "n_trips": 10,
+          "n_boats": 3,
+          "n_days": 4,
+          "anglers": 484,
+          "fish_kept": 1810.0,
+          "mean_fpp": 3.71,
+          "mean_fph": 0.54,
+          "species_top": [
+            {
+              "species": "Whitefish",
+              "count": 825.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 370.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 367.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 53.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 45.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 45.0
+            },
+            {
+              "species": "Bonito",
+              "count": 44.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 36.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "New Del Mar",
+              "n_trips": 4,
+              "fish_kept": 1313.0,
+              "anglers": 317,
+              "mean_fpp": 4.1
+            },
+            {
+              "boat_name": "Spitfire",
+              "n_trips": 4,
+              "fish_kept": 468.0,
+              "anglers": 114,
+              "mean_fpp": 4.89
+            },
+            {
+              "boat_name": "Betty-O",
+              "n_trips": 2,
+              "fish_kept": 29.0,
+              "anglers": 53,
+              "mean_fpp": 0.6
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Marina Del Rey Sportfishing",
+              "n_trips": 10,
+              "n_boats": 3,
+              "anglers": 484,
+              "fish_kept": 1810.0
+            }
+          ]
+        },
+        {
+          "city": "Dana Point",
+          "n_trips": 19,
+          "n_boats": 9,
+          "n_days": 3,
+          "anglers": 501,
+          "fish_kept": 1090.0,
+          "mean_fpp": 3.44,
+          "mean_fph": 0.33,
+          "species_top": [
+            {
+              "species": "Bonito",
+              "count": 387.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 334.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 140.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 98.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 65.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 26.0
+            },
+            {
+              "species": "Dorado",
+              "count": 19.0
+            },
+            {
+              "species": "Yellowfin Tuna",
+              "count": 7.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Fury",
+              "n_trips": 2,
+              "fish_kept": 325.0,
+              "anglers": 34,
+              "mean_fpp": 12.02
+            },
+            {
+              "boat_name": "Sum Fun",
+              "n_trips": 3,
+              "fish_kept": 218.0,
+              "anglers": 117,
+              "mean_fpp": 1.9
+            },
+            {
+              "boat_name": "Dana Pride",
+              "n_trips": 3,
+              "fish_kept": 177.0,
+              "anglers": 156,
+              "mean_fpp": 1.76
+            },
+            {
+              "boat_name": "Reel Fun",
+              "n_trips": 2,
+              "fish_kept": 171.0,
+              "anglers": 59,
+              "mean_fpp": 3.13
+            },
+            {
+              "boat_name": "Clemente",
+              "n_trips": 3,
+              "fish_kept": 72.0,
+              "anglers": 81,
+              "mean_fpp": 0.97
+            },
+            {
+              "boat_name": "New San Mateo",
+              "n_trips": 1,
+              "fish_kept": 52.0,
+              "anglers": 14,
+              "mean_fpp": 3.71
+            },
+            {
+              "boat_name": "Helena",
+              "n_trips": 2,
+              "fish_kept": 27.0,
+              "anglers": 26,
+              "mean_fpp": 1.02
+            },
+            {
+              "boat_name": "Current",
+              "n_trips": 2,
+              "fish_kept": 26.0,
+              "anglers": 12,
+              "mean_fpp": 2.17
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Dana Wharf Sportfishing",
+              "n_trips": 19,
+              "n_boats": 9,
+              "anglers": 501,
+              "fish_kept": 1090.0
+            }
+          ]
+        },
+        {
+          "city": "Redondo Beach",
+          "n_trips": 8,
+          "n_boats": 3,
+          "n_days": 6,
+          "anglers": 222,
+          "fish_kept": 1072.0,
+          "mean_fpp": 6.28,
+          "mean_fph": 0.9,
+          "species_top": [
+            {
+              "species": "Rockfish",
+              "count": 363.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 238.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 180.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 180.0
+            },
+            {
+              "species": "Bonito",
+              "count": 62.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 22.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 10.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 9.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Redondo Special",
+              "n_trips": 6,
+              "fish_kept": 801.0,
+              "anglers": 201,
+              "mean_fpp": 4.07
+            },
+            {
+              "boat_name": "Pescador",
+              "n_trips": 1,
+              "fish_kept": 167.0,
+              "anglers": 13,
+              "mean_fpp": 12.85
+            },
+            {
+              "boat_name": "Navegante",
+              "n_trips": 1,
+              "fish_kept": 104.0,
+              "anglers": 8,
+              "mean_fpp": 13.0
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Redondo Beach Sportfishing",
+              "n_trips": 8,
+              "n_boats": 3,
+              "anglers": 222,
+              "fish_kept": 1072.0
+            }
+          ]
+        }
+      ]
+    },
+    "14": {
+      "days": 14,
+      "start": "2026-07-20",
+      "end": "2026-08-02",
+      "n_trips": 291,
+      "n_boats": 38,
+      "anglers": 10219,
+      "fish_kept": 46928.0,
+      "mean_fpp": 5.05,
+      "by_city": [
+        {
+          "city": "Newport Beach",
+          "n_trips": 92,
+          "n_boats": 6,
+          "n_days": 14,
+          "anglers": 3456,
+          "fish_kept": 13788.0,
+          "mean_fpp": 4.45,
+          "mean_fph": 0.59,
+          "species_top": [
+            {
+              "species": "Barracuda",
+              "count": 3970.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 3100.0
+            },
+            {
+              "species": "Bonito",
+              "count": 1968.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 1768.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 1050.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 783.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 647.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 249.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Western Pride",
+              "n_trips": 37,
+              "fish_kept": 5368.0,
+              "anglers": 1641,
+              "mean_fpp": 3.34
+            },
+            {
+              "boat_name": "Freelance",
+              "n_trips": 15,
+              "fish_kept": 3244.0,
+              "anglers": 779,
+              "mean_fpp": 3.99
+            },
+            {
+              "boat_name": "Patriot (Newport)",
+              "n_trips": 12,
+              "fish_kept": 2099.0,
+              "anglers": 442,
+              "mean_fpp": 4.91
+            },
+            {
+              "boat_name": "Thunderbird",
+              "n_trips": 12,
+              "fish_kept": 1631.0,
+              "anglers": 344,
+              "mean_fpp": 4.77
+            },
+            {
+              "boat_name": "Aggressor",
+              "n_trips": 13,
+              "fish_kept": 1302.0,
+              "anglers": 235,
+              "mean_fpp": 6.08
+            },
+            {
+              "boat_name": "Blackfish",
+              "n_trips": 3,
+              "fish_kept": 144.0,
+              "anglers": 15,
+              "mean_fpp": 10.19
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Davey's Locker",
+              "n_trips": 49,
+              "n_boats": 4,
+              "anglers": 2177,
+              "fish_kept": 7848.0
+            },
+            {
+              "landing_name": "Newport Landing",
+              "n_trips": 43,
+              "n_boats": 4,
+              "anglers": 1279,
+              "fish_kept": 5940.0
+            }
+          ]
+        },
+        {
+          "city": "San Pedro",
+          "n_trips": 74,
+          "n_boats": 9,
+          "n_days": 14,
+          "anglers": 2489,
+          "fish_kept": 11318.0,
+          "mean_fpp": 5.25,
+          "mean_fph": 0.52,
+          "species_top": [
+            {
+              "species": "Barracuda",
+              "count": 3261.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 2451.0
+            },
+            {
+              "species": "Bonito",
+              "count": 1229.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 1086.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 973.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 870.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 531.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 452.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Native Sun",
+              "n_trips": 15,
+              "fish_kept": 3409.0,
+              "anglers": 584,
+              "mean_fpp": 6.03
+            },
+            {
+              "boat_name": "Freedom",
+              "n_trips": 10,
+              "fish_kept": 2021.0,
+              "anglers": 355,
+              "mean_fpp": 5.73
+            },
+            {
+              "boat_name": "Monte Carlo",
+              "n_trips": 13,
+              "fish_kept": 1935.0,
+              "anglers": 737,
+              "mean_fpp": 2.89
+            },
+            {
+              "boat_name": "Pursuit",
+              "n_trips": 12,
+              "fish_kept": 1472.0,
+              "anglers": 428,
+              "mean_fpp": 3.6
+            },
+            {
+              "boat_name": "Pride",
+              "n_trips": 6,
+              "fish_kept": 1029.0,
+              "anglers": 90,
+              "mean_fpp": 11.54
+            },
+            {
+              "boat_name": "Amigo",
+              "n_trips": 8,
+              "fish_kept": 765.0,
+              "anglers": 112,
+              "mean_fpp": 6.78
+            },
+            {
+              "boat_name": "Gail Force",
+              "n_trips": 5,
+              "fish_kept": 564.0,
+              "anglers": 88,
+              "mean_fpp": 5.96
+            },
+            {
+              "boat_name": "Sport King",
+              "n_trips": 4,
+              "fish_kept": 119.0,
+              "anglers": 79,
+              "mean_fpp": 1.54
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "22nd Street Landing",
+              "n_trips": 64,
+              "n_boats": 6,
+              "anglers": 2306,
+              "fish_kept": 10631.0
+            },
+            {
+              "landing_name": "LA Waterfront Cruises and Sportfishing",
+              "n_trips": 10,
+              "n_boats": 3,
+              "anglers": 183,
+              "fish_kept": 687.0
+            }
+          ]
+        },
+        {
+          "city": "Long Beach",
+          "n_trips": 35,
+          "n_boats": 8,
+          "n_days": 13,
+          "anglers": 1107,
+          "fish_kept": 10733.0,
+          "mean_fpp": 9.2,
+          "mean_fph": 1.02,
+          "species_top": [
+            {
+              "species": "Barracuda",
+              "count": 4379.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 2327.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 1169.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 890.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 630.0
+            },
+            {
+              "species": "Bonito",
+              "count": 615.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 291.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 208.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Victory",
+              "n_trips": 11,
+              "fish_kept": 5170.0,
+              "anglers": 506,
+              "mean_fpp": 9.85
+            },
+            {
+              "boat_name": "Enterprise",
+              "n_trips": 5,
+              "fish_kept": 1999.0,
+              "anglers": 134,
+              "mean_fpp": 11.57
+            },
+            {
+              "boat_name": "El Patron",
+              "n_trips": 6,
+              "fish_kept": 1244.0,
+              "anglers": 125,
+              "mean_fpp": 10.22
+            },
+            {
+              "boat_name": "Toronado",
+              "n_trips": 5,
+              "fish_kept": 987.0,
+              "anglers": 120,
+              "mean_fpp": 9.16
+            },
+            {
+              "boat_name": "City of Long Beach",
+              "n_trips": 3,
+              "fish_kept": 800.0,
+              "anglers": 131,
+              "mean_fpp": 7.31
+            },
+            {
+              "boat_name": "Ahra-Ahn",
+              "n_trips": 2,
+              "fish_kept": 330.0,
+              "anglers": 54,
+              "mean_fpp": 6.47
+            },
+            {
+              "boat_name": "Eldorado",
+              "n_trips": 1,
+              "fish_kept": 115.0,
+              "anglers": 25,
+              "mean_fpp": 4.6
+            },
+            {
+              "boat_name": "MarDiosa",
+              "n_trips": 2,
+              "fish_kept": 88.0,
+              "anglers": 12,
+              "mean_fpp": 7.33
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Long Beach Sportfishing",
+              "n_trips": 22,
+              "n_boats": 5,
+              "anglers": 722,
+              "fish_kept": 6947.0
+            },
+            {
+              "landing_name": "Pierpoint Landing",
+              "n_trips": 13,
+              "n_boats": 3,
+              "anglers": 385,
+              "fish_kept": 3786.0
+            }
+          ]
+        },
+        {
+          "city": "Marina Del Rey",
+          "n_trips": 30,
+          "n_boats": 3,
+          "n_days": 11,
+          "anglers": 1476,
+          "fish_kept": 6234.0,
+          "mean_fpp": 4.76,
+          "mean_fph": 0.64,
+          "species_top": [
+            {
+              "species": "Rockfish",
+              "count": 2614.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 1574.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 1087.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 326.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 161.0
+            },
+            {
+              "species": "Bonito",
+              "count": 101.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 100.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 97.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "New Del Mar",
+              "n_trips": 11,
+              "fish_kept": 3441.0,
+              "anglers": 919,
+              "mean_fpp": 4.02
+            },
+            {
+              "boat_name": "Spitfire",
+              "n_trips": 11,
+              "fish_kept": 2170.0,
+              "anglers": 355,
+              "mean_fpp": 6.33
+            },
+            {
+              "boat_name": "Betty-O",
+              "n_trips": 8,
+              "fish_kept": 623.0,
+              "anglers": 202,
+              "mean_fpp": 3.64
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Marina Del Rey Sportfishing",
+              "n_trips": 30,
+              "n_boats": 3,
+              "anglers": 1476,
+              "fish_kept": 6234.0
+            }
+          ]
+        },
+        {
+          "city": "Dana Point",
+          "n_trips": 46,
+          "n_boats": 9,
+          "n_days": 7,
+          "anglers": 1220,
+          "fish_kept": 2532.0,
+          "mean_fpp": 2.98,
+          "mean_fph": 0.28,
+          "species_top": [
+            {
+              "species": "Calico Bass",
+              "count": 974.0
+            },
+            {
+              "species": "Bonito",
+              "count": 568.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 319.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 230.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 217.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 81.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 48.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 44.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Fury",
+              "n_trips": 5,
+              "fish_kept": 1150.0,
+              "anglers": 105,
+              "mean_fpp": 11.95
+            },
+            {
+              "boat_name": "Sum Fun",
+              "n_trips": 8,
+              "fish_kept": 389.0,
+              "anglers": 265,
+              "mean_fpp": 1.97
+            },
+            {
+              "boat_name": "Dana Pride",
+              "n_trips": 5,
+              "fish_kept": 257.0,
+              "anglers": 229,
+              "mean_fpp": 1.5
+            },
+            {
+              "boat_name": "Reel Fun",
+              "n_trips": 8,
+              "fish_kept": 247.0,
+              "anglers": 238,
+              "mean_fpp": 1.11
+            },
+            {
+              "boat_name": "Clemente",
+              "n_trips": 7,
+              "fish_kept": 184.0,
+              "anglers": 237,
+              "mean_fpp": 0.84
+            },
+            {
+              "boat_name": "New San Mateo",
+              "n_trips": 3,
+              "fish_kept": 144.0,
+              "anglers": 42,
+              "mean_fpp": 3.43
+            },
+            {
+              "boat_name": "Current",
+              "n_trips": 5,
+              "fish_kept": 84.0,
+              "anglers": 28,
+              "mean_fpp": 2.93
+            },
+            {
+              "boat_name": "Helena",
+              "n_trips": 4,
+              "fish_kept": 55.0,
+              "anglers": 74,
+              "mean_fpp": 0.8
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Dana Wharf Sportfishing",
+              "n_trips": 46,
+              "n_boats": 9,
+              "anglers": 1220,
+              "fish_kept": 2532.0
+            }
+          ]
+        },
+        {
+          "city": "Redondo Beach",
+          "n_trips": 14,
+          "n_boats": 3,
+          "n_days": 10,
+          "anglers": 471,
+          "fish_kept": 2323.0,
+          "mean_fpp": 5.95,
+          "mean_fph": 0.95,
+          "species_top": [
+            {
+              "species": "Rockfish",
+              "count": 1022.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 605.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 327.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 186.0
+            },
+            {
+              "species": "Bonito",
+              "count": 107.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 33.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 12.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 10.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Redondo Special",
+              "n_trips": 12,
+              "fish_kept": 2052.0,
+              "anglers": 450,
+              "mean_fpp": 4.78
+            },
+            {
+              "boat_name": "Pescador",
+              "n_trips": 1,
+              "fish_kept": 167.0,
+              "anglers": 13,
+              "mean_fpp": 12.85
+            },
+            {
+              "boat_name": "Navegante",
+              "n_trips": 1,
+              "fish_kept": 104.0,
+              "anglers": 8,
+              "mean_fpp": 13.0
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Redondo Beach Sportfishing",
+              "n_trips": 14,
+              "n_boats": 3,
+              "anglers": 471,
+              "fish_kept": 2323.0
+            }
+          ]
+        }
+      ]
+    },
+    "30": {
+      "days": 30,
+      "start": "2026-07-04",
+      "end": "2026-08-02",
+      "n_trips": 649,
+      "n_boats": 38,
+      "anglers": 21604,
+      "fish_kept": 97742.0,
+      "mean_fpp": 4.88,
+      "by_city": [
+        {
+          "city": "Newport Beach",
+          "n_trips": 207,
+          "n_boats": 6,
+          "n_days": 30,
+          "anglers": 7241,
+          "fish_kept": 29131.0,
+          "mean_fpp": 4.37,
+          "mean_fph": 0.61,
+          "species_top": [
+            {
+              "species": "Sculpin",
+              "count": 9507.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 4157.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 4057.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 2832.0
+            },
+            {
+              "species": "Bonito",
+              "count": 2400.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 2230.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 1878.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 1233.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Western Pride",
+              "n_trips": 87,
+              "fish_kept": 13104.0,
+              "anglers": 3416,
+              "mean_fpp": 4.04
+            },
+            {
+              "boat_name": "Freelance",
+              "n_trips": 36,
+              "fish_kept": 6098.0,
+              "anglers": 1765,
+              "mean_fpp": 3.29
+            },
+            {
+              "boat_name": "Thunderbird",
+              "n_trips": 27,
+              "fish_kept": 4433.0,
+              "anglers": 773,
+              "mean_fpp": 5.79
+            },
+            {
+              "boat_name": "Patriot (Newport)",
+              "n_trips": 23,
+              "fish_kept": 3286.0,
+              "anglers": 832,
+              "mean_fpp": 4.07
+            },
+            {
+              "boat_name": "Aggressor",
+              "n_trips": 22,
+              "fish_kept": 1869.0,
+              "anglers": 394,
+              "mean_fpp": 5.11
+            },
+            {
+              "boat_name": "Blackfish",
+              "n_trips": 12,
+              "fish_kept": 341.0,
+              "anglers": 61,
+              "mean_fpp": 6.02
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Davey's Locker",
+              "n_trips": 110,
+              "n_boats": 4,
+              "anglers": 4275,
+              "fish_kept": 15728.0
+            },
+            {
+              "landing_name": "Newport Landing",
+              "n_trips": 97,
+              "n_boats": 5,
+              "anglers": 2966,
+              "fish_kept": 13403.0
+            }
+          ]
+        },
+        {
+          "city": "Long Beach",
+          "n_trips": 72,
+          "n_boats": 8,
+          "n_days": 28,
+          "anglers": 2026,
+          "fish_kept": 20690.0,
+          "mean_fpp": 9.42,
+          "mean_fph": 0.99,
+          "species_top": [
+            {
+              "species": "Barracuda",
+              "count": 4965.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 4481.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 2812.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 1812.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 1661.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 1384.0
+            },
+            {
+              "species": "Bonito",
+              "count": 1265.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 690.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Victory",
+              "n_trips": 24,
+              "fish_kept": 9867.0,
+              "anglers": 885,
+              "mean_fpp": 10.39
+            },
+            {
+              "boat_name": "Enterprise",
+              "n_trips": 9,
+              "fish_kept": 3678.0,
+              "anglers": 223,
+              "mean_fpp": 12.3
+            },
+            {
+              "boat_name": "El Patron",
+              "n_trips": 13,
+              "fish_kept": 2466.0,
+              "anglers": 254,
+              "mean_fpp": 9.94
+            },
+            {
+              "boat_name": "Toronado",
+              "n_trips": 11,
+              "fish_kept": 2283.0,
+              "anglers": 281,
+              "mean_fpp": 9.39
+            },
+            {
+              "boat_name": "Ahra-Ahn",
+              "n_trips": 7,
+              "fish_kept": 897.0,
+              "anglers": 164,
+              "mean_fpp": 4.55
+            },
+            {
+              "boat_name": "City of Long Beach",
+              "n_trips": 3,
+              "fish_kept": 800.0,
+              "anglers": 131,
+              "mean_fpp": 7.31
+            },
+            {
+              "boat_name": "Eldorado",
+              "n_trips": 3,
+              "fish_kept": 611.0,
+              "anglers": 76,
+              "mean_fpp": 7.88
+            },
+            {
+              "boat_name": "MarDiosa",
+              "n_trips": 2,
+              "fish_kept": 88.0,
+              "anglers": 12,
+              "mean_fpp": 7.33
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Long Beach Sportfishing",
+              "n_trips": 49,
+              "n_boats": 5,
+              "anglers": 1391,
+              "fish_kept": 13929.0
+            },
+            {
+              "landing_name": "Pierpoint Landing",
+              "n_trips": 23,
+              "n_boats": 3,
+              "anglers": 635,
+              "fish_kept": 6761.0
+            }
+          ]
+        },
+        {
+          "city": "San Pedro",
+          "n_trips": 132,
+          "n_boats": 9,
+          "n_days": 30,
+          "anglers": 4233,
+          "fish_kept": 20158.0,
+          "mean_fpp": 5.47,
+          "mean_fph": 0.53,
+          "species_top": [
+            {
+              "species": "Calico Bass",
+              "count": 4242.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 3604.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 2600.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 2401.0
+            },
+            {
+              "species": "Bonito",
+              "count": 2019.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 1744.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 1036.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 1019.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Monte Carlo",
+              "n_trips": 29,
+              "fish_kept": 4732.0,
+              "anglers": 1435,
+              "mean_fpp": 3.61
+            },
+            {
+              "boat_name": "Freedom",
+              "n_trips": 24,
+              "fish_kept": 4359.0,
+              "anglers": 796,
+              "mean_fpp": 5.65
+            },
+            {
+              "boat_name": "Native Sun",
+              "n_trips": 17,
+              "fish_kept": 3537.0,
+              "anglers": 672,
+              "mean_fpp": 5.5
+            },
+            {
+              "boat_name": "Pursuit",
+              "n_trips": 15,
+              "fish_kept": 2507.0,
+              "anglers": 546,
+              "mean_fpp": 4.63
+            },
+            {
+              "boat_name": "Pride",
+              "n_trips": 11,
+              "fish_kept": 1785.0,
+              "anglers": 160,
+              "mean_fpp": 11.36
+            },
+            {
+              "boat_name": "Amigo",
+              "n_trips": 15,
+              "fish_kept": 1562.0,
+              "anglers": 216,
+              "mean_fpp": 7.24
+            },
+            {
+              "boat_name": "Gail Force",
+              "n_trips": 10,
+              "fish_kept": 846.0,
+              "anglers": 181,
+              "mean_fpp": 4.59
+            },
+            {
+              "boat_name": "Sport King",
+              "n_trips": 10,
+              "fish_kept": 826.0,
+              "anglers": 211,
+              "mean_fpp": 3.89
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "22nd Street Landing",
+              "n_trips": 111,
+              "n_boats": 6,
+              "anglers": 3825,
+              "fish_kept": 18482.0
+            },
+            {
+              "landing_name": "LA Waterfront Cruises and Sportfishing",
+              "n_trips": 21,
+              "n_boats": 3,
+              "anglers": 408,
+              "fish_kept": 1676.0
+            }
+          ]
+        },
+        {
+          "city": "Marina Del Rey",
+          "n_trips": 71,
+          "n_boats": 3,
+          "n_days": 25,
+          "anglers": 3325,
+          "fish_kept": 15458.0,
+          "mean_fpp": 5.41,
+          "mean_fph": 0.73,
+          "species_top": [
+            {
+              "species": "Rockfish",
+              "count": 5725.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 3746.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 2575.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 1794.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 620.0
+            },
+            {
+              "species": "Bonito",
+              "count": 327.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 244.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 151.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "New Del Mar",
+              "n_trips": 25,
+              "fish_kept": 8126.0,
+              "anglers": 2032,
+              "mean_fpp": 4.23
+            },
+            {
+              "boat_name": "Spitfire",
+              "n_trips": 25,
+              "fish_kept": 5223.0,
+              "anglers": 752,
+              "mean_fpp": 7.06
+            },
+            {
+              "boat_name": "Betty-O",
+              "n_trips": 21,
+              "fish_kept": 2109.0,
+              "anglers": 541,
+              "mean_fpp": 4.86
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Marina Del Rey Sportfishing",
+              "n_trips": 71,
+              "n_boats": 3,
+              "anglers": 3325,
+              "fish_kept": 15458.0
+            }
+          ]
+        },
+        {
+          "city": "Dana Point",
+          "n_trips": 124,
+          "n_boats": 9,
+          "n_days": 19,
+          "anglers": 3324,
+          "fish_kept": 6555.0,
+          "mean_fpp": 2.53,
+          "mean_fph": 0.29,
+          "species_top": [
+            {
+              "species": "Calico Bass",
+              "count": 2261.0
+            },
+            {
+              "species": "Bonito",
+              "count": 1517.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 792.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 779.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 405.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 309.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 217.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 108.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Fury",
+              "n_trips": 12,
+              "fish_kept": 2480.0,
+              "anglers": 276,
+              "mean_fpp": 9.39
+            },
+            {
+              "boat_name": "Clemente",
+              "n_trips": 26,
+              "fish_kept": 982.0,
+              "anglers": 830,
+              "mean_fpp": 1.36
+            },
+            {
+              "boat_name": "Sum Fun",
+              "n_trips": 22,
+              "fish_kept": 932.0,
+              "anglers": 688,
+              "mean_fpp": 1.56
+            },
+            {
+              "boat_name": "Dana Pride",
+              "n_trips": 15,
+              "fish_kept": 723.0,
+              "anglers": 685,
+              "mean_fpp": 1.26
+            },
+            {
+              "boat_name": "Reel Fun",
+              "n_trips": 23,
+              "fish_kept": 658.0,
+              "anglers": 553,
+              "mean_fpp": 1.23
+            },
+            {
+              "boat_name": "New San Mateo",
+              "n_trips": 7,
+              "fish_kept": 346.0,
+              "anglers": 89,
+              "mean_fpp": 3.92
+            },
+            {
+              "boat_name": "Helena",
+              "n_trips": 10,
+              "fish_kept": 295.0,
+              "anglers": 161,
+              "mean_fpp": 2.0
+            },
+            {
+              "boat_name": "Current",
+              "n_trips": 6,
+              "fish_kept": 91.0,
+              "anglers": 34,
+              "mean_fpp": 2.64
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Dana Wharf Sportfishing",
+              "n_trips": 124,
+              "n_boats": 9,
+              "anglers": 3324,
+              "fish_kept": 6555.0
+            }
+          ]
+        },
+        {
+          "city": "Redondo Beach",
+          "n_trips": 43,
+          "n_boats": 3,
+          "n_days": 23,
+          "anglers": 1455,
+          "fish_kept": 5750.0,
+          "mean_fpp": 4.55,
+          "mean_fph": 0.74,
+          "species_top": [
+            {
+              "species": "Rockfish",
+              "count": 2530.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 1366.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 663.0
+            },
+            {
+              "species": "Bonito",
+              "count": 329.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 263.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 255.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 91.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 84.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Redondo Special",
+              "n_trips": 34,
+              "fish_kept": 4903.0,
+              "anglers": 1317,
+              "mean_fpp": 3.98
+            },
+            {
+              "boat_name": "Pescador",
+              "n_trips": 7,
+              "fish_kept": 713.0,
+              "anglers": 114,
+              "mean_fpp": 6.51
+            },
+            {
+              "boat_name": "Navegante",
+              "n_trips": 2,
+              "fish_kept": 134.0,
+              "anglers": 24,
+              "mean_fpp": 7.44
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Redondo Beach Sportfishing",
+              "n_trips": 43,
+              "n_boats": 3,
+              "anglers": 1455,
+              "fish_kept": 5750.0
+            }
+          ]
+        }
+      ]
+    },
+    "60": {
+      "days": 60,
+      "start": "2026-06-04",
+      "end": "2026-08-02",
+      "n_trips": 1290,
+      "n_boats": 39,
+      "anglers": 42591,
+      "fish_kept": 207767.0,
+      "mean_fpp": 5.2,
+      "by_city": [
+        {
+          "city": "Newport Beach",
+          "n_trips": 395,
+          "n_boats": 6,
+          "n_days": 60,
+          "anglers": 13929,
+          "fish_kept": 62561.0,
+          "mean_fpp": 4.98,
+          "mean_fph": 0.7,
+          "species_top": [
+            {
+              "species": "Sculpin",
+              "count": 22511.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 12480.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 7119.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 6147.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 4617.0
+            },
+            {
+              "species": "Bonito",
+              "count": 2842.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 2659.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 1754.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Western Pride",
+              "n_trips": 160,
+              "fish_kept": 27126.0,
+              "anglers": 6228,
+              "mean_fpp": 4.49
+            },
+            {
+              "boat_name": "Freelance",
+              "n_trips": 78,
+              "fish_kept": 14785.0,
+              "anglers": 3848,
+              "mean_fpp": 3.66
+            },
+            {
+              "boat_name": "Thunderbird",
+              "n_trips": 55,
+              "fish_kept": 10631.0,
+              "anglers": 1624,
+              "mean_fpp": 6.63
+            },
+            {
+              "boat_name": "Patriot (Newport)",
+              "n_trips": 44,
+              "fish_kept": 5711.0,
+              "anglers": 1384,
+              "mean_fpp": 5.86
+            },
+            {
+              "boat_name": "Aggressor",
+              "n_trips": 38,
+              "fish_kept": 3705.0,
+              "anglers": 745,
+              "mean_fpp": 5.64
+            },
+            {
+              "boat_name": "Blackfish",
+              "n_trips": 20,
+              "fish_kept": 603.0,
+              "anglers": 100,
+              "mean_fpp": 6.33
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Davey's Locker",
+              "n_trips": 213,
+              "n_boats": 4,
+              "anglers": 8425,
+              "fish_kept": 34579.0
+            },
+            {
+              "landing_name": "Newport Landing",
+              "n_trips": 182,
+              "n_boats": 5,
+              "anglers": 5504,
+              "fish_kept": 27982.0
+            }
+          ]
+        },
+        {
+          "city": "San Pedro",
+          "n_trips": 246,
+          "n_boats": 9,
+          "n_days": 60,
+          "anglers": 7855,
+          "fish_kept": 44282.0,
+          "mean_fpp": 6.19,
+          "mean_fph": 0.63,
+          "species_top": [
+            {
+              "species": "Calico Bass",
+              "count": 9098.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 7798.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 5642.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 4984.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 4100.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 3259.0
+            },
+            {
+              "species": "Bonito",
+              "count": 3075.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 2926.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Freedom",
+              "n_trips": 40,
+              "fish_kept": 11118.0,
+              "anglers": 1320,
+              "mean_fpp": 8.9
+            },
+            {
+              "boat_name": "Monte Carlo",
+              "n_trips": 55,
+              "fish_kept": 10143.0,
+              "anglers": 2598,
+              "mean_fpp": 4.19
+            },
+            {
+              "boat_name": "Pursuit",
+              "n_trips": 31,
+              "fish_kept": 6489.0,
+              "anglers": 1148,
+              "mean_fpp": 5.64
+            },
+            {
+              "boat_name": "Native Sun",
+              "n_trips": 33,
+              "fish_kept": 6415.0,
+              "anglers": 1164,
+              "mean_fpp": 5.85
+            },
+            {
+              "boat_name": "Gail Force",
+              "n_trips": 22,
+              "fish_kept": 2385.0,
+              "anglers": 409,
+              "mean_fpp": 5.61
+            },
+            {
+              "boat_name": "Sport King",
+              "n_trips": 21,
+              "fish_kept": 2360.0,
+              "anglers": 518,
+              "mean_fpp": 4.51
+            },
+            {
+              "boat_name": "Pride",
+              "n_trips": 13,
+              "fish_kept": 2116.0,
+              "anglers": 189,
+              "mean_fpp": 11.37
+            },
+            {
+              "boat_name": "Amigo",
+              "n_trips": 19,
+              "fish_kept": 1872.0,
+              "anglers": 268,
+              "mean_fpp": 6.99
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "22nd Street Landing",
+              "n_trips": 191,
+              "n_boats": 6,
+              "anglers": 6687,
+              "fish_kept": 38153.0
+            },
+            {
+              "landing_name": "LA Waterfront Cruises and Sportfishing",
+              "n_trips": 55,
+              "n_boats": 3,
+              "anglers": 1168,
+              "fish_kept": 6129.0
+            }
+          ]
+        },
+        {
+          "city": "Long Beach",
+          "n_trips": 138,
+          "n_boats": 8,
+          "n_days": 54,
+          "anglers": 3872,
+          "fish_kept": 37958.0,
+          "mean_fpp": 9.44,
+          "mean_fph": 1.0,
+          "species_top": [
+            {
+              "species": "Sculpin",
+              "count": 8523.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 5671.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 5274.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 4210.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 3727.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 3652.0
+            },
+            {
+              "species": "Bonito",
+              "count": 1831.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 1649.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Victory",
+              "n_trips": 43,
+              "fish_kept": 17971.0,
+              "anglers": 1619,
+              "mean_fpp": 10.82
+            },
+            {
+              "boat_name": "El Patron",
+              "n_trips": 29,
+              "fish_kept": 5528.0,
+              "anglers": 576,
+              "mean_fpp": 9.77
+            },
+            {
+              "boat_name": "Enterprise",
+              "n_trips": 13,
+              "fish_kept": 5250.0,
+              "anglers": 388,
+              "mean_fpp": 11.23
+            },
+            {
+              "boat_name": "Toronado",
+              "n_trips": 16,
+              "fish_kept": 3095.0,
+              "anglers": 423,
+              "mean_fpp": 8.41
+            },
+            {
+              "boat_name": "Eldorado",
+              "n_trips": 13,
+              "fish_kept": 2627.0,
+              "anglers": 315,
+              "mean_fpp": 8.96
+            },
+            {
+              "boat_name": "City of Long Beach",
+              "n_trips": 8,
+              "fish_kept": 2073.0,
+              "anglers": 293,
+              "mean_fpp": 8.09
+            },
+            {
+              "boat_name": "Ahra-Ahn",
+              "n_trips": 10,
+              "fish_kept": 1107.0,
+              "anglers": 228,
+              "mean_fpp": 4.15
+            },
+            {
+              "boat_name": "MarDiosa",
+              "n_trips": 6,
+              "fish_kept": 307.0,
+              "anglers": 30,
+              "mean_fpp": 9.1
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Long Beach Sportfishing",
+              "n_trips": 101,
+              "n_boats": 5,
+              "anglers": 2768,
+              "fish_kept": 27540.0
+            },
+            {
+              "landing_name": "Pierpoint Landing",
+              "n_trips": 37,
+              "n_boats": 3,
+              "anglers": 1104,
+              "fish_kept": 10418.0
+            }
+          ]
+        },
+        {
+          "city": "Marina Del Rey",
+          "n_trips": 143,
+          "n_boats": 3,
+          "n_days": 54,
+          "anglers": 6526,
+          "fish_kept": 37750.0,
+          "mean_fpp": 6.51,
+          "mean_fph": 0.9,
+          "species_top": [
+            {
+              "species": "Rockfish",
+              "count": 18743.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 7526.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 6070.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 3078.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 670.0
+            },
+            {
+              "species": "Bonito",
+              "count": 462.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 338.0
+            },
+            {
+              "species": "Lingcod",
+              "count": 241.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "New Del Mar",
+              "n_trips": 52,
+              "fish_kept": 21559.0,
+              "anglers": 4139,
+              "mean_fpp": 5.68
+            },
+            {
+              "boat_name": "Spitfire",
+              "n_trips": 51,
+              "fish_kept": 11525.0,
+              "anglers": 1440,
+              "mean_fpp": 8.07
+            },
+            {
+              "boat_name": "Betty-O",
+              "n_trips": 40,
+              "fish_kept": 4666.0,
+              "anglers": 947,
+              "mean_fpp": 5.61
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Marina Del Rey Sportfishing",
+              "n_trips": 143,
+              "n_boats": 3,
+              "anglers": 6526,
+              "fish_kept": 37750.0
+            }
+          ]
+        },
+        {
+          "city": "Dana Point",
+          "n_trips": 293,
+          "n_boats": 10,
+          "n_days": 47,
+          "anglers": 8057,
+          "fish_kept": 15641.0,
+          "mean_fpp": 2.36,
+          "mean_fph": 0.27,
+          "species_top": [
+            {
+              "species": "Calico Bass",
+              "count": 4741.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 3144.0
+            },
+            {
+              "species": "Bonito",
+              "count": 1948.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 1752.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 1172.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 906.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 693.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 499.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Fury",
+              "n_trips": 35,
+              "fish_kept": 5618.0,
+              "anglers": 915,
+              "mean_fpp": 6.83
+            },
+            {
+              "boat_name": "Sum Fun",
+              "n_trips": 53,
+              "fish_kept": 2713.0,
+              "anglers": 1711,
+              "mean_fpp": 1.63
+            },
+            {
+              "boat_name": "Clemente",
+              "n_trips": 53,
+              "fish_kept": 2579.0,
+              "anglers": 1673,
+              "mean_fpp": 1.76
+            },
+            {
+              "boat_name": "Dana Pride",
+              "n_trips": 34,
+              "fish_kept": 2075.0,
+              "anglers": 1621,
+              "mean_fpp": 1.54
+            },
+            {
+              "boat_name": "Reel Fun",
+              "n_trips": 59,
+              "fish_kept": 1123.0,
+              "anglers": 1457,
+              "mean_fpp": 0.89
+            },
+            {
+              "boat_name": "New San Mateo",
+              "n_trips": 16,
+              "fish_kept": 789.0,
+              "anglers": 190,
+              "mean_fpp": 4.15
+            },
+            {
+              "boat_name": "Helena",
+              "n_trips": 21,
+              "fish_kept": 457.0,
+              "anglers": 393,
+              "mean_fpp": 1.36
+            },
+            {
+              "boat_name": "Current",
+              "n_trips": 17,
+              "fish_kept": 224.0,
+              "anglers": 81,
+              "mean_fpp": 2.9
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Dana Wharf Sportfishing",
+              "n_trips": 293,
+              "n_boats": 10,
+              "anglers": 8057,
+              "fish_kept": 15641.0
+            }
+          ]
+        },
+        {
+          "city": "Redondo Beach",
+          "n_trips": 75,
+          "n_boats": 3,
+          "n_days": 40,
+          "anglers": 2352,
+          "fish_kept": 9575.0,
+          "mean_fpp": 4.38,
+          "mean_fph": 0.74,
+          "species_top": [
+            {
+              "species": "Rockfish",
+              "count": 4808.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 1674.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 1483.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 375.0
+            },
+            {
+              "species": "Bonito",
+              "count": 361.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 305.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 176.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 120.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Redondo Special",
+              "n_trips": 55,
+              "fish_kept": 8247.0,
+              "anglers": 2027,
+              "mean_fpp": 4.39
+            },
+            {
+              "boat_name": "Pescador",
+              "n_trips": 18,
+              "fish_kept": 1194.0,
+              "anglers": 301,
+              "mean_fpp": 4.01
+            },
+            {
+              "boat_name": "Navegante",
+              "n_trips": 2,
+              "fish_kept": 134.0,
+              "anglers": 24,
+              "mean_fpp": 7.44
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Redondo Beach Sportfishing",
+              "n_trips": 75,
+              "n_boats": 3,
+              "anglers": 2352,
+              "fish_kept": 9575.0
+            }
+          ]
+        }
+      ]
+    },
+    "ytd": {
+      "days": null,
+      "label": "2026 YTD",
+      "start": "2026-01-01",
+      "end": "2026-08-02",
+      "n_trips": 2982,
+      "n_boats": 41,
+      "anglers": 94341,
+      "fish_kept": 595687.0,
+      "mean_fpp": 6.95,
+      "by_city": [
+        {
+          "city": "Newport Beach",
+          "n_trips": 830,
+          "n_boats": 6,
+          "n_days": 209,
+          "anglers": 27868,
+          "fish_kept": 157875.0,
+          "mean_fpp": 6.27,
+          "mean_fph": 0.91,
+          "species_top": [
+            {
+              "species": "Sculpin",
+              "count": 60865.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 29054.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 28140.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 9681.0
+            },
+            {
+              "species": "Sanddab",
+              "count": 7478.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 4726.0
+            },
+            {
+              "species": "Bonito",
+              "count": 4245.0
+            },
+            {
+              "species": "Vermilion Rockfish",
+              "count": 3293.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Western Pride",
+              "n_trips": 270,
+              "fish_kept": 48195.0,
+              "anglers": 10163,
+              "mean_fpp": 4.96
+            },
+            {
+              "boat_name": "Freelance",
+              "n_trips": 166,
+              "fish_kept": 43016.0,
+              "anglers": 7486,
+              "mean_fpp": 6.23
+            },
+            {
+              "boat_name": "Patriot (Newport)",
+              "n_trips": 165,
+              "fish_kept": 24993.0,
+              "anglers": 5010,
+              "mean_fpp": 5.77
+            },
+            {
+              "boat_name": "Thunderbird",
+              "n_trips": 87,
+              "fish_kept": 20453.0,
+              "anglers": 2517,
+              "mean_fpp": 8.3
+            },
+            {
+              "boat_name": "Aggressor",
+              "n_trips": 111,
+              "fish_kept": 19999.0,
+              "anglers": 2533,
+              "mean_fpp": 8.27
+            },
+            {
+              "boat_name": "Blackfish",
+              "n_trips": 31,
+              "fish_kept": 1219.0,
+              "anglers": 159,
+              "mean_fpp": 7.85
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Davey's Locker",
+              "n_trips": 418,
+              "n_boats": 4,
+              "anglers": 15867,
+              "fish_kept": 84030.0
+            },
+            {
+              "landing_name": "Newport Landing",
+              "n_trips": 412,
+              "n_boats": 5,
+              "anglers": 12001,
+              "fish_kept": 73845.0
+            }
+          ]
+        },
+        {
+          "city": "Long Beach",
+          "n_trips": 340,
+          "n_boats": 8,
+          "n_days": 165,
+          "anglers": 9346,
+          "fish_kept": 155635.0,
+          "mean_fpp": 17.95,
+          "mean_fph": 1.91,
+          "species_top": [
+            {
+              "species": "Sanddab",
+              "count": 61138.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 20063.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 20028.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 19165.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 8473.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 6822.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 5462.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 4075.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Ahra-Ahn",
+              "n_trips": 34,
+              "fish_kept": 59794.0,
+              "anglers": 875,
+              "mean_fpp": 65.89
+            },
+            {
+              "boat_name": "Victory",
+              "n_trips": 108,
+              "fish_kept": 44328.0,
+              "anglers": 3928,
+              "mean_fpp": 11.62
+            },
+            {
+              "boat_name": "Eldorado",
+              "n_trips": 46,
+              "fish_kept": 15624.0,
+              "anglers": 1178,
+              "mean_fpp": 13.48
+            },
+            {
+              "boat_name": "El Patron",
+              "n_trips": 77,
+              "fish_kept": 14076.0,
+              "anglers": 1480,
+              "mean_fpp": 9.58
+            },
+            {
+              "boat_name": "Enterprise",
+              "n_trips": 27,
+              "fish_kept": 10143.0,
+              "anglers": 753,
+              "mean_fpp": 12.53
+            },
+            {
+              "boat_name": "Toronado",
+              "n_trips": 25,
+              "fish_kept": 5752.0,
+              "anglers": 621,
+              "mean_fpp": 10.03
+            },
+            {
+              "boat_name": "City of Long Beach",
+              "n_trips": 12,
+              "fish_kept": 3087.0,
+              "anglers": 455,
+              "mean_fpp": 7.64
+            },
+            {
+              "boat_name": "MarDiosa",
+              "n_trips": 11,
+              "fish_kept": 2831.0,
+              "anglers": 56,
+              "mean_fpp": 54.69
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Long Beach Sportfishing",
+              "n_trips": 276,
+              "n_boats": 5,
+              "anglers": 7517,
+              "fish_kept": 136653.0
+            },
+            {
+              "landing_name": "Pierpoint Landing",
+              "n_trips": 64,
+              "n_boats": 3,
+              "anglers": 1829,
+              "fish_kept": 18982.0
+            }
+          ]
+        },
+        {
+          "city": "Marina Del Rey",
+          "n_trips": 451,
+          "n_boats": 3,
+          "n_days": 201,
+          "anglers": 19044,
+          "fish_kept": 114184.0,
+          "mean_fpp": 6.8,
+          "mean_fph": 1.01,
+          "species_top": [
+            {
+              "species": "Rockfish",
+              "count": 52376.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 38232.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 11976.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 4551.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 3262.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 928.0
+            },
+            {
+              "species": "Sanddab",
+              "count": 600.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 576.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "New Del Mar",
+              "n_trips": 195,
+              "fish_kept": 73162.0,
+              "anglers": 13409,
+              "mean_fpp": 5.86
+            },
+            {
+              "boat_name": "Spitfire",
+              "n_trips": 158,
+              "fish_kept": 28165.0,
+              "anglers": 3664,
+              "mean_fpp": 7.77
+            },
+            {
+              "boat_name": "Betty-O",
+              "n_trips": 98,
+              "fish_kept": 12857.0,
+              "anglers": 1971,
+              "mean_fpp": 7.11
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Marina Del Rey Sportfishing",
+              "n_trips": 451,
+              "n_boats": 3,
+              "anglers": 19044,
+              "fish_kept": 114184.0
+            }
+          ]
+        },
+        {
+          "city": "San Pedro",
+          "n_trips": 527,
+          "n_boats": 11,
+          "n_days": 175,
+          "anglers": 16063,
+          "fish_kept": 99049.0,
+          "mean_fpp": 6.66,
+          "mean_fph": 0.76,
+          "species_top": [
+            {
+              "species": "Whitefish",
+              "count": 23199.0
+            },
+            {
+              "species": "Rockfish",
+              "count": 18485.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 14466.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 11413.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 7710.0
+            },
+            {
+              "species": "Bonito",
+              "count": 4269.0
+            },
+            {
+              "species": "Barracuda",
+              "count": 4252.0
+            },
+            {
+              "species": "Yellowtail",
+              "count": 3574.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Monte Carlo",
+              "n_trips": 123,
+              "fish_kept": 27896.0,
+              "anglers": 5152,
+              "mean_fpp": 6.03
+            },
+            {
+              "boat_name": "Freedom",
+              "n_trips": 66,
+              "fish_kept": 21671.0,
+              "anglers": 2070,
+              "mean_fpp": 11.05
+            },
+            {
+              "boat_name": "Pursuit",
+              "n_trips": 91,
+              "fish_kept": 18637.0,
+              "anglers": 3063,
+              "mean_fpp": 6.37
+            },
+            {
+              "boat_name": "Native Sun",
+              "n_trips": 116,
+              "fish_kept": 15628.0,
+              "anglers": 3587,
+              "mean_fpp": 4.56
+            },
+            {
+              "boat_name": "Sport King",
+              "n_trips": 29,
+              "fish_kept": 3498.0,
+              "anglers": 662,
+              "mean_fpp": 5.25
+            },
+            {
+              "boat_name": "Pride",
+              "n_trips": 16,
+              "fish_kept": 3154.0,
+              "anglers": 233,
+              "mean_fpp": 13.61
+            },
+            {
+              "boat_name": "Gail Force",
+              "n_trips": 33,
+              "fish_kept": 2877.0,
+              "anglers": 530,
+              "mean_fpp": 5.07
+            },
+            {
+              "boat_name": "Amigo",
+              "n_trips": 24,
+              "fish_kept": 2840.0,
+              "anglers": 336,
+              "mean_fpp": 8.52
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "22nd Street Landing",
+              "n_trips": 448,
+              "n_boats": 8,
+              "anglers": 14531,
+              "fish_kept": 90681.0
+            },
+            {
+              "landing_name": "LA Waterfront Cruises and Sportfishing",
+              "n_trips": 79,
+              "n_boats": 3,
+              "anglers": 1532,
+              "fish_kept": 8368.0
+            }
+          ]
+        },
+        {
+          "city": "Dana Point",
+          "n_trips": 674,
+          "n_boats": 10,
+          "n_days": 178,
+          "anglers": 17357,
+          "fish_kept": 43585.0,
+          "mean_fpp": 2.93,
+          "mean_fph": 0.36,
+          "species_top": [
+            {
+              "species": "Rockfish",
+              "count": 14493.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 7593.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 5920.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 5192.0
+            },
+            {
+              "species": "Bonito",
+              "count": 2439.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 2210.0
+            },
+            {
+              "species": "Sheephead",
+              "count": 1917.0
+            },
+            {
+              "species": "Sanddab",
+              "count": 1734.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Sum Fun",
+              "n_trips": 146,
+              "fish_kept": 13869.0,
+              "anglers": 4074,
+              "mean_fpp": 3.82
+            },
+            {
+              "boat_name": "Fury",
+              "n_trips": 55,
+              "fish_kept": 11140.0,
+              "anglers": 1359,
+              "mean_fpp": 8.62
+            },
+            {
+              "boat_name": "Clemente",
+              "n_trips": 198,
+              "fish_kept": 9461.0,
+              "anglers": 5614,
+              "mean_fpp": 2.0
+            },
+            {
+              "boat_name": "Dana Pride",
+              "n_trips": 46,
+              "fish_kept": 3659.0,
+              "anglers": 2018,
+              "mean_fpp": 2.22
+            },
+            {
+              "boat_name": "Reel Fun",
+              "n_trips": 144,
+              "fish_kept": 2965.0,
+              "anglers": 3387,
+              "mean_fpp": 1.06
+            },
+            {
+              "boat_name": "New San Mateo",
+              "n_trips": 29,
+              "fish_kept": 1421.0,
+              "anglers": 360,
+              "mean_fpp": 4.13
+            },
+            {
+              "boat_name": "Current",
+              "n_trips": 25,
+              "fish_kept": 507.0,
+              "anglers": 120,
+              "mean_fpp": 4.3
+            },
+            {
+              "boat_name": "Helena",
+              "n_trips": 21,
+              "fish_kept": 457.0,
+              "anglers": 393,
+              "mean_fpp": 1.36
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Dana Wharf Sportfishing",
+              "n_trips": 674,
+              "n_boats": 10,
+              "anglers": 17357,
+              "fish_kept": 43585.0
+            }
+          ]
+        },
+        {
+          "city": "Redondo Beach",
+          "n_trips": 160,
+          "n_boats": 3,
+          "n_days": 107,
+          "anglers": 4663,
+          "fish_kept": 25359.0,
+          "mean_fpp": 5.98,
+          "mean_fph": 1.04,
+          "species_top": [
+            {
+              "species": "Rockfish",
+              "count": 11210.0
+            },
+            {
+              "species": "Whitefish",
+              "count": 7882.0
+            },
+            {
+              "species": "Calico Bass",
+              "count": 2210.0
+            },
+            {
+              "species": "Blue Perch",
+              "count": 881.0
+            },
+            {
+              "species": "Red Snapper",
+              "count": 699.0
+            },
+            {
+              "species": "Sand Bass",
+              "count": 574.0
+            },
+            {
+              "species": "Sculpin",
+              "count": 512.0
+            },
+            {
+              "species": "Bonito",
+              "count": 366.0
+            }
+          ],
+          "boats_top": [
+            {
+              "boat_name": "Redondo Special",
+              "n_trips": 126,
+              "fish_kept": 21514.0,
+              "anglers": 4133,
+              "mean_fpp": 5.54
+            },
+            {
+              "boat_name": "Pescador",
+              "n_trips": 32,
+              "fish_kept": 3711.0,
+              "anglers": 506,
+              "mean_fpp": 7.62
+            },
+            {
+              "boat_name": "Navegante",
+              "n_trips": 2,
+              "fish_kept": 134.0,
+              "anglers": 24,
+              "mean_fpp": 7.44
+            }
+          ],
+          "by_landing": [
+            {
+              "landing_name": "Redondo Beach Sportfishing",
+              "n_trips": 160,
+              "n_boats": 3,
+              "anglers": 4663,
+              "fish_kept": 25359.0
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -48,6 +48,7 @@ def main():
         run([py, "scripts/detect_stops.py"])
 
     run([py, "scripts/build_map_data.py"])
+    run([py, "scripts/build_homeport_summary.py"])
     print("Pilot pipeline complete.")
 
 
