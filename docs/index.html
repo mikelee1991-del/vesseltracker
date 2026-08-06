@@ -547,25 +547,6 @@
               </div>
             </div>
             <div>
-              <div class="multi-head">
-                <label for="boatFilter">Boat <span class="meta" id="boatFilterSummary">all</span></label>
-                <button type="button" class="linkish" id="boatFilterClear" title="Clear boat selection">Clear</button>
-              </div>
-              <select id="boatFilter" class="multi" multiple size="6" aria-label="Boats (multi-select)"></select>
-              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all boats</p>
-            </div>
-            <div>
-              <div class="multi-head">
-                <label for="speciesFilter">Species <span class="meta" id="speciesFilterSummary">all</span></label>
-                <span class="multi-actions">
-                  <button type="button" class="linkish" id="speciesGroupsEdit" title="Edit type and habitat groups">Groups</button>
-                  <button type="button" class="linkish" id="speciesFilterClear" title="Clear species selection">Clear</button>
-                </span>
-              </div>
-              <select id="speciesFilter" class="multi" multiple size="9" aria-label="Species and groups (multi-select)"></select>
-              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · groups or species · empty = all · match any</p>
-            </div>
-            <div>
               <label for="sortBy">Sort spots</label>
               <select id="sortBy">
                 <option value="shrunk_fph" selected>Reliable FPH (evidence-weighted)</option>
@@ -591,6 +572,25 @@
                 <label class="chk"><input type="checkbox" id="toggleBlueTopoHill" checked /> BlueTopo hillshade</label>
                 <label class="chk"><input type="checkbox" id="toggleOsm" checked /> Coast reference</label>
               </div>
+            </div>
+            <div>
+              <div class="multi-head">
+                <label for="boatFilter">Boat <span class="meta" id="boatFilterSummary">all</span></label>
+                <button type="button" class="linkish" id="boatFilterClear" title="Clear boat selection">Clear</button>
+              </div>
+              <select id="boatFilter" class="multi" multiple size="6" aria-label="Boats (multi-select)"></select>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all boats</p>
+            </div>
+            <div>
+              <div class="multi-head">
+                <label for="speciesFilter">Species <span class="meta" id="speciesFilterSummary">all</span></label>
+                <span class="multi-actions">
+                  <button type="button" class="linkish" id="speciesGroupsEdit" title="Edit type and habitat groups">Groups</button>
+                  <button type="button" class="linkish" id="speciesFilterClear" title="Clear species selection">Clear</button>
+                </span>
+              </div>
+              <select id="speciesFilter" class="multi" multiple size="9" aria-label="Species and groups (multi-select)"></select>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · groups or species · empty = all · match any</p>
             </div>
             </div>
             <p class="status" id="status">Loading…</p>
@@ -624,14 +624,6 @@
               </div>
             </div>
             <div>
-              <div class="multi-head">
-                <label for="courseBoatFilter">Boat <span class="meta" id="courseBoatFilterSummary">all</span></label>
-                <button type="button" class="linkish" id="courseBoatFilterClear" title="Clear boat selection">Clear</button>
-              </div>
-              <select id="courseBoatFilter" class="multi" multiple size="6" aria-label="Course boats (multi-select)"></select>
-              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all boats</p>
-            </div>
-            <div>
               <label for="courseOpacity">Path opacity</label>
               <input id="courseOpacity" type="range" min="8" max="70" value="22" />
             </div>
@@ -644,6 +636,14 @@
                 <label class="chk"><input type="checkbox" id="toggleBlueTopoHillC" checked /> BlueTopo hillshade</label>
                 <label class="chk"><input type="checkbox" id="toggleOsmC" checked /> Coast reference</label>
               </div>
+            </div>
+            <div>
+              <div class="multi-head">
+                <label for="courseBoatFilter">Boat <span class="meta" id="courseBoatFilterSummary">all</span></label>
+                <button type="button" class="linkish" id="courseBoatFilterClear" title="Clear boat selection">Clear</button>
+              </div>
+              <select id="courseBoatFilter" class="multi" multiple size="6" aria-label="Course boats (multi-select)"></select>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all boats</p>
             </div>
             </div>
             <p class="status" id="courseStatus">Loading courses…</p>
