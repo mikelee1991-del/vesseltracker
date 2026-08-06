@@ -712,6 +712,11 @@
               </div>
             </div>
             <div>
+              <label for="heatOpacity">Opacity <span class="meta" id="heatOpacityVal">80%</span></label>
+              <input id="heatOpacity" type="range" min="15" max="100" value="80" />
+              <p class="hint">Heat layer alpha · default is fairly solid so peaks read over bathymetry</p>
+            </div>
+            <div>
               <label for="heatMax">Hot threshold <span class="meta" id="heatMaxVal">0.60</span></label>
               <input id="heatMax" type="range" min="0.2" max="1.0" step="0.05" value="0.6" />
               <p class="hint">Color scale auto-fits the current boat/species/date filter; lower threshold = hotter peaks</p>
@@ -742,6 +747,7 @@
             Cool → hot = low → high for the selected metric. Intensity is <strong>re-scaled</strong> to the
             current boat/species/date filter so a single vessel or species still uses the full temperature range.
             Defaults to the minimum radius/blur for max clarity; raise those sliders only to soft-merge dense areas.
+            Opacity defaults high so the heat reads clearly over the bathymetry stack — dial it down if the seafloor detail matters more.
           </p>
           <div id="heatList"></div>
         </div>
@@ -869,7 +875,7 @@
           <ul>
             <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH</li>
             <li><strong>Courses</strong> — schematic polylines home → stops (time order) → home (not raw AIS tracks). Up to 2,500 paths drawn per filter for performance</li>
-            <li><strong>Heatmap</strong> — density of the same clustered spots; intensity = dwell, boat-days, attributed fish, dwell FPH, or trip FPP. Color scale <strong>auto-rescales</strong> to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur)</li>
+            <li><strong>Heatmap</strong> — density of the same clustered spots; intensity = dwell, boat-days, attributed fish, dwell FPH, or trip FPP. Color scale <strong>auto-rescales</strong> to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur); opacity defaults to 80% (slider)</li>
           </ul>
 
           <h2 id="m-limits">Known limits</h2>
@@ -1883,7 +1889,10 @@
       const baseRadius = Number(el("heatRadius").value) || HEAT_RADIUS_MIN;
       const baseBlur = Number(el("heatBlur").value) || HEAT_BLUR_MIN;
       const hotThreshold = Number(el("heatMax").value) || 0.6;
+      const heatOpacityPct = Math.max(15, Math.min(100, Number(el("heatOpacity").value) || 80));
+      const minOpacity = heatOpacityPct / 100;
       const showMarkers = el("heatShowMarkers").checked;
+      if (el("heatOpacityVal")) el("heatOpacityVal").textContent = `${heatOpacityPct}%`;
 
       const scored = locs.map((loc) => {
         const intensity = heatIntensity(loc, metric, speciesKeys);
@@ -1907,7 +1916,7 @@
           radius,
           blur,
           maxZoom: 18,
-          minOpacity: scored.length < 50 ? 0.22 : 0.32,
+          minOpacity,
           // Relative units after auto-normalize; threshold redraws fully hot by this fraction of dataMax.
           max: Math.max(0.05, hotThreshold),
           gradient: {
@@ -2580,6 +2589,8 @@
       if (el("heatMetric")) el("heatMetric").value = "dwell";
       if (el("heatRadius")) el("heatRadius").value = String(HEAT_RADIUS_MIN);
       if (el("heatBlur")) el("heatBlur").value = String(HEAT_BLUR_MIN);
+      if (el("heatOpacity")) el("heatOpacity").value = "80";
+      if (el("heatOpacityVal")) el("heatOpacityVal").textContent = "80%";
       if (el("heatMax")) el("heatMax").value = "0.6";
       if (el("heatShowMarkers")) el("heatShowMarkers").checked = false;
       syncHeatKernelLabels(HEAT_RADIUS_MIN, HEAT_BLUR_MIN, null);
@@ -2728,6 +2739,13 @@
     el("heatMetric").addEventListener("change", () => scheduleRender(renderHeatView, 80));
     el("heatRadius").addEventListener("input", () => scheduleRender(renderHeatView, 60));
     el("heatBlur").addEventListener("input", () => scheduleRender(renderHeatView, 60));
+    el("heatOpacity").addEventListener("input", () => {
+      if (el("heatOpacityVal")) {
+        const pct = Math.max(15, Math.min(100, Number(el("heatOpacity").value) || 80));
+        el("heatOpacityVal").textContent = `${pct}%`;
+      }
+      scheduleRender(renderHeatView, 60);
+    });
     el("heatMax").addEventListener("input", () => scheduleRender(renderHeatView, 60));
     el("heatShowMarkers").addEventListener("change", () => scheduleRender(renderHeatView, 60));
     el("day").addEventListener("change", () => loadDay(el("day").value));
