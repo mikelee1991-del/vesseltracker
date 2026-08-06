@@ -224,6 +224,22 @@
   },
   "registry_non_high": [
     {
+      "mmsi": 368121950,
+      "ais_vessel_name": "MARDIOSA",
+      "vessel_name_norm": "MARDIOSA",
+      "call_sign": null,
+      "vessel_type": null,
+      "length": 27,
+      "width": 8,
+      "report_boat_names": [],
+      "n_points": 0,
+      "first_seen": null,
+      "last_seen": null,
+      "score": 0.0,
+      "match_confidence": "denied",
+      "deny_reason": "Cabo/San Diego ~96 ft yacht MARDIOSA, not Long Beach 40 ft Hoyt charter"
+    },
+    {
       "mmsi": 366760710,
       "ais_vessel_name": "REDONDO",
       "vessel_name_norm": "REDONDO",
