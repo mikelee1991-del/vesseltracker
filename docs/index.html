@@ -67,11 +67,14 @@
       grid-template-columns: minmax(300px, 400px) 1fr;
       min-height: 0;
     }
-    .layout.methods-mode {
+    .layout.methods-mode,
+    .layout.catch-mode {
       grid-template-columns: 1fr;
     }
-    .layout.methods-mode .map-wrap { display: none; }
-    .layout.methods-mode .sidebar {
+    .layout.methods-mode .map-wrap,
+    .layout.catch-mode .map-wrap { display: none; }
+    .layout.methods-mode .sidebar,
+    .layout.catch-mode .sidebar {
       border-right: none;
       max-width: 52rem;
       margin: 0 auto;
@@ -91,7 +94,8 @@
         grid-template-columns: 1fr;
         grid-template-rows: minmax(40dvh, 48dvh) minmax(0, 1fr);
       }
-      .layout.methods-mode {
+      .layout.methods-mode,
+      .layout.catch-mode {
         grid-template-rows: 1fr;
       }
       .map-wrap {
@@ -388,14 +392,33 @@
       margin: 0 0 0.8rem; padding: 0.55rem 0.65rem;
       border-left: 3px solid var(--sand); background: rgba(196,165,116,0.12);
     }
-    .loc, .visit, .course, .heat {
+    .loc, .visit, .course, .heat, .homeport {
       padding: 0.7rem 0; border-bottom: 1px solid var(--line); cursor: pointer;
     }
-    .loc:hover, .loc.selected, .course:hover, .course.selected, .heat:hover, .heat.selected {
+    .loc:hover, .loc.selected, .course:hover, .course.selected, .heat:hover, .heat.selected, .homeport:hover, .homeport.selected {
       background: rgba(23,104,122,0.08); margin: 0 -0.4rem; padding-left: 0.4rem; padding-right: 0.4rem; border-radius: 8px;
     }
-    .loc h3, .detail h3, .course h3, .heat h3 {
+    .loc h3, .detail h3, .course h3, .heat h3, .homeport h3 {
       margin: 0; font-size: 1rem; font-family: Fraunces, Georgia, serif;
+    }
+    .homeport .species-chips {
+      display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem;
+    }
+    .homeport .chip {
+      font-size: 0.72rem; padding: 0.15rem 0.45rem; border-radius: 999px;
+      background: rgba(11,61,74,0.1); border: 1px solid var(--line); color: var(--sea);
+    }
+    .homeport-detail .kv {
+      display: flex; justify-content: space-between; gap: 0.75rem;
+      padding: 0.28rem 0; border-bottom: 1px solid rgba(19,32,43,0.08); font-size: 0.88rem;
+    }
+    .homeport-detail .kv span { color: rgba(19,32,43,0.7); }
+    .homeport-detail ul { margin: 0.35rem 0 0.7rem; padding-left: 1.1rem; }
+    .window-pills {
+      display: flex; flex-wrap: wrap; gap: 0.35rem;
+    }
+    .window-pills button {
+      width: auto; min-width: 0; padding: 0.35rem 0.7rem; font-size: 0.82rem;
     }
     .heat-grad {
       height: 10px; border-radius: 999px; margin: 0.35rem 0 0.25rem;
@@ -508,6 +531,7 @@
         <button type="button" id="tabHeat" class="active" role="tab" aria-selected="true">Heatmap</button>
         <button type="button" id="tabSpots" class="secondary" role="tab" aria-selected="false">Spots</button>
         <button type="button" id="tabCourses" class="secondary" role="tab" aria-selected="false">Courses</button>
+        <button type="button" id="tabCatch" class="secondary" role="tab" aria-selected="false">Catch</button>
         <button type="button" id="tabMethods" class="secondary" role="tab" aria-selected="false">Methods</button>
         <button type="button" id="hardReset" class="secondary reset-btn" title="Reset all filters, dates, and map view">Reset</button>
       </div>
@@ -761,6 +785,43 @@
           <div id="heatList"></div>
         </div>
 
+        <div id="panelCatch" class="panel" hidden>
+          <div class="controls">
+            <div class="controls-body">
+              <div>
+                <label>Window</label>
+                <div class="window-pills" id="catchWindowPills" role="group" aria-label="Catch summary window">
+                  <button type="button" data-window="7" class="secondary">7 days</button>
+                  <button type="button" data-window="14" class="active">14 days</button>
+                  <button type="button" data-window="30" class="secondary">30 days</button>
+                  <button type="button" data-window="60" class="secondary">60 days</button>
+                  <button type="button" data-window="ytd" class="secondary">YTD</button>
+                </div>
+              </div>
+              <div>
+                <label for="catchSort">Sort homeports</label>
+                <select id="catchSort">
+                  <option value="fish" selected>Fish kept</option>
+                  <option value="trips">Trips</option>
+                  <option value="fpp">Mean fish/person</option>
+                  <option value="anglers">Anglers</option>
+                  <option value="boats">Boats</option>
+                </select>
+              </div>
+            </div>
+            <p class="status" id="catchStatus">Loading dock totals…</p>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><div class="k">Fish kept</div><div class="v" id="statCatchFish">—</div></div>
+            <div class="stat"><div class="k">Trips</div><div class="v" id="statCatchTrips">—</div></div>
+            <div class="stat"><div class="k">Mean FPP</div><div class="v" id="statCatchFpp">—</div></div>
+          </div>
+          <p class="note" id="catchNote">
+            Dock totals from socalfishreports.com by homeport (city). No AIS required — works for 2026 YTD even without Cadastre.
+          </p>
+          <div id="catchList"></div>
+        </div>
+
         <div id="panelMethods" class="panel methods-doc" hidden>
           <h2 id="m-overview">What this map is</h2>
           <p>
@@ -899,7 +960,15 @@
             <li><strong>Heatmap</strong> (default) — density of AIS-clustered spots; default intensity = <strong>reliable FPH</strong> (also raw dwell FPH, primary-stop, consistency, seasonal ±30d, dwell, boat-days, fish, trip FPP). Color scale auto-rescales to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur); opacity defaults to 80%</li>
             <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH; default sort is reliable FPH</li>
             <li><strong>Courses</strong> — schematic polylines home → stops (time order) → home (not raw AIS tracks). Up to 2,500 paths drawn per filter for performance</li>
+            <li><strong>Catch</strong> — recent dock totals rolled up by homeport (city). Windows: 7/14/30/60 days and YTD from the latest scrape date. No AIS required</li>
           </ul>
+
+          <h2 id="m-catch">Catch by homeport</h2>
+          <p>
+            Built from the fish-report scrape only (<code>scripts/build_homeport_summary.py</code> → <code>docs/data/homeport_summary.json</code>).
+            Each homeport card shows fish kept, trips, boats, mean FPP/FPH, top species, landings, and top boats for the selected window.
+            This is the view to use when you care about dock success and AIS coverage is incomplete.
+          </p>
 
           <h2 id="m-limits">Known limits</h2>
           <ul>
@@ -1007,7 +1076,11 @@
       courseDates: [],
       spotsDates: [],
       dayPayload: null,
-      tab: "heat", // heat | spots | courses | methods
+      tab: "heat", // heat | spots | courses | catch | methods
+      homeportSummary: null,
+      catchWindow: "14",
+      catchSort: "fish",
+      catchSelectedCity: null,
       mode: "all", // all | day
       selectedId: null,
       selectedCourseKey: null,
@@ -2689,11 +2762,157 @@
       renderCourseMap(courses);
     }
 
+    async function ensureHomeportSummary() {
+      if (state.homeportSummary) return state.homeportSummary;
+      el("catchStatus").textContent = "Loading dock totals…";
+      try {
+        const data = await (await fetch("data/homeport_summary.json")).json();
+        state.homeportSummary = data;
+        if (data.default_window && data.windows?.[data.default_window]) {
+          state.catchWindow = data.default_window;
+        }
+        syncCatchWindowPills();
+        return data;
+      } catch (err) {
+        el("catchStatus").textContent = `Failed to load catch summary: ${err.message}`;
+        throw err;
+      }
+    }
+
+    function syncCatchWindowPills() {
+      const pills = el("catchWindowPills");
+      if (!pills) return;
+      pills.querySelectorAll("button").forEach((btn) => {
+        const on = btn.dataset.window === state.catchWindow;
+        btn.classList.toggle("active", on);
+        btn.classList.toggle("secondary", !on);
+      });
+    }
+
+    function currentCatchWindow() {
+      const data = state.homeportSummary;
+      if (!data) return null;
+      return data.windows?.[state.catchWindow] || null;
+    }
+
+    function catchSortValue(row) {
+      const key = state.catchSort || el("catchSort")?.value || "fish";
+      if (key === "trips") return row.n_trips || 0;
+      if (key === "fpp") return row.mean_fpp;
+      if (key === "anglers") return row.anglers || 0;
+      if (key === "boats") return row.n_boats || 0;
+      return row.fish_kept || 0;
+    }
+
+    function sortedCatchCities(win) {
+      const rows = [...(win?.by_city || [])];
+      rows.sort((a, b) => {
+        const av = catchSortValue(a);
+        const bv = catchSortValue(b);
+        const aNull = av == null || Number.isNaN(av);
+        const bNull = bv == null || Number.isNaN(bv);
+        if (aNull && bNull) return a.city.localeCompare(b.city);
+        if (aNull) return 1;
+        if (bNull) return -1;
+        if (bv !== av) return bv - av;
+        return a.city.localeCompare(b.city);
+      });
+      return rows;
+    }
+
+    function renderCatchView() {
+      const data = state.homeportSummary;
+      const win = currentCatchWindow();
+      if (!data || !win) {
+        el("catchStatus").textContent = "No catch summary loaded.";
+        return;
+      }
+      syncCatchWindowPills();
+      if (el("catchSort")) el("catchSort").value = state.catchSort;
+
+      const label = win.label || `${win.days} days`;
+      el("catchStatus").textContent =
+        `${label}: ${win.start} → ${win.end} · ${win.n_trips.toLocaleString()} trips · ${win.n_boats} boats · as of ${data.as_of}`;
+      el("statCatchFish").textContent = Math.round(win.fish_kept || 0).toLocaleString();
+      el("statCatchTrips").textContent = (win.n_trips || 0).toLocaleString();
+      el("statCatchFpp").textContent = fmt(win.mean_fpp, 2);
+      el("catchNote").textContent =
+        `Dock totals from ${data.source || "socalfishreports.com"} by homeport (city). ` +
+        `No AIS required. Window = ${win.start} → ${win.end}.`;
+
+      if (state.catchSelectedCity) {
+        const row = (win.by_city || []).find((c) => c.city === state.catchSelectedCity);
+        if (row) {
+          showCatchDetail(row);
+          return;
+        }
+        state.catchSelectedCity = null;
+      }
+      showCatchList(sortedCatchCities(win));
+    }
+
+    function showCatchList(rows) {
+      el("catchList").innerHTML = rows.map((row) => {
+        const chips = (row.species_top || []).slice(0, 4).map((s) =>
+          `<span class="chip">${Math.round(s.count).toLocaleString()} ${s.species}</span>`
+        ).join("");
+        return `<article class="homeport" data-city="${row.city}">
+          <h3>${row.city}</h3>
+          <div class="meta">${row.n_trips} trips · ${row.n_boats} boats · ${row.n_days} days · ${row.anglers.toLocaleString()} anglers</div>
+          <div>
+            <span class="fpp">${Math.round(row.fish_kept).toLocaleString()} fish kept</span>
+            <span class="meta"> · ${fmt(row.mean_fpp, 2)} FPP · ${fmt(row.mean_fph, 2)} FPH</span>
+          </div>
+          <div class="species-chips">${chips || `<span class="meta">No species listed</span>`}</div>
+        </article>`;
+      }).join("") || "<p class='status'>No dock totals in this window.</p>";
+
+      el("catchList").querySelectorAll(".homeport").forEach((node) => {
+        node.addEventListener("click", () => {
+          state.catchSelectedCity = node.dataset.city;
+          renderCatchView();
+        });
+      });
+    }
+
+    function showCatchDetail(row) {
+      const landings = (row.by_landing || []).map((l) =>
+        `<li><strong>${l.landing_name}</strong> — ${Math.round(l.fish_kept).toLocaleString()} fish · ${l.n_trips} trips · ${l.n_boats} boats</li>`
+      ).join("");
+      const boats = (row.boats_top || []).map((b) =>
+        `<li><strong>${b.boat_name}</strong> — ${Math.round(b.fish_kept).toLocaleString()} fish · ${b.n_trips} trips · ${fmt(b.mean_fpp, 2)} FPP</li>`
+      ).join("");
+      const species = (row.species_top || []).map((s) =>
+        `<li>${Math.round(s.count).toLocaleString()} ${s.species}</li>`
+      ).join("");
+      el("catchList").innerHTML = `
+        <button type="button" class="secondary back" id="catchBackBtn">← All homeports</button>
+        <div class="detail homeport-detail">
+          <h3>${row.city}</h3>
+          <div class="meta">${row.n_trips} trips · ${row.n_boats} boats · ${row.n_days} report days</div>
+          <div class="kv"><span>Fish kept</span><strong>${Math.round(row.fish_kept).toLocaleString()}</strong></div>
+          <div class="kv"><span>Anglers</span><strong>${row.anglers.toLocaleString()}</strong></div>
+          <div class="kv"><span>Mean fish/person</span><strong>${fmt(row.mean_fpp, 2)}</strong></div>
+          <div class="kv"><span>Mean fish/person/hour</span><strong>${fmt(row.mean_fph, 2)}</strong></div>
+          <h3 style="margin-top:0.85rem;font-size:0.95rem">Top species</h3>
+          <ul>${species || "<li>None listed</li>"}</ul>
+          <h3 style="font-size:0.95rem">Landings</h3>
+          <ul>${landings || "<li>None listed</li>"}</ul>
+          <h3 style="font-size:0.95rem">Top boats</h3>
+          <ul>${boats || "<li>None listed</li>"}</ul>
+        </div>`;
+      el("catchBackBtn").addEventListener("click", () => {
+        state.catchSelectedCity = null;
+        renderCatchView();
+      });
+    }
+
     function setTab(tab) {
       state.tab = tab;
       const spots = tab === "spots";
       const courses = tab === "courses";
       const heat = tab === "heat";
+      const catchTab = tab === "catch";
       const methods = tab === "methods";
       el("tabSpots").classList.toggle("active", spots);
       el("tabSpots").classList.toggle("secondary", !spots);
@@ -2704,18 +2923,23 @@
       el("tabHeat").classList.toggle("active", heat);
       el("tabHeat").classList.toggle("secondary", !heat);
       el("tabHeat").setAttribute("aria-selected", heat ? "true" : "false");
+      el("tabCatch").classList.toggle("active", catchTab);
+      el("tabCatch").classList.toggle("secondary", !catchTab);
+      el("tabCatch").setAttribute("aria-selected", catchTab ? "true" : "false");
       el("tabMethods").classList.toggle("active", methods);
       el("tabMethods").classList.toggle("secondary", !methods);
       el("tabMethods").setAttribute("aria-selected", methods ? "true" : "false");
       el("panelSpots").hidden = !spots;
       el("panelCourses").hidden = !courses;
       el("panelHeat").hidden = !heat;
+      el("panelCatch").hidden = !catchTab;
       el("panelMethods").hidden = !methods;
       el("legendSpots").hidden = !spots;
       el("legendCourses").hidden = !courses;
       el("legendHeat").hidden = !heat;
       el("mainLayout").classList.toggle("methods-mode", methods);
-      if (el("mobileBar")) el("mobileBar").hidden = methods;
+      el("mainLayout").classList.toggle("catch-mode", catchTab);
+      if (el("mobileBar")) el("mobileBar").hidden = methods || catchTab;
       el("headerBlurb").innerHTML = spots
         ? `Fishing spots grouped from AIS offshore stops within ~150 ft.
            Circle size is dwell; color tracks dwell-attributed fish/person/hour.
@@ -2727,6 +2951,9 @@
         : heat
         ? `Heatmap of fishing intensity across AIS-clustered stops.
            Default metric is reliable (evidence-weighted) FPH; also raw dwell FPH, primary-stop, consistency, and seasonal (±30d across years).`
+        : catchTab
+        ? `Recent catch by homeport from <strong>socalfishreports.com dock totals</strong>.
+           No AIS required — useful for 2026 YTD when Cadastre coverage is missing.`
         : `How the map is built: data sources, stop detection, dwell-share attribution, filters, and known limits.`;
       state.hasFittedBounds = false;
       state.selectedId = null;
@@ -2740,8 +2967,9 @@
         ensureCourses().then(() => renderCoursesView());
       } else if (heat) {
         renderHeatView();
+      } else if (catchTab) {
+        ensureHomeportSummary().then(() => renderCatchView());
       }
-      // methods tab is static HTML; optionally refresh live stats from meta
       if (methods) fillMethodsMeta();
       setTimeout(() => map.invalidateSize(), 50);
     }
@@ -2886,6 +3114,12 @@
       state.hasFittedBounds = false;
       setBasemapDefaults();
 
+      state.catchWindow = "14";
+      state.catchSort = "fish";
+      state.catchSelectedCity = null;
+      if (el("catchSort")) el("catchSort").value = "fish";
+      syncCatchWindowPills();
+
       // Return to Heatmap / All days and re-render from scratch.
       state.mode = "all";
       el("modeAll").classList.add("active");
@@ -2901,7 +3135,21 @@
     el("tabSpots").addEventListener("click", () => setTab("spots"));
     el("tabCourses").addEventListener("click", () => setTab("courses"));
     el("tabHeat").addEventListener("click", () => setTab("heat"));
+    el("tabCatch").addEventListener("click", () => setTab("catch"));
     el("tabMethods").addEventListener("click", () => setTab("methods"));
+    el("catchWindowPills").addEventListener("click", (ev) => {
+      const btn = ev.target.closest("button[data-window]");
+      if (!btn) return;
+      state.catchWindow = btn.dataset.window;
+      state.catchSelectedCity = null;
+      syncCatchWindowPills();
+      if (state.tab === "catch") renderCatchView();
+    });
+    el("catchSort").addEventListener("change", () => {
+      state.catchSort = el("catchSort").value;
+      state.catchSelectedCity = null;
+      if (state.tab === "catch") renderCatchView();
+    });
     el("hardReset").addEventListener("click", () => hardReset());
     el("mobileFiltersBtn").addEventListener("click", () => {
       const root = document.getElementById("appRoot");
