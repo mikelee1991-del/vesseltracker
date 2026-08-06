@@ -50,6 +50,7 @@ Pilot allowlist (from AIS name + length/type/call-sign heuristics; please verify
 | AIS name / MMSI | Incorrectly matched report boat | Action |
 |-----------------|----------------------------------|--------|
 | REDONDO / 366760710 | Redondo Special | Denied — AIS is a Long Beach towing vessel (type 1012, ~20×8 m, call sign WCD3906), not the Redondo Beach sportfisher. Track parks inside LB breakwater (~33.767, −118.217); ~0% of pings near Redondo home dock. Root cause: accepted-name shortening of “Redondo Special” → `REDONDO`. `REDONDO` is now in `ACCEPTED_NAME_DENYLIST`; do not re-enable until a charter MMSI is confirmed. |
+| MARDIOSA / 368121950 | MarDiosa | Denied — AIS is the ~96 ft / ~29 m Cabo San Lucas–based luxury yacht (Barattucci, ex Fun Runner; seasonal San Diego/Coronado yards), not Capt. Herman Dorado’s 40×15 ft Hoyt 6-pack at Long Beach Sportfishing. VesselFinder length ~27×8 m; harbour history at Loews Coronado / Nielsen Beaumont / Koehler Kraft. `MARDIOSA` is in `ACCEPTED_NAME_DENYLIST`; do not re-enable until the LB charter MMSI is confirmed. |
 | SWEET FREEDOM / 338225409 | Freedom | Denied |
 | VICTORY / 368033280 | Victory | Denied (recreational) |
 | TRITON / 538070070 | Triton | Denied (yacht) |
@@ -79,7 +80,8 @@ report names in Marine Cadastre NAIS for SoCal:
 | Pride (San Pedro) | 53 | DANA PRIDE / WESTERN PRIDE are other boats |
 | Redondo Special | — | Former MMSI 366760710 was a LB tug named REDONDO — denied 2026-08-04; charter still unmatched |
 | Gail Force | 50 | GAIL-ANNE is a parked recreational craft |
-| Pescador, MarDiosa, Truline, Navegante, Betty-G | few | No verified identity |
+| MarDiosa | — | Former MMSI 368121950 was Cabo/San Diego ~96 ft yacht MARDIOSA — denied 2026-08-06; LB 40 ft charter still unmatched |
+| Pescador, Truline, Navegante, Betty-G | few | No verified identity |
 
 Likely causes: no AIS transceiver / Class B not in this 1-min NAIS sample / different
 broadcast name / coverage gaps.

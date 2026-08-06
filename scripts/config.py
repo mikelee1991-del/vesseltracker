@@ -104,6 +104,7 @@ VESSEL_ALIASES = {
 # Long Beach towing vessel that broadcasts "REDONDO".
 ACCEPTED_NAME_DENYLIST = {
     "REDONDO",  # tug / towing vessel; charter AIS broadcast name still unknown
+    "MARDIOSA",  # ~96 ft Cabo/San Diego yacht MMSI 368121950; not LB 40 ft Hoyt charter
 }
 
 # MMSIs rejected after inspection (same name as a charter, but wrong vessel).
@@ -125,6 +126,7 @@ MMSI_DENYLIST = {
     338429048,  # CURRENT — not Dana Wharf charter (moors ~San Pedro outer; weak trip overlap)
     338477409,  # FURY recreational (len 13; only 3 AIS days)
     366760710,  # REDONDO — Long Beach towing vessel (type 1012), not Redondo Beach charter
+    368121950,  # MARDIOSA — ~96 ft Cabo/San Diego luxury yacht, not Long Beach 40 ft Hoyt charter
     # Note: 366849310 DANA PRIDE is allowlisted for report boat "Dana Pride" only;
     # it must never map to San Pedro "Pride".
 }
