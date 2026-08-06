@@ -1,0 +1,129 @@
+{
+  "generated_at": "2026-08-06T07:02:33.572343+00:00",
+  "source": "FCC ULS Ship License Search (screenshots verified)",
+  "status": "proposed_not_allowlisted",
+  "policy": "Do not allowlist until Cadastre/aisstream track check or captain confirmation.",
+  "candidates": [
+    {
+      "report_boat": "Sum Fun",
+      "mmsi": 367304670,
+      "call_sign": "WCX6853",
+      "official_number": "281982",
+      "fcc_ship_name": "SUM FUN",
+      "licensee": "SAN CLEMENTE SPORTFISHING INC",
+      "licensee_city": "Dana Point, CA",
+      "length_m": 17,
+      "max_persons": 86,
+      "fcc_lic_key": "1543500",
+      "confidence": "high",
+      "notes": "Dana Point SB license; passenger/fishing; matches Dana Wharf Sum Fun ops"
+    },
+    {
+      "report_boat": "Redondo Special",
+      "mmsi": 367595720,
+      "call_sign": "WDL7537",
+      "official_number": "271529",
+      "fcc_ship_name": "Redondo Special",
+      "licensee": "Redondo Special LLC",
+      "licensee_city": "Redondo Beach, CA",
+      "length_m": 19,
+      "max_persons": 64,
+      "fcc_lic_key": "4328980",
+      "confidence": "high",
+      "notes": "MMSI digit-corrected from FCC screenshot (367595720). Not the denied tug 366760710."
+    },
+    {
+      "report_boat": "Betty-O",
+      "mmsi": 366764370,
+      "call_sign": "WCY9915",
+      "official_number": "221463",
+      "fcc_ship_name": "BETTY-O",
+      "licensee": "REINSCH, MICHAEL J",
+      "licensee_city": "Pacific Palisades, CA",
+      "length_m": 20,
+      "max_persons": null,
+      "fcc_lic_key": "1566877",
+      "confidence": "high",
+      "notes": "Official #221463 matches Islapedia Betty O; owner Mike Reinsch matches MDRSF"
+    },
+    {
+      "report_boat": "Sport King",
+      "mmsi": 368310220,
+      "call_sign": "WDN7635",
+      "official_number": "250183",
+      "fcc_ship_name": "Sport King",
+      "licensee": "Sport King Management, Inc.",
+      "licensee_city": "Long Beach, CA",
+      "length_m": 19,
+      "max_persons": 49,
+      "fcc_lic_key": "4757599",
+      "confidence": "high",
+      "notes": "Same Armourdale Ave address / Ryan Gengler as Gail Force (LA Waterfront fleet)"
+    },
+    {
+      "report_boat": "Gail Force",
+      "mmsi": 367592620,
+      "call_sign": "WDP5218",
+      "official_number": "506705",
+      "fcc_ship_name": "Gail Force",
+      "licensee": "Gail Force Management, Inc.",
+      "licensee_city": "Long Beach, CA",
+      "length_m": 16,
+      "max_persons": 49,
+      "fcc_lic_key": "4930540",
+      "confidence": "high",
+      "notes": "Same address as Sport King; ~55 ft charter size fit"
+    },
+    {
+      "report_boat": "Amigo",
+      "mmsi": 368133430,
+      "call_sign": "WDL4642",
+      "official_number": "547850",
+      "fcc_ship_name": "Amigo",
+      "licensee": "Amigo Sportfishing, Inc",
+      "licensee_city": "San Pedro, CA (141 W 22nd St)",
+      "length_m": 19,
+      "max_persons": 31,
+      "fcc_lic_key": "4253472",
+      "confidence": "high",
+      "notes": "22nd Street address matches landing"
+    },
+    {
+      "report_boat": "Aggressor",
+      "mmsi": 366897770,
+      "call_sign": "WDB4379",
+      "official_number": "592957",
+      "fcc_ship_name": "AGGRESSOR",
+      "licensee": "NEWPORT LANDING SPORT FISHING",
+      "licensee_city": "Newport Beach, CA",
+      "length_m": 19,
+      "max_persons": 50,
+      "fcc_lic_key": "2522568",
+      "confidence": "high",
+      "notes": "Newport Landing licensee matches report city"
+    }
+  ],
+  "not_found_or_rejected": [
+    {
+      "report_boat": "Ghost",
+      "note": "Only GHOST II (Sacramento ambulance marine) found \u2014 wrong vessel"
+    },
+    {
+      "report_boat": "Pursuit",
+      "note": "Many expired PURSUIT licenses; no clear active CA 22nd St hit yet"
+    },
+    {
+      "report_boat": "Truline",
+      "note": "No FCC CA hit yet"
+    },
+    {
+      "report_boat": "City of Redondo",
+      "note": "Expired license; reportedly sold/renamed"
+    },
+    {
+      "report_boat": "Blackfish",
+      "note": "Likely WA Roche Harbor fleet name collision; Redondo charter MMSI unknown"
+    }
+  ],
+  "cadastre_note": "None of these MMSIs appear in current processed registry/ais extracts \u2014 likely rare Class B or off in 1-min NAIS sample."
+}
