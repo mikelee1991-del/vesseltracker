@@ -500,7 +500,7 @@
       <h1 class="brand">LA Sportfishing Take</h1>
       <p id="headerBlurb">
         Heatmap of fishing intensity across AIS-clustered stops.
-        Default intensity is <strong>reliable (evidence-weighted) FPH</strong>; also primary-stop, consistency, and in-season rates.
+        Default intensity is <strong>reliable (evidence-weighted) FPH</strong>; also primary-stop, consistency, and recent-window rates.
         Many LA charters still lack identifiable AIS —
         <a href="./verify-mmsi.html" style="color:var(--sea-mid);font-weight:600">help match MMSIs</a>.
       </p>
@@ -572,7 +572,7 @@
                 <option value="dwell_fph">Dwell-attributed fish/person/hour</option>
                 <option value="primary_fph">Primary-stop FPH</option>
                 <option value="consistent_fph">Consistent FPH (25th pct)</option>
-                <option value="season_fph">In-season FPH (last 60 days)</option>
+                <option value="season_fph">Recent FPH (last 60d of date range)</option>
                 <option value="dwell_share">Mean dwell share</option>
                 <option value="species_fish">Species fish count</option>
                 <option value="fph">Mean trip fish/person/hour</option>
@@ -702,7 +702,7 @@
                 <option value="dwell_fph">Dwell-attributed FPH</option>
                 <option value="primary_fph">Primary-stop FPH</option>
                 <option value="consistent_fph">Consistent FPH (25th pct)</option>
-                <option value="season_fph">In-season FPH (last 60 days)</option>
+                <option value="season_fph">Recent FPH (last 60d of date range)</option>
                 <option value="dwell">Total AIS dwell (min)</option>
                 <option value="visits">Boat-days</option>
                 <option value="fish">Attributed fish</option>
@@ -872,7 +872,9 @@
               where <code>n</code> is boat-days at the spot. Down-weights one-off spikes.</li>
             <li><strong>Primary-stop FPH</strong> — same rate, but only visits with dwell share ≥ 25% (the trip’s main hangs).</li>
             <li><strong>Consistent FPH</strong> — 25th percentile of per-visit attributed FPH. High = usually at least decent.</li>
-            <li><strong>In-season FPH</strong> — dwell-attributed FPH using only visits in the last 60 days of the selected date range.</li>
+            <li><strong>Recent FPH</strong> — dwell-attributed FPH using only visits in the <em>last 60 days of the date-range slider</em>
+              (slider end − 60d through slider end). Not “today,” not a calendar season/year.
+              With the default AIS-clipped range (through end of Cadastre coverage), that is typically late fall of the last AIS year — not live YTD.</li>
           </ul>
 
           <h3>Mean dwell share (sort)</h3>
@@ -887,13 +889,13 @@
             <li><strong>One day</strong> (Spots) — loads that day’s join file only</li>
             <li><strong>Boat</strong> — multi-select (⌘/Ctrl+click); empty = all; keep visits/courses for any selected vessel</li>
             <li><strong>Species</strong> — multi-select individuals or <strong>groups</strong> (by type: Rockfish, Bass…; by habitat: Bottom / Kelp / Surface…). Empty = all; match any. Edit groups via the Groups button (browser localStorage + JSON export)</li>
-            <li><strong>Sort spots</strong> — reliable FPH (default), raw dwell FPH, primary-stop FPH, consistent FPH (P25), in-season FPH, dwell share, species fish, trip FPH/FPP, dwell, boat-days</li>
+            <li><strong>Sort spots</strong> — reliable FPH (default), raw dwell FPH, primary-stop FPH, consistent FPH (P25), recent FPH (last 60d of date range), dwell share, species fish, trip FPH/FPP, dwell, boat-days</li>
             <li><strong>Reset</strong> — clears filters/controls and returns to Heatmap (reliable FPH)</li>
           </ul>
 
           <h2 id="m-tabs">Map tabs</h2>
           <ul>
-            <li><strong>Heatmap</strong> (default) — density of AIS-clustered spots; default intensity = <strong>reliable FPH</strong> (also raw dwell FPH, primary-stop, consistency, in-season, dwell, boat-days, fish, trip FPP). Color scale auto-rescales to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur); opacity defaults to 80%</li>
+            <li><strong>Heatmap</strong> (default) — density of AIS-clustered spots; default intensity = <strong>reliable FPH</strong> (also raw dwell FPH, primary-stop, consistency, recent 60d-of-range, dwell, boat-days, fish, trip FPP). Color scale auto-rescales to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur); opacity defaults to 80%</li>
             <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH; default sort is reliable FPH</li>
             <li><strong>Courses</strong> — schematic polylines home → stops (time order) → home (not raw AIS tracks). Up to 2,500 paths drawn per filter for performance</li>
           </ul>
@@ -2246,8 +2248,9 @@
         "25th percentile of per-visit attributed FPH at the spot. " +
         "High values mean the pin is usually at least decent, not just a boom/bust average.",
       season_fph:
-        `Dwell-attributed FPH using only visits in the last ${SEASON_LOOKBACK_DAYS} days of the selected date range ` +
-        "(answers “where now?” within the filter window).",
+        `Dwell-attributed FPH for visits in the last ${SEASON_LOOKBACK_DAYS} days of the date-range slider ` +
+        "(slider end − 60d → slider end). Not “today,” not a calendar season. " +
+        "Default slider is clipped to Cadastre AIS coverage, so this is usually late in the last AIS year — not live YTD.",
       dwell_share:
         "Mean of dwell_share = spot_dwell / total_offshore_dwell for each visit. " +
         "High values mean boats spent a large fraction of that trip’s offshore time here.",
@@ -2279,13 +2282,40 @@
       fpp: SORT_NOTES.fpp,
     };
 
+    function recentWindowForPrefix(prefix) {
+      const bounds = prefix === "heat"
+        ? heatDateBounds()
+        : prefix === "courses"
+          ? coursesDateBounds()
+          : spotsDateBounds();
+      const asOf = bounds.end || null;
+      if (!asOf) return null;
+      const start = addDaysIso(asOf, -SEASON_LOOKBACK_DAYS);
+      return start ? { start, end: asOf } : null;
+    }
+
+    function seasonMetricNote(prefix) {
+      const base = SORT_NOTES.season_fph;
+      const w = recentWindowForPrefix(prefix);
+      if (w?.start && w?.end) {
+        return `${base} Current window: ${w.start} → ${w.end}.`;
+      }
+      return base;
+    }
+
     function updateSortNote() {
-      el("sortNote").textContent = SORT_NOTES[el("sortBy").value] || "";
+      const key = el("sortBy").value;
+      el("sortNote").textContent = key === "season_fph"
+        ? seasonMetricNote("spots")
+        : (SORT_NOTES[key] || "");
     }
 
     function updateHeatMetricNote() {
       if (!el("heatMetricNote")) return;
-      el("heatMetricNote").textContent = HEAT_METRIC_NOTES[el("heatMetric").value] || "";
+      const key = el("heatMetric").value;
+      el("heatMetricNote").textContent = key === "season_fph"
+        ? seasonMetricNote("heat")
+        : (HEAT_METRIC_NOTES[key] || "");
     }
 
     function currentCourses() {
@@ -2313,7 +2343,7 @@
           <div>${speciesLine}</div>
           <div>
             <span class="fpp">${fmt(loc.shrunk_dwell_fph ?? loc.dwell_attributed_fph, 2)} reliable FPH</span>
-            <span class="meta"> · ${fmt(loc.dwell_attributed_fph, 2)} dwell · ${fmt(loc.primary_dwell_fph, 2)} primary · ${fmt(loc.visit_fph_p25, 2)} P25 · ${fmt(loc.season_dwell_fph, 2)} season</span>
+            <span class="meta"> · ${fmt(loc.dwell_attributed_fph, 2)} dwell · ${fmt(loc.primary_dwell_fph, 2)} primary · ${fmt(loc.visit_fph_p25, 2)} P25 · ${fmt(loc.season_dwell_fph, 2)} recent 60d</span>
           </div>
           <div class="meta">${(loc.boats || []).slice(0, 4).join(", ")}${(loc.boats || []).length > 4 ? "…" : ""}</div>
         </article>`;
@@ -2339,9 +2369,9 @@
           <div class="meta">
             Primary (≥25% share) ${fmt(loc.primary_dwell_fph, 2)}
             · Consistent P25 ${fmt(loc.visit_fph_p25, 2)}
-            · In-season (60d) ${fmt(loc.season_dwell_fph, 2)}
+            · Recent 60d of range ${fmt(loc.season_dwell_fph, 2)}${loc.season_as_of ? ` (${addDaysIso(loc.season_as_of, -SEASON_LOOKBACK_DAYS)}→${loc.season_as_of})` : ""}
             ${loc.primary_n_boat_days != null ? `· ${loc.primary_n_boat_days} primary visits` : ""}
-            ${loc.season_n_boat_days != null ? `· ${loc.season_n_boat_days} in-season visits` : ""}
+            ${loc.season_n_boat_days != null ? `· ${loc.season_n_boat_days} recent-window visits` : ""}
           </div>
           <div class="meta">
             Mean dwell share ${loc.mean_dwell_share != null ? `${fmt(100 * loc.mean_dwell_share, 0)}%` : "—"}
@@ -2401,7 +2431,7 @@
            <strong>${fmt(loc.shrunk_dwell_fph ?? loc.dwell_attributed_fph, 2)} reliable FPH</strong>
            · ${fmt(loc.dwell_attributed_fph, 2)} dwell
            · ${fmt(loc.visit_fph_p25, 2)} P25
-           · ${fmt(loc.season_dwell_fph, 2)} season<br>
+           · ${fmt(loc.season_dwell_fph, 2)} recent 60d<br>
            ${(loc.boats || []).slice(0, 5).join(", ")}`
         );
         marker._featureId = id;
@@ -2595,7 +2625,7 @@
            Paths are stop-to-stop polylines (not full AIS tracks). Use the date slider to thin the overlay.`
         : heat
         ? `Heatmap of fishing intensity across AIS-clustered stops.
-           Default metric is reliable (evidence-weighted) FPH; also raw dwell FPH, primary-stop, consistency, and in-season.`
+           Default metric is reliable (evidence-weighted) FPH; also raw dwell FPH, primary-stop, consistency, and recent 60d-of-range.`
         : `How the map is built: data sources, stop detection, dwell-share attribution, filters, and known limits.`;
       state.hasFittedBounds = false;
       state.selectedId = null;
@@ -2930,7 +2960,7 @@
         `Multi-select boats/species (⌘/Ctrl+click; empty = all; species match any). ` +
         `Species filter includes type/habitat groups (edit via Groups). ` +
         `Trips with no breakdown = ${UNKNOWN_FISH}. ` +
-        `Sort by reliable/primary/consistent/in-season FPH, raw dwell FPH, share, species fish, trip rates, dwell, or boat-days. ` +
+        `Sort by reliable/primary/consistent/recent-60d FPH, raw dwell FPH, share, species fish, trip rates, dwell, or boat-days. ` +
         `${meta.stats.n_features || meta.stats.n_locations || "?"} spots · ${meta.stats.n_offshore_stops} stops.`;
       const cacheBust = encodeURIComponent(meta.ais_window?.end || "") + "-" + (meta.stats?.n_trips || "");
       const locData = await (await fetch(`data/locations.json?v=${cacheBust}`)).json();
