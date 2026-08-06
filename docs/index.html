@@ -2992,9 +2992,13 @@
 
       setupDualRange("spots", state.spotsDates, () => {
         state.selectedId = null;
+        updateSortNote();
         scheduleRender(renderSpots, 100);
       });
-      setupDualRange("heat", state.spotsDates, () => scheduleRender(renderHeatView, 100));
+      setupDualRange("heat", state.spotsDates, () => {
+        updateHeatMetricNote();
+        scheduleRender(renderHeatView, 100);
+      });
       updateSortNote();
       updateHeatMetricNote();
       setMode("all");
