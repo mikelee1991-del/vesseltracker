@@ -58,6 +58,26 @@ Pilot allowlist (from AIS name + length/type/call-sign heuristics; please verify
 | DREAMER / 338146692 | Dreamer | Denied |
 | DANA PRIDE / 366849310 | Pride | Denied (Dana Point boat; Pride is San Pedro) |
 
+## FCC / USCG ship-license MMSIs (proposed — not allowlisted yet)
+
+Found via FCC ULS Ship License Search (2026-08-06). Screenshots verified.
+**None of these MMSIs are in Cadastre extracts yet** (likely rare Class B / off in the
+1-minute NAIS sample). Do **not** allowlist until a Cadastre/aisstream track check
+or captain/landing confirmation. Raw dump: `data/processed/fcc_mmsi_candidates.json`.
+
+| Report boat | Proposed MMSI | Call sign | Official # | Licensee |
+|-------------|--------------:|-----------|------------|----------|
+| Sum Fun | 367304670 | WCX6853 | 281982 | San Clemente Sportfishing Inc (Dana Point) |
+| Redondo Special | 367595720 | WDL7537 | 271529 | Redondo Special LLC (Redondo Beach) — **not** tug 366760710 |
+| Betty-O | 366764370 | WCY9915 | 221463 | Michael J. Reinsch (Pacific Palisades); ON matches Islapedia |
+| Sport King | 368310220 | WDN7635 | 250183 | Sport King Management, Inc. (Long Beach / Armourdale) |
+| Gail Force | 367592620 | WDP5218 | 506705 | Gail Force Management, Inc. (same Armourdale address) |
+| Amigo | 368133430 | WDL4642 | 547850 | Amigo Sportfishing, Inc. (141 W 22nd St, San Pedro) |
+| Aggressor | 366897770 | WDB4379 | 592957 | Newport Landing Sport Fishing (Newport Beach) |
+
+Still missing FCC MMSI: Pursuit, Ghost (San Pedro), Truline, City of Redondo, Blackfish,
+MarDiosa (LB charter). Rejected lookalike: GHOST II / 368205930 (Sacramento).
+
 ## Boats in reports with no verified AIS MMSI (full 2025 NAIS search)
 
 Still unmatched after repeated name search + trip-day correlation + dock-departure
