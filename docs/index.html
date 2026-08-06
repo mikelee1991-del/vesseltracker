@@ -500,7 +500,7 @@
       <h1 class="brand">LA Sportfishing Take</h1>
       <p id="headerBlurb">
         Heatmap of fishing intensity across AIS-clustered stops.
-        Default intensity is <strong>reliable (evidence-weighted) FPH</strong>; also primary-stop, consistency, and recent-window rates.
+        Default intensity is <strong>reliable (evidence-weighted) FPH</strong>; also primary-stop, consistency, and seasonal (same calendar window across years) rates.
         Many LA charters still lack identifiable AIS —
         <a href="./verify-mmsi.html" style="color:var(--sea-mid);font-weight:600">help match MMSIs</a>.
       </p>
@@ -572,7 +572,7 @@
                 <option value="dwell_fph">Dwell-attributed fish/person/hour</option>
                 <option value="primary_fph">Primary-stop FPH</option>
                 <option value="consistent_fph">Consistent FPH (25th pct)</option>
-                <option value="season_fph">Recent FPH (last 60d of date range)</option>
+                <option value="season_fph">Seasonal FPH (±30d of today, all years)</option>
                 <option value="dwell_share">Mean dwell share</option>
                 <option value="species_fish">Species fish count</option>
                 <option value="fph">Mean trip fish/person/hour</option>
@@ -702,7 +702,7 @@
                 <option value="dwell_fph">Dwell-attributed FPH</option>
                 <option value="primary_fph">Primary-stop FPH</option>
                 <option value="consistent_fph">Consistent FPH (25th pct)</option>
-                <option value="season_fph">Recent FPH (last 60d of date range)</option>
+                <option value="season_fph">Seasonal FPH (±30d of today, all years)</option>
                 <option value="dwell">Total AIS dwell (min)</option>
                 <option value="visits">Boat-days</option>
                 <option value="fish">Attributed fish</option>
@@ -872,9 +872,10 @@
               where <code>n</code> is boat-days at the spot. Down-weights one-off spikes.</li>
             <li><strong>Primary-stop FPH</strong> — same rate, but only visits with dwell share ≥ 25% (the trip’s main hangs).</li>
             <li><strong>Consistent FPH</strong> — 25th percentile of per-visit attributed FPH. High = usually at least decent.</li>
-            <li><strong>Recent FPH</strong> — dwell-attributed FPH using only visits in the <em>last 60 days of the date-range slider</em>
-              (slider end − 60d through slider end). Not “today,” not a calendar season/year.
-              With the default AIS-clipped range (through end of Cadastre coverage), that is typically late fall of the last AIS year — not live YTD.</li>
+            <li><strong>Seasonal FPH</strong> — dwell-attributed FPH for the same calendar season across years inside the date slider:
+              trailing <strong>30 days from today</strong> (Pacific) when that data exists, plus
+              <strong>±30 days around today’s month/day</strong> in each prior year (e.g. on Aug&nbsp;1 → ~Jul&nbsp;1–Aug&nbsp;1 this year, and ~Jul&nbsp;1–Sep&nbsp;1 in earlier years).
+              Clipped to the slider. Useful when live YTD AIS is thin but historical same-season stops are not.</li>
           </ul>
 
           <h3>Mean dwell share (sort)</h3>
@@ -889,13 +890,13 @@
             <li><strong>One day</strong> (Spots) — loads that day’s join file only</li>
             <li><strong>Boat</strong> — multi-select (⌘/Ctrl+click); empty = all; keep visits/courses for any selected vessel</li>
             <li><strong>Species</strong> — multi-select individuals or <strong>groups</strong> (by type: Rockfish, Bass…; by habitat: Bottom / Kelp / Surface…). Empty = all; match any. Edit groups via the Groups button (browser localStorage + JSON export)</li>
-            <li><strong>Sort spots</strong> — reliable FPH (default), raw dwell FPH, primary-stop FPH, consistent FPH (P25), recent FPH (last 60d of date range), dwell share, species fish, trip FPH/FPP, dwell, boat-days</li>
+            <li><strong>Sort spots</strong> — reliable FPH (default), raw dwell FPH, primary-stop FPH, consistent FPH (P25), seasonal FPH (±30d of today across years), dwell share, species fish, trip FPH/FPP, dwell, boat-days</li>
             <li><strong>Reset</strong> — clears filters/controls and returns to Heatmap (reliable FPH)</li>
           </ul>
 
           <h2 id="m-tabs">Map tabs</h2>
           <ul>
-            <li><strong>Heatmap</strong> (default) — density of AIS-clustered spots; default intensity = <strong>reliable FPH</strong> (also raw dwell FPH, primary-stop, consistency, recent 60d-of-range, dwell, boat-days, fish, trip FPP). Color scale auto-rescales to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur); opacity defaults to 80%</li>
+            <li><strong>Heatmap</strong> (default) — density of AIS-clustered spots; default intensity = <strong>reliable FPH</strong> (also raw dwell FPH, primary-stop, consistency, seasonal ±30d, dwell, boat-days, fish, trip FPP). Color scale auto-rescales to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur); opacity defaults to 80%</li>
             <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH; default sort is reliable FPH</li>
             <li><strong>Courses</strong> — schematic polylines home → stops (time order) → home (not raw AIS tracks). Up to 2,500 paths drawn per filter for performance</li>
           </ul>
@@ -1728,7 +1729,8 @@
     /** Spot-choice metrics (computed client-side so filters still apply). */
     const PRIMARY_DWELL_SHARE = 0.25;
     const SHRINK_PRIOR_N0 = 10;
-    const SEASON_LOOKBACK_DAYS = 60;
+    /** Half-width of the seasonal calendar window (±X days around today's month/day). */
+    const SEASONAL_HALF_WINDOW_DAYS = 30;
 
     function addDaysIso(iso, deltaDays) {
       if (!iso) return null;
@@ -1736,6 +1738,86 @@
       if (Number.isNaN(d.getTime())) return null;
       d.setUTCDate(d.getUTCDate() + deltaDays);
       return d.toISOString().slice(0, 10);
+    }
+
+    function todayIsoPacific() {
+      try {
+        return new Intl.DateTimeFormat("en-CA", {
+          timeZone: "America/Los_Angeles",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date());
+      } catch (_) {
+        return new Date().toISOString().slice(0, 10);
+      }
+    }
+
+    function parseIsoParts(iso) {
+      if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
+      const [y, m, d] = iso.split("-").map(Number);
+      return { y, m, d };
+    }
+
+    function daysInMonth(year, month) {
+      return new Date(Date.UTC(year, month, 0)).getUTCDate();
+    }
+
+    function isoFromYmd(year, month, day) {
+      const dim = daysInMonth(year, month);
+      const d = Math.min(Math.max(1, day), dim);
+      return `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    }
+
+    function clipDateWindow(start, end, rangeStart, rangeEnd) {
+      let a = start;
+      let b = end;
+      if (!a || !b) return null;
+      if (rangeStart && a < rangeStart) a = rangeStart;
+      if (rangeEnd && b > rangeEnd) b = rangeEnd;
+      if (a > b) return null;
+      return { start: a, end: b };
+    }
+
+    /**
+     * Same-season windows inside the date slider:
+     * - current year: trailing X days from today (no future)
+     * - prior years: ±X days around today's month/day
+     */
+    function seasonalWindows({ today, halfDays = SEASONAL_HALF_WINDOW_DAYS, rangeStart, rangeEnd } = {}) {
+      const todayParts = parseIsoParts(today);
+      if (!todayParts) return [];
+      const { y: ty, m: tm, d: td } = todayParts;
+      const y0 = rangeStart ? (parseIsoParts(rangeStart)?.y ?? ty) : ty;
+      const y1 = rangeEnd ? (parseIsoParts(rangeEnd)?.y ?? ty) : ty;
+      const windows = [];
+      for (let y = y0; y <= y1; y++) {
+        if (y > ty) continue;
+        if (y === ty) {
+          const start = addDaysIso(today, -halfDays);
+          const w = clipDateWindow(start, today, rangeStart, rangeEnd);
+          if (w) windows.push({ ...w, kind: "trailing", year: y });
+        } else {
+          const center = isoFromYmd(y, tm, td);
+          const start = addDaysIso(center, -halfDays);
+          const end = addDaysIso(center, halfDays);
+          const w = clipDateWindow(start, end, rangeStart, rangeEnd);
+          if (w) windows.push({ ...w, kind: "prior", year: y });
+        }
+      }
+      return windows;
+    }
+
+    function dateInWindows(date, windows) {
+      if (!date || !windows?.length) return false;
+      return windows.some((w) => date >= w.start && date <= w.end);
+    }
+
+    function formatSeasonWindows(windows, { max = 4 } = {}) {
+      if (!windows?.length) return "none in slider";
+      const shown = windows.slice(-max).map((w) => `${w.start}→${w.end}`);
+      const more = windows.length > max ? ` (+${windows.length - max} earlier)` : "";
+      return shown.join("; ") + more;
     }
 
     function visitAttrFph(v) {
@@ -1795,11 +1877,14 @@
 
       const primaryVisits = visits.filter((v) => (Number(v.dwell_share) || 0) >= PRIMARY_DWELL_SHARE);
       const visitRates = visits.map(visitAttrFph).filter((x) => x != null).sort((a, b) => a - b);
-      const asOf = asOfFromVisits(visits, opts.asOf);
-      const seasonStart = asOf ? addDaysIso(asOf, -SEASON_LOOKBACK_DAYS) : null;
-      const seasonVisits = (seasonStart && asOf)
-        ? visits.filter((v) => v.date && v.date >= seasonStart && v.date <= asOf)
-        : [];
+      const today = opts.today || todayIsoPacific();
+      const seasonWindows = seasonalWindows({
+        today,
+        halfDays: SEASONAL_HALF_WINDOW_DAYS,
+        rangeStart: opts.rangeStart || null,
+        rangeEnd: opts.rangeEnd || null,
+      });
+      const seasonVisits = visits.filter((v) => dateInWindows(v.date, seasonWindows));
 
       return {
         ...base,
@@ -1820,7 +1905,8 @@
         visit_fph_p25: visitRates.length ? percentile(visitRates, 0.25) : null,
         season_dwell_fph: rateFromVisits(seasonVisits),
         season_n_boat_days: seasonVisits.length,
-        season_as_of: asOf,
+        season_as_of: today,
+        season_windows: seasonWindows,
         species_counts,
         has_unknown_fish,
       };
@@ -1887,7 +1973,7 @@
           if (boats.length) visits = visits.filter((v) => boats.includes(v.boat_name));
           if (speciesKeys.length) visits = visits.filter((v) => visitMatchesSpeciesKeys(v, speciesKeys));
           if (!visits.length) return null;
-          return aggregateFromVisits(loc, visits, { asOf: end || null });
+          return aggregateFromVisits(loc, visits, { rangeStart: start || null, rangeEnd: end || null });
         })
         .filter(Boolean);
       applyShrunkFph(locs);
@@ -2191,7 +2277,10 @@
             grid_id: loc.grid_id,
             lat: loc.lat_sum / loc.n_coord,
             lon: loc.lon_sum / loc.n_coord,
-          }, loc.visits, { asOf: state.dayPayload?.date || el("day")?.value || null });
+          }, loc.visits, {
+            rangeStart: state.dayPayload?.date || el("day")?.value || null,
+            rangeEnd: state.dayPayload?.date || el("day")?.value || null,
+          });
           return {
             ...agg,
             n_stops: loc.n_stops,
@@ -2212,7 +2301,7 @@
             if (boats.length) visits = visits.filter((v) => boats.includes(v.boat_name));
             if (speciesKeys.length) visits = visits.filter((v) => visitMatchesSpeciesKeys(v, speciesKeys));
             if (!visits.length) return null;
-            return aggregateFromVisits(loc, visits, { asOf: end || null });
+            return aggregateFromVisits(loc, visits, { rangeStart: start || null, rangeEnd: end || null });
           })
           .filter(Boolean);
       }
@@ -2248,9 +2337,9 @@
         "25th percentile of per-visit attributed FPH at the spot. " +
         "High values mean the pin is usually at least decent, not just a boom/bust average.",
       season_fph:
-        `Dwell-attributed FPH for visits in the last ${SEASON_LOOKBACK_DAYS} days of the date-range slider ` +
-        "(slider end − 60d → slider end). Not “today,” not a calendar season. " +
-        "Default slider is clipped to Cadastre AIS coverage, so this is usually late in the last AIS year — not live YTD.",
+        `Same calendar season across years in the date slider: trailing ${SEASONAL_HALF_WINDOW_DAYS}d from today ` +
+        `(Pacific) when available, plus ±${SEASONAL_HALF_WINDOW_DAYS}d around today’s month/day in prior years ` +
+        "(e.g. Aug 1 → ~Jul 1–Aug 1 this year, ~Jul 1–Sep 1 earlier). Clipped to the slider.",
       dwell_share:
         "Mean of dwell_share = spot_dwell / total_offshore_dwell for each visit. " +
         "High values mean boats spent a large fraction of that trip’s offshore time here.",
@@ -2282,25 +2371,36 @@
       fpp: SORT_NOTES.fpp,
     };
 
-    function recentWindowForPrefix(prefix) {
+    function seasonalWindowsForPrefix(prefix) {
       const bounds = prefix === "heat"
         ? heatDateBounds()
         : prefix === "courses"
           ? coursesDateBounds()
           : spotsDateBounds();
-      const asOf = bounds.end || null;
-      if (!asOf) return null;
-      const start = addDaysIso(asOf, -SEASON_LOOKBACK_DAYS);
-      return start ? { start, end: asOf } : null;
+      return seasonalWindows({
+        today: todayIsoPacific(),
+        halfDays: SEASONAL_HALF_WINDOW_DAYS,
+        rangeStart: bounds.start || null,
+        rangeEnd: bounds.end || null,
+      });
     }
 
     function seasonMetricNote(prefix) {
-      const base = SORT_NOTES.season_fph;
-      const w = recentWindowForPrefix(prefix);
-      if (w?.start && w?.end) {
-        return `${base} Current window: ${w.start} → ${w.end}.`;
-      }
-      return base;
+      const windows = seasonalWindowsForPrefix(prefix);
+      const today = todayIsoPacific();
+      const trailing = windows.find((w) => w.kind === "trailing");
+      const priorN = windows.filter((w) => w.kind === "prior").length;
+      const bits = [
+        SORT_NOTES.season_fph,
+        `Today (PT): ${today}.`,
+        trailing
+          ? `Trailing window: ${trailing.start} → ${trailing.end}.`
+          : "No trailing window inside the slider (current-year dates may be outside AIS coverage).",
+        priorN
+          ? `Prior-year windows (${priorN}): ${formatSeasonWindows(windows.filter((w) => w.kind === "prior"), { max: 3 })}.`
+          : "No prior-year windows in the slider.",
+      ];
+      return bits.join(" ");
     }
 
     function updateSortNote() {
@@ -2343,7 +2443,7 @@
           <div>${speciesLine}</div>
           <div>
             <span class="fpp">${fmt(loc.shrunk_dwell_fph ?? loc.dwell_attributed_fph, 2)} reliable FPH</span>
-            <span class="meta"> · ${fmt(loc.dwell_attributed_fph, 2)} dwell · ${fmt(loc.primary_dwell_fph, 2)} primary · ${fmt(loc.visit_fph_p25, 2)} P25 · ${fmt(loc.season_dwell_fph, 2)} recent 60d</span>
+            <span class="meta"> · ${fmt(loc.dwell_attributed_fph, 2)} dwell · ${fmt(loc.primary_dwell_fph, 2)} primary · ${fmt(loc.visit_fph_p25, 2)} P25 · ${fmt(loc.season_dwell_fph, 2)} seasonal</span>
           </div>
           <div class="meta">${(loc.boats || []).slice(0, 4).join(", ")}${(loc.boats || []).length > 4 ? "…" : ""}</div>
         </article>`;
@@ -2369,9 +2469,10 @@
           <div class="meta">
             Primary (≥25% share) ${fmt(loc.primary_dwell_fph, 2)}
             · Consistent P25 ${fmt(loc.visit_fph_p25, 2)}
-            · Recent 60d of range ${fmt(loc.season_dwell_fph, 2)}${loc.season_as_of ? ` (${addDaysIso(loc.season_as_of, -SEASON_LOOKBACK_DAYS)}→${loc.season_as_of})` : ""}
+            · Seasonal (±${SEASONAL_HALF_WINDOW_DAYS}d) ${fmt(loc.season_dwell_fph, 2)}
+            ${loc.season_n_boat_days != null ? `· ${loc.season_n_boat_days} seasonal visits` : ""}
+            ${loc.season_windows?.length ? `· ${loc.season_windows.length} year-windows` : ""}
             ${loc.primary_n_boat_days != null ? `· ${loc.primary_n_boat_days} primary visits` : ""}
-            ${loc.season_n_boat_days != null ? `· ${loc.season_n_boat_days} recent-window visits` : ""}
           </div>
           <div class="meta">
             Mean dwell share ${loc.mean_dwell_share != null ? `${fmt(100 * loc.mean_dwell_share, 0)}%` : "—"}
@@ -2431,7 +2532,7 @@
            <strong>${fmt(loc.shrunk_dwell_fph ?? loc.dwell_attributed_fph, 2)} reliable FPH</strong>
            · ${fmt(loc.dwell_attributed_fph, 2)} dwell
            · ${fmt(loc.visit_fph_p25, 2)} P25
-           · ${fmt(loc.season_dwell_fph, 2)} recent 60d<br>
+           · ${fmt(loc.season_dwell_fph, 2)} seasonal<br>
            ${(loc.boats || []).slice(0, 5).join(", ")}`
         );
         marker._featureId = id;
@@ -2625,7 +2726,7 @@
            Paths are stop-to-stop polylines (not full AIS tracks). Use the date slider to thin the overlay.`
         : heat
         ? `Heatmap of fishing intensity across AIS-clustered stops.
-           Default metric is reliable (evidence-weighted) FPH; also raw dwell FPH, primary-stop, consistency, and recent 60d-of-range.`
+           Default metric is reliable (evidence-weighted) FPH; also raw dwell FPH, primary-stop, consistency, and seasonal (±30d across years).`
         : `How the map is built: data sources, stop detection, dwell-share attribution, filters, and known limits.`;
       state.hasFittedBounds = false;
       state.selectedId = null;
