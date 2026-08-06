@@ -103,43 +103,60 @@ jobs:
         if: ${{ steps.cadastre.outputs.new_coverage == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LATEST: ${{ steps.cadastre.outputs.latest_published_day }}
-          CONFIG_END: ${{ steps.cadastre.outputs.config_ais_end }}
-          REC: ${{ steps.cadastre.outputs.recommendation }}
-          NEXT_YEAR: ${{ steps.cadastre.outputs.next_year_published }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
-          TITLE="Marine Cadastre AIS update available (through ${LATEST:-unknown})"
-          BODY=$(cat <<EOF
-          ## New Cadastre coverage detected
-
-          - **Latest published day:** \`${LATEST}\`
-          - **Config \`PILOT_AIS_END\`:** \`${CONFIG_END}\`
-          - **csv next-year published:** \`${NEXT_YEAR}\`
-          - **Checked by:** [AIS Cadastre watch](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
-          ### Recommended next steps
-          ${REC}
-
-          \`\`\`bash
-          # On a machine that already has data/processed/ais_daily/:
-          python3 scripts/extract_ais.py --start ${CONFIG_END} --end ${LATEST}
-          python3 scripts/refine_registry.py
-          python3 scripts/detect_stops.py
-          python3 scripts/build_map_data.py
-          python3 scripts/build_homeport_summary.py
-          # bump PILOT_AIS_END in scripts/config.py to ${LATEST}
-          \`\`\`
-
-          Prefer Cadastre over overlapping aisstream parquet days once extracted.
-          EOF
+          python3 - <<'PY' > /tmp/cadastre_issue.md
+          import json
+          from pathlib import Path
+          import os
+          s = json.loads(Path("docs/data/ais_cadastre_status.json").read_text())
+          latest = s.get("latest_published_day") or "unknown"
+          config_end = s.get("config_ais_end") or "unknown"
+          run_url = os.environ.get("RUN_URL", "")
+          print(f"## New Cadastre coverage detected\n")
+          print(f"- **Latest published day:** `{latest}`")
+          print(f"- **Config `PILOT_AIS_END`:** `{config_end}`")
+          print(f"- **csv next-year published:** `{s.get('next_year_published')}`")
+          print(f"- **Checked by:** [AIS Cadastre watch]({run_url})\n")
+          print("### Recommended next steps\n")
+          print(s.get("recommendation") or "")
+          print("\n```bash")
+          print("# On a machine that already has data/processed/ais_daily/:")
+          print(f"python3 scripts/extract_ais.py --start {config_end} --end {latest}")
+          print("python3 scripts/refine_registry.py")
+          print("python3 scripts/detect_stops.py")
+          print("python3 scripts/build_map_data.py")
+          print("python3 scripts/build_homeport_summary.py")
+          print(f"# bump PILOT_AIS_END in scripts/config.py to {latest}")
+          print("```\n")
+          print("Prefer Cadastre over overlapping aisstream parquet days once extracted.")
+          Path("/tmp/cadastre_issue_title.txt").write_text(
+              f"Marine Cadastre AIS update available (through {latest})\n"
           )
-          # Reuse a single open issue tagged cadastre-watch
-          EXISTING=$(gh issue list --label cadastre-watch --state open --json number,title --jq '.[0].number // empty')
+          PY
+          TITLE=$(cat /tmp/cadastre_issue_title.txt)
+          EXISTING=$(gh issue list --label cadastre-watch --state open --json number --jq '.[0].number // empty')
           if [ -n "$EXISTING" ]; then
-            gh issue comment "$EXISTING" --body "$BODY"
+            gh issue comment "$EXISTING" --body-file /tmp/cadastre_issue.md
             gh issue edit "$EXISTING" --title "$TITLE"
           else
             gh label create cadastre-watch --description "Marine Cadastre bulk AIS availability" --color "0E8A16" 2>/dev/null || true
-            gh issue create --title "$TITLE" --label cadastre-watch --body "$BODY"
+            gh issue create --title "$TITLE" --label cadastre-watch --body-file /tmp/cadastre_issue.md
           fi
+
+      # GITHUB_TOKEN pushes do not re-trigger pages.yml — deploy here when docs data changed.
+      - name: Configure Pages
+        if: ${{ steps.commit.outputs.changed == 'true' }}
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: ${{ steps.commit.outputs.changed == 'true' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy Pages
+        if: ${{ steps.commit.outputs.changed == 'true' }}
+        id: deployment
+        uses: actions/deploy-pages@v4
