@@ -677,25 +677,6 @@
               </div>
             </div>
             <div>
-              <div class="multi-head">
-                <label for="heatBoatFilter">Boat <span class="meta" id="heatBoatFilterSummary">all</span></label>
-                <button type="button" class="linkish" id="heatBoatFilterClear" title="Clear boat selection">Clear</button>
-              </div>
-              <select id="heatBoatFilter" class="multi" multiple size="6" aria-label="Heatmap boats (multi-select)"></select>
-              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all boats</p>
-            </div>
-            <div>
-              <div class="multi-head">
-                <label for="heatSpeciesFilter">Species <span class="meta" id="heatSpeciesFilterSummary">all</span></label>
-                <span class="multi-actions">
-                  <button type="button" class="linkish" id="heatSpeciesGroupsEdit" title="Edit type and habitat groups">Groups</button>
-                  <button type="button" class="linkish" id="heatSpeciesFilterClear" title="Clear species selection">Clear</button>
-                </span>
-              </div>
-              <select id="heatSpeciesFilter" class="multi" multiple size="9" aria-label="Heatmap species and groups (multi-select)"></select>
-              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · groups or species · empty = all · match any</p>
-            </div>
-            <div>
               <label for="heatMetric">Intensity metric</label>
               <select id="heatMetric">
                 <option value="shrunk_fph" selected>Reliable FPH (evidence-weighted)</option>
@@ -742,6 +723,25 @@
                 <label class="chk"><input type="checkbox" id="toggleBlueTopoHillH" checked /> BlueTopo hillshade</label>
                 <label class="chk"><input type="checkbox" id="toggleOsmH" checked /> Coast reference</label>
               </div>
+            </div>
+            <div>
+              <div class="multi-head">
+                <label for="heatBoatFilter">Boat <span class="meta" id="heatBoatFilterSummary">all</span></label>
+                <button type="button" class="linkish" id="heatBoatFilterClear" title="Clear boat selection">Clear</button>
+              </div>
+              <select id="heatBoatFilter" class="multi" multiple size="6" aria-label="Heatmap boats (multi-select)"></select>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · empty = all boats</p>
+            </div>
+            <div>
+              <div class="multi-head">
+                <label for="heatSpeciesFilter">Species <span class="meta" id="heatSpeciesFilterSummary">all</span></label>
+                <span class="multi-actions">
+                  <button type="button" class="linkish" id="heatSpeciesGroupsEdit" title="Edit type and habitat groups">Groups</button>
+                  <button type="button" class="linkish" id="heatSpeciesFilterClear" title="Clear species selection">Clear</button>
+                </span>
+              </div>
+              <select id="heatSpeciesFilter" class="multi" multiple size="9" aria-label="Heatmap species and groups (multi-select)"></select>
+              <p class="hint"><span class="desk-only">⌘/Ctrl+click</span><span class="touch-only">Tap to multi-select</span> · groups or species · empty = all · match any</p>
             </div>
             </div>
             <p class="status" id="heatStatus">Loading…</p>
