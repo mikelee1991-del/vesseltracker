@@ -500,7 +500,7 @@
       <h1 class="brand">LA Sportfishing Take</h1>
       <p id="headerBlurb">
         Heatmap of fishing intensity across AIS-clustered stops.
-        Default intensity is dwell-attributed fish/person/hour; filter by date, boat, and species.
+        Default intensity is <strong>reliable (evidence-weighted) FPH</strong>; also primary-stop, consistency, and in-season rates.
         Many LA charters still lack identifiable AIS —
         <a href="./verify-mmsi.html" style="color:var(--sea-mid);font-weight:600">help match MMSIs</a>.
       </p>
@@ -568,7 +568,11 @@
             <div>
               <label for="sortBy">Sort spots</label>
               <select id="sortBy">
-                <option value="dwell_fph" selected>Dwell-attributed fish/person/hour</option>
+                <option value="shrunk_fph" selected>Reliable FPH (evidence-weighted)</option>
+                <option value="dwell_fph">Dwell-attributed fish/person/hour</option>
+                <option value="primary_fph">Primary-stop FPH</option>
+                <option value="consistent_fph">Consistent FPH (25th pct)</option>
+                <option value="season_fph">In-season FPH (last 60 days)</option>
                 <option value="dwell_share">Mean dwell share</option>
                 <option value="species_fish">Species fish count</option>
                 <option value="fph">Mean trip fish/person/hour</option>
@@ -694,12 +698,17 @@
             <div>
               <label for="heatMetric">Intensity metric</label>
               <select id="heatMetric">
-                <option value="dwell_fph" selected>Dwell-attributed FPH</option>
+                <option value="shrunk_fph" selected>Reliable FPH (evidence-weighted)</option>
+                <option value="dwell_fph">Dwell-attributed FPH</option>
+                <option value="primary_fph">Primary-stop FPH</option>
+                <option value="consistent_fph">Consistent FPH (25th pct)</option>
+                <option value="season_fph">In-season FPH (last 60 days)</option>
                 <option value="dwell">Total AIS dwell (min)</option>
                 <option value="visits">Boat-days</option>
                 <option value="fish">Attributed fish</option>
                 <option value="fpp">Mean trip fish/person</option>
               </select>
+              <p class="hint" id="heatMetricNote"></p>
             </div>
             <div class="row2">
               <div>
@@ -855,6 +864,17 @@
             are labeled <strong>Unknown fish</strong> in the species filter.
           </p>
 
+          <h3>Spot-choice metrics (Heatmap + Spots sort)</h3>
+          <p>Computed in the browser from the filtered visits so date/boat/species still apply.</p>
+          <ul>
+            <li><strong>Reliable FPH</strong> (default) — empirical Bayes shrink of dwell-attributed FPH toward the fleet mean:
+              <span class="formula">ŝ = n/(n+10)·r + 10/(n+10)·r̄</span>
+              where <code>n</code> is boat-days at the spot. Down-weights one-off spikes.</li>
+            <li><strong>Primary-stop FPH</strong> — same rate, but only visits with dwell share ≥ 25% (the trip’s main hangs).</li>
+            <li><strong>Consistent FPH</strong> — 25th percentile of per-visit attributed FPH. High = usually at least decent.</li>
+            <li><strong>In-season FPH</strong> — dwell-attributed FPH using only visits in the last 60 days of the selected date range.</li>
+          </ul>
+
           <h3>Mean dwell share (sort)</h3>
           <p>
             Average of per-visit <code>dwell_share</code> at a spot. High values mean boats spent a large
@@ -867,14 +887,14 @@
             <li><strong>One day</strong> (Spots) — loads that day’s join file only</li>
             <li><strong>Boat</strong> — multi-select (⌘/Ctrl+click); empty = all; keep visits/courses for any selected vessel</li>
             <li><strong>Species</strong> — multi-select individuals or <strong>groups</strong> (by type: Rockfish, Bass…; by habitat: Bottom / Kelp / Surface…). Empty = all; match any. Edit groups via the Groups button (browser localStorage + JSON export)</li>
-            <li><strong>Sort spots</strong> — dwell-attributed FPH, mean dwell share, species fish count, trip FPH/FPP, total dwell, boat-days</li>
-            <li><strong>Reset</strong> — clears filters/controls and returns to Heatmap (dwell-attributed FPH)</li>
+            <li><strong>Sort spots</strong> — reliable FPH (default), raw dwell FPH, primary-stop FPH, consistent FPH (P25), in-season FPH, dwell share, species fish, trip FPH/FPP, dwell, boat-days</li>
+            <li><strong>Reset</strong> — clears filters/controls and returns to Heatmap (reliable FPH)</li>
           </ul>
 
           <h2 id="m-tabs">Map tabs</h2>
           <ul>
-            <li><strong>Heatmap</strong> (default) — density of AIS-clustered spots; default intensity = <strong>dwell-attributed FPH</strong> (also dwell, boat-days, attributed fish, trip FPP). Color scale auto-rescales to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur); opacity defaults to 80%</li>
-            <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH; default sort is dwell-attributed FPH</li>
+            <li><strong>Heatmap</strong> (default) — density of AIS-clustered spots; default intensity = <strong>reliable FPH</strong> (also raw dwell FPH, primary-stop, consistency, in-season, dwell, boat-days, fish, trip FPP). Color scale auto-rescales to the current boat/species/date filter. Default kernel is the minimum (4 px radius / 3 px blur); opacity defaults to 80%</li>
+            <li><strong>Spots</strong> — circle markers; size ∝ dwell; color ∝ dwell-attributed FPH; default sort is reliable FPH</li>
             <li><strong>Courses</strong> — schematic polylines home → stops (time order) → home (not raw AIS tracks). Up to 2,500 paths drawn per filter for performance</li>
           </ul>
 
@@ -926,7 +946,7 @@
         </div>
         <div class="legend" id="legendHeat">
           <strong>Fishing heatmap</strong>
-          <div class="sub">Default: dwell-attributed FPH · Sea → sand → clay scale</div>
+          <div class="sub">Default: reliable FPH · Sea → sand → clay scale</div>
           <div class="scale-title">Intensity</div>
           <div class="heat-grad" aria-hidden="true"></div>
           <div class="swatches">
@@ -1692,12 +1712,73 @@
         .join(" · ");
     }
 
+    function percentile(sorted, p) {
+      if (!sorted.length) return 0;
+      const idx = Math.min(sorted.length - 1, Math.max(0, Math.ceil(p * sorted.length) - 1));
+      return sorted[idx];
+    }
+
     function meanDwellShare(visits) {
       const shares = (visits || []).map((v) => v.dwell_share).filter((x) => x != null);
       return shares.length ? shares.reduce((a, b) => a + b, 0) / shares.length : null;
     }
 
-    function aggregateFromVisits(base, visits) {
+    /** Spot-choice metrics (computed client-side so filters still apply). */
+    const PRIMARY_DWELL_SHARE = 0.25;
+    const SHRINK_PRIOR_N0 = 10;
+    const SEASON_LOOKBACK_DAYS = 60;
+
+    function addDaysIso(iso, deltaDays) {
+      if (!iso) return null;
+      const d = new Date(`${iso}T12:00:00Z`);
+      if (Number.isNaN(d.getTime())) return null;
+      d.setUTCDate(d.getUTCDate() + deltaDays);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function visitAttrFph(v) {
+      const hours = Number(v?.attributed_angler_hours) || 0;
+      if (!(hours > 0)) return null;
+      return (Number(v.attributed_fish) || 0) / hours;
+    }
+
+    function rateFromVisits(visits) {
+      let fish = 0;
+      let hours = 0;
+      for (const v of visits || []) {
+        fish += Number(v.attributed_fish) || 0;
+        hours += Number(v.attributed_angler_hours) || 0;
+      }
+      return hours > 0 ? fish / hours : null;
+    }
+
+    function asOfFromVisits(visits, preferred) {
+      if (preferred) return preferred;
+      let max = null;
+      for (const v of visits || []) {
+        if (v.date && (!max || v.date > max)) max = v.date;
+      }
+      return max;
+    }
+
+    function applyShrunkFph(locs, n0 = SHRINK_PRIOR_N0) {
+      const rates = locs
+        .map((l) => l.dwell_attributed_fph)
+        .filter((x) => x != null && Number.isFinite(x));
+      const prior = rates.length ? rates.reduce((a, b) => a + b, 0) / rates.length : 0;
+      for (const loc of locs) {
+        const r = loc.dwell_attributed_fph;
+        const n = loc.n_boat_days || 0;
+        if (r == null || !(n > 0)) {
+          loc.shrunk_dwell_fph = null;
+        } else {
+          loc.shrunk_dwell_fph = (n / (n + n0)) * r + (n0 / (n + n0)) * prior;
+        }
+      }
+      return prior;
+    }
+
+    function aggregateFromVisits(base, visits, opts = {}) {
       const fpp = visits.map((v) => v.fish_per_person).filter((x) => x != null);
       const fph = visits.map((v) => v.fish_per_person_hour).filter((x) => x != null);
       const fishSum = visits.reduce((a, v) => a + (v.attributed_fish || 0), 0);
@@ -1709,6 +1790,15 @@
         if (!visitHasSpeciesBreakdown(v)) has_unknown_fish = true;
         mergeSpeciesCounts(species_counts, visitSpeciesCounts(v));
       }
+
+      const primaryVisits = visits.filter((v) => (Number(v.dwell_share) || 0) >= PRIMARY_DWELL_SHARE);
+      const visitRates = visits.map(visitAttrFph).filter((x) => x != null).sort((a, b) => a - b);
+      const asOf = asOfFromVisits(visits, opts.asOf);
+      const seasonStart = asOf ? addDaysIso(asOf, -SEASON_LOOKBACK_DAYS) : null;
+      const seasonVisits = (seasonStart && asOf)
+        ? visits.filter((v) => v.date && v.date >= seasonStart && v.date <= asOf)
+        : [];
+
       return {
         ...base,
         visits,
@@ -1722,6 +1812,13 @@
         mean_trip_fph: fph.length ? fph.reduce((a, b) => a + b, 0) / fph.length : null,
         mean_dwell_share: meanDwellShare(visits),
         dwell_attributed_fph: hoursSum > 0 ? fishSum / hoursSum : null,
+        primary_dwell_fph: rateFromVisits(primaryVisits),
+        primary_n_boat_days: primaryVisits.length,
+        visit_fph_median: visitRates.length ? percentile(visitRates, 0.5) : null,
+        visit_fph_p25: visitRates.length ? percentile(visitRates, 0.25) : null,
+        season_dwell_fph: rateFromVisits(seasonVisits),
+        season_n_boat_days: seasonVisits.length,
+        season_as_of: asOf,
         species_counts,
         has_unknown_fish,
       };
@@ -1749,8 +1846,27 @@
         return Object.values(loc.species_counts || {}).reduce((a, b) => a + b, 0);
       }
       if (metric === "dwell_fph") return loc.dwell_attributed_fph || 0;
+      if (metric === "shrunk_fph") return loc.shrunk_dwell_fph || 0;
+      if (metric === "primary_fph") return loc.primary_dwell_fph || 0;
+      if (metric === "consistent_fph") return loc.visit_fph_p25 || 0;
+      if (metric === "season_fph") return loc.season_dwell_fph || 0;
       if (metric === "fpp") return loc.mean_trip_fpp || 0;
       return 0;
+    }
+
+    function metricSortValue(loc, key, speciesKeys) {
+      if (key === "visits") return loc.n_boat_days || 0;
+      if (key === "fpp") return loc.mean_trip_fpp;
+      if (key === "fph") return loc.mean_trip_fph;
+      if (key === "dwell_share") return loc.mean_dwell_share;
+      if (key === "species_fish") return speciesFishForLoc(loc, speciesKeys);
+      if (key === "dwell_fph") return loc.dwell_attributed_fph;
+      if (key === "shrunk_fph") return loc.shrunk_dwell_fph;
+      if (key === "primary_fph") return loc.primary_dwell_fph;
+      if (key === "consistent_fph") return loc.visit_fph_p25;
+      if (key === "season_fph") return loc.season_dwell_fph;
+      if (key === "dwell") return loc.total_dwell_min || 0;
+      return loc.total_dwell_min || 0;
     }
 
     function locationsForHeat() {
@@ -1758,7 +1874,7 @@
       const speciesKeys = selectedValues(el("heatSpeciesFilter"));
       const { start, end } = heatDateBounds();
 
-      return state.locations
+      const locs = state.locations
         .map((loc) => {
           if (start && loc.last_visit_date && loc.last_visit_date < start) return null;
           if (end && loc.first_visit_date && loc.first_visit_date > end) return null;
@@ -1769,16 +1885,13 @@
           if (boats.length) visits = visits.filter((v) => boats.includes(v.boat_name));
           if (speciesKeys.length) visits = visits.filter((v) => visitMatchesSpeciesKeys(v, speciesKeys));
           if (!visits.length) return null;
-          return aggregateFromVisits(loc, visits);
+          return aggregateFromVisits(loc, visits, { asOf: end || null });
         })
         .filter(Boolean);
+      applyShrunkFph(locs);
+      return locs;
     }
 
-    function percentile(sorted, p) {
-      if (!sorted.length) return 0;
-      const idx = Math.min(sorted.length - 1, Math.max(0, Math.ceil(p * sorted.length) - 1));
-      return sorted[idx];
-    }
 
     /** Ceiling for the current filtered heat sample (auto-rescales with boat/species/date). */
     function heatDataMax(sortedIntensities) {
@@ -2076,7 +2189,7 @@
             grid_id: loc.grid_id,
             lat: loc.lat_sum / loc.n_coord,
             lon: loc.lon_sum / loc.n_coord,
-          }, loc.visits);
+          }, loc.visits, { asOf: state.dayPayload?.date || el("day")?.value || null });
           return {
             ...agg,
             n_stops: loc.n_stops,
@@ -2097,34 +2210,44 @@
             if (boats.length) visits = visits.filter((v) => boats.includes(v.boat_name));
             if (speciesKeys.length) visits = visits.filter((v) => visitMatchesSpeciesKeys(v, speciesKeys));
             if (!visits.length) return null;
-            return aggregateFromVisits(loc, visits);
+            return aggregateFromVisits(loc, visits, { asOf: end || null });
           })
           .filter(Boolean);
       }
 
+      applyShrunkFph(locs);
+
       const sortBy = el("sortBy").value;
       locs = [...locs].sort((a, b) => {
-        if (sortBy === "visits") return (b.n_boat_days || 0) - (a.n_boat_days || 0);
-        if (sortBy === "fpp") return (b.mean_trip_fpp || -1) - (a.mean_trip_fpp || -1);
-        if (sortBy === "fph") return (b.mean_trip_fph || -1) - (a.mean_trip_fph || -1);
-        if (sortBy === "dwell_share") {
-          return (b.mean_dwell_share || -1) - (a.mean_dwell_share || -1);
-        }
-        if (sortBy === "species_fish") {
-          return speciesFishForLoc(b, speciesKeys) - speciesFishForLoc(a, speciesKeys);
-        }
-        if (sortBy === "dwell_fph") {
-          return (b.dwell_attributed_fph || -1) - (a.dwell_attributed_fph || -1);
-        }
-        return (b.total_dwell_min || 0) - (a.total_dwell_min || 0);
+        const av = metricSortValue(a, sortBy, speciesKeys);
+        const bv = metricSortValue(b, sortBy, speciesKeys);
+        const aNull = av == null || Number.isNaN(av);
+        const bNull = bv == null || Number.isNaN(bv);
+        if (aNull && bNull) return 0;
+        if (aNull) return 1;
+        if (bNull) return -1;
+        return bv - av;
       });
       return locs;
     }
 
     const SORT_NOTES = {
+      shrunk_fph:
+        "Evidence-weighted dwell FPH: pulls sparse spots toward the fleet mean. " +
+        `weight = n/(n+${SHRINK_PRIOR_N0}) on the spot rate, ${SHRINK_PRIOR_N0}/(n+${SHRINK_PRIOR_N0}) on the mean. ` +
+        "Best default for choosing where to fish.",
       dwell_fph:
         "Trip catch is split by AIS dwell share, then ÷ (anglers × nominal trip hours × share). " +
-        "Ranks spots by attributed fish per angler-hour.",
+        "Ranks spots by attributed fish per angler-hour (can over-trust one-off visits).",
+      primary_fph:
+        `Same dwell-attributed FPH, but only visits where dwell_share ≥ ${Math.round(PRIMARY_DWELL_SHARE * 100)}% ` +
+        "(primary hangs). Reduces fly-by pins inheriting trip catch.",
+      consistent_fph:
+        "25th percentile of per-visit attributed FPH at the spot. " +
+        "High values mean the pin is usually at least decent, not just a boom/bust average.",
+      season_fph:
+        `Dwell-attributed FPH using only visits in the last ${SEASON_LOOKBACK_DAYS} days of the selected date range ` +
+        "(answers “where now?” within the filter window).",
       dwell_share:
         "Mean of dwell_share = spot_dwell / total_offshore_dwell for each visit. " +
         "High values mean boats spent a large fraction of that trip’s offshore time here.",
@@ -2144,8 +2267,25 @@
         "Number of boat-days (visits) at this spot in the current filter.",
     };
 
+    const HEAT_METRIC_NOTES = {
+      shrunk_fph: SORT_NOTES.shrunk_fph,
+      dwell_fph: SORT_NOTES.dwell_fph,
+      primary_fph: SORT_NOTES.primary_fph,
+      consistent_fph: SORT_NOTES.consistent_fph,
+      season_fph: SORT_NOTES.season_fph,
+      dwell: SORT_NOTES.dwell,
+      visits: SORT_NOTES.visits,
+      fish: "Sum of dwell-attributed kept fish at the spot (species filter applies when set).",
+      fpp: SORT_NOTES.fpp,
+    };
+
     function updateSortNote() {
       el("sortNote").textContent = SORT_NOTES[el("sortBy").value] || "";
+    }
+
+    function updateHeatMetricNote() {
+      if (!el("heatMetricNote")) return;
+      el("heatMetricNote").textContent = HEAT_METRIC_NOTES[el("heatMetric").value] || "";
     }
 
     function currentCourses() {
@@ -2172,8 +2312,8 @@
           <div class="meta">${loc.n_stops} stops · ${loc.n_boats} boat(s) · ${fmt(loc.total_dwell_min, 0)} min dwell · ${loc.mean_dwell_share != null ? `${fmt(100 * loc.mean_dwell_share, 0)}%` : "—"} mean dwell share</div>
           <div>${speciesLine}</div>
           <div>
-            <span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell FPH</span>
-            <span class="meta"> · ${fmt(loc.mean_trip_fph, 2)} trip FPH · ${fmt(loc.mean_trip_fpp, 2)} fish/person</span>
+            <span class="fpp">${fmt(loc.shrunk_dwell_fph ?? loc.dwell_attributed_fph, 2)} reliable FPH</span>
+            <span class="meta"> · ${fmt(loc.dwell_attributed_fph, 2)} dwell · ${fmt(loc.primary_dwell_fph, 2)} primary · ${fmt(loc.visit_fph_p25, 2)} P25 · ${fmt(loc.season_dwell_fph, 2)} season</span>
           </div>
           <div class="meta">${(loc.boats || []).slice(0, 4).join(", ")}${(loc.boats || []).length > 4 ? "…" : ""}</div>
         </article>`;
@@ -2193,7 +2333,15 @@
           <h3>${loc.lat.toFixed(4)}°, ${loc.lon.toFixed(4)}°</h3>
           <div class="meta">${loc.n_stops} stops · ${fmt(loc.total_dwell_min, 0)} min total dwell · ${loc.n_boats} boats · ${spread}</div>
           <div>
-            <span class="fpp">${fmt(loc.dwell_attributed_fph, 2)} dwell-attributed fish/person/hour</span>
+            <span class="fpp">${fmt(loc.shrunk_dwell_fph ?? loc.dwell_attributed_fph, 2)} reliable FPH</span>
+            <span class="meta"> · ${fmt(loc.dwell_attributed_fph, 2)} dwell</span>
+          </div>
+          <div class="meta">
+            Primary (≥25% share) ${fmt(loc.primary_dwell_fph, 2)}
+            · Consistent P25 ${fmt(loc.visit_fph_p25, 2)}
+            · In-season (60d) ${fmt(loc.season_dwell_fph, 2)}
+            ${loc.primary_n_boat_days != null ? `· ${loc.primary_n_boat_days} primary visits` : ""}
+            ${loc.season_n_boat_days != null ? `· ${loc.season_n_boat_days} in-season visits` : ""}
           </div>
           <div class="meta">
             Mean dwell share ${loc.mean_dwell_share != null ? `${fmt(100 * loc.mean_dwell_share, 0)}%` : "—"}
@@ -2250,8 +2398,10 @@
         }).bindPopup(
           `<strong>${loc.lat.toFixed(3)}°, ${loc.lon.toFixed(3)}°</strong><br>
            ${loc.n_stops} stops · ${fmt(loc.total_dwell_min, 0)} min dwell<br>
-           <strong>${fmt(loc.dwell_attributed_fph, 2)} dwell-attributed FPH</strong>
-           (trip ${fmt(loc.mean_trip_fph, 2)})<br>
+           <strong>${fmt(loc.shrunk_dwell_fph ?? loc.dwell_attributed_fph, 2)} reliable FPH</strong>
+           · ${fmt(loc.dwell_attributed_fph, 2)} dwell
+           · ${fmt(loc.visit_fph_p25, 2)} P25
+           · ${fmt(loc.season_dwell_fph, 2)} season<br>
            ${(loc.boats || []).slice(0, 5).join(", ")}`
         );
         marker._featureId = id;
@@ -2445,7 +2595,7 @@
            Paths are stop-to-stop polylines (not full AIS tracks). Use the date slider to thin the overlay.`
         : heat
         ? `Heatmap of fishing intensity across AIS-clustered stops.
-           Default metric is dwell-attributed fish/person/hour; also dwell, boat-days, fish, or trip fish/person.`
+           Default metric is reliable (evidence-weighted) FPH; also raw dwell FPH, primary-stop, consistency, and in-season.`
         : `How the map is built: data sources, stop detection, dwell-share attribution, filters, and known limits.`;
       state.hasFittedBounds = false;
       state.selectedId = null;
@@ -2573,7 +2723,7 @@
       // Spots filters
       clearMultiSelect(el("boatFilter"));
       clearMultiSelect(el("speciesFilter"));
-      el("sortBy").value = "dwell_fph";
+      el("sortBy").value = "shrunk_fph";
       updateSortNote();
       resetDualRange("spots");
       if (state.meta?.default_date) el("day").value = state.meta.default_date;
@@ -2586,7 +2736,8 @@
       // Heatmap filters
       clearMultiSelect(el("heatBoatFilter"));
       clearMultiSelect(el("heatSpeciesFilter"));
-      if (el("heatMetric")) el("heatMetric").value = "dwell_fph";
+      if (el("heatMetric")) el("heatMetric").value = "shrunk_fph";
+      updateHeatMetricNote();
       if (el("heatRadius")) el("heatRadius").value = String(HEAT_RADIUS_MIN);
       if (el("heatBlur")) el("heatBlur").value = String(HEAT_BLUR_MIN);
       if (el("heatOpacity")) el("heatOpacity").value = "80";
@@ -2594,7 +2745,7 @@
       if (el("heatMax")) el("heatMax").value = "0.6";
       if (el("heatShowMarkers")) el("heatShowMarkers").checked = false;
       syncHeatKernelLabels(HEAT_RADIUS_MIN, HEAT_BLUR_MIN, null);
-      syncHeatMaxLabel(0.6, 1, "dwell_fph");
+      syncHeatMaxLabel(0.6, 1, "shrunk_fph");
       resetDualRange("heat");
       syncAllMultiSummaries();
 
@@ -2736,7 +2887,10 @@
       clearMultiSelect(el("heatSpeciesFilter"));
       el("heatSpeciesFilter").dispatchEvent(new Event("change", { bubbles: true }));
     });
-    el("heatMetric").addEventListener("change", () => scheduleRender(renderHeatView, 80));
+    el("heatMetric").addEventListener("change", () => {
+      updateHeatMetricNote();
+      scheduleRender(renderHeatView, 80);
+    });
     el("heatRadius").addEventListener("input", () => scheduleRender(renderHeatView, 60));
     el("heatBlur").addEventListener("input", () => scheduleRender(renderHeatView, 60));
     el("heatOpacity").addEventListener("input", () => {
@@ -2776,7 +2930,7 @@
         `Multi-select boats/species (⌘/Ctrl+click; empty = all; species match any). ` +
         `Species filter includes type/habitat groups (edit via Groups). ` +
         `Trips with no breakdown = ${UNKNOWN_FISH}. ` +
-        `Sort by dwell-attributed FPH, mean dwell share, species fish count, trip FPH/FPP, dwell, or boat-days. ` +
+        `Sort by reliable/primary/consistent/in-season FPH, raw dwell FPH, share, species fish, trip rates, dwell, or boat-days. ` +
         `${meta.stats.n_features || meta.stats.n_locations || "?"} spots · ${meta.stats.n_offshore_stops} stops.`;
       const cacheBust = encodeURIComponent(meta.ais_window?.end || "") + "-" + (meta.stats?.n_trips || "");
       const locData = await (await fetch(`data/locations.json?v=${cacheBust}`)).json();
@@ -2812,6 +2966,7 @@
       });
       setupDualRange("heat", state.spotsDates, () => scheduleRender(renderHeatView, 100));
       updateSortNote();
+      updateHeatMetricNote();
       setMode("all");
       setTab("heat");
     })().catch((err) => {
