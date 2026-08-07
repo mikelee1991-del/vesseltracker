@@ -1,7 +1,7 @@
 {
   "title": "Marine Cadastre AIS availability",
-  "checked_at": "2026-08-06T16:09:40Z",
-  "checked_day_utc": "2026-08-06",
+  "checked_at": "2026-08-07T18:08:20Z",
+  "checked_day_utc": "2026-08-07",
   "blob_years": [
     2015,
     2016,
@@ -65,5 +65,7 @@
   ],
   "recommendation": "No new Cadastre bulk beyond 2025-12-31. Keep aisstream collector running for live forward coverage; re-check daily.",
   "source": "https://noaaocm.blob.core.windows.net/ais",
-  "coverage_changed": true
+  "coverage_changed": false,
+  "previous_latest_published_day": "2025-12-31",
+  "previous_checked_at": "2026-08-06T16:09:40Z"
 }
