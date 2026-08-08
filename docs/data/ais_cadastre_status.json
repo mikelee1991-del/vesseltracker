@@ -1,7 +1,7 @@
 {
   "title": "Marine Cadastre AIS availability",
-  "checked_at": "2026-08-07T18:08:20Z",
-  "checked_day_utc": "2026-08-07",
+  "checked_at": "2026-08-08T17:06:22Z",
+  "checked_day_utc": "2026-08-08",
   "blob_years": [
     2015,
     2016,
@@ -67,5 +67,5 @@
   "source": "https://noaaocm.blob.core.windows.net/ais",
   "coverage_changed": false,
   "previous_latest_published_day": "2025-12-31",
-  "previous_checked_at": "2026-08-06T16:09:40Z"
+  "previous_checked_at": "2026-08-07T18:08:20Z"
 }
